@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { LogOutIcon, VolumeOffIcon, Volume2Icon, SettingsIcon, LoaderIcon, CheckIcon, CameraIcon, SearchIcon } from "lucide-react";
+import { LogOutIcon, VolumeOffIcon, Volume2Icon, SettingsIcon, SearchIcon, CameraIcon, UploadIcon, TrashIcon, LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
@@ -9,8 +9,33 @@ const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
 function ProfileHeader() {
   const { logout, authUser, updateProfile } = useAuthStore();
   const { isSoundEnabled, toggleSound, setShowSettingsModal } = useChatStore();
-  const [selectedImg, setSelectedImg] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+      setIsUpdatingProfile(true);
+      await updateProfile({ profilePic: reader.result });
+      setIsUpdatingProfile(false);
+      setShowAvatarMenu(false);
+    };
+  };
+
+  const handleRemovePhoto = async () => {
+    setIsUpdatingProfile(true);
+    await updateProfile({ profilePic: "" });
+    setIsUpdatingProfile(false);
+    setShowAvatarMenu(false);
+  };
 
   return (
     <div
@@ -21,15 +46,20 @@ function ProfileHeader() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <button
-              className="w-11 h-11 rounded-full overflow-hidden relative cursor-default"
+              onClick={() => setShowAvatarMenu(!showAvatarMenu)}
+              className="w-11 h-11 rounded-full overflow-hidden relative cursor-pointer"
               style={{ border: '2px solid var(--border)' }}
             >
               <img
-                src={selectedImg || authUser.profilePic || "/avatar.png"}
+                src={authUser.profilePic || "/avatar.png"}
                 alt="User image"
                 className="w-full h-full object-cover"
               />
-
+              {isUpdatingProfile && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <LoaderIcon className="w-4 h-4 text-white animate-spin" />
+                </div>
+              )}
             </button>
             <span
               className="absolute bottom-0 right-0 w-3 h-3 rounded-full"
@@ -39,6 +69,43 @@ function ProfileHeader() {
               }}
             />
 
+            {showAvatarMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setShowAvatarMenu(false)}
+                />
+                <div 
+                  className="absolute left-0 top-full mt-2 w-56 rounded-xl shadow-xl border overflow-hidden z-50 animate-fade-in-up"
+                  style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+                >
+                  <button
+                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
+                    style={{ color: 'var(--text-primary)' }}
+                    onClick={() => { fileInputRef.current?.click(); setShowAvatarMenu(false); }}
+                  >
+                    <UploadIcon className="w-4 h-4" /> Upload Photo
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
+                    style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border)' }}
+                    onClick={() => { cameraInputRef.current?.click(); setShowAvatarMenu(false); }}
+                  >
+                    <CameraIcon className="w-4 h-4" /> Take Picture
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition-colors hover:bg-red-500/10"
+                    style={{ color: 'var(--danger)', borderTop: '1px solid var(--border)' }}
+                    onClick={handleRemovePhoto}
+                  >
+                    <TrashIcon className="w-4 h-4" /> Remove Photo
+                  </button>
+                </div>
+              </>
+            )}
+
+            <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
+            <input type="file" accept="image/*" capture="user" ref={cameraInputRef} onChange={handleImageUpload} className="hidden" />
           </div>
           <div>
             <h3 className="font-medium text-sm max-w-[150px] truncate" style={{ color: 'var(--text-primary)' }}>

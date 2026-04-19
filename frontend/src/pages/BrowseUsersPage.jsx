@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useAuthStore } from "../store/useAuthStore";
+
 import { useFriendStore } from "../store/useFriendStore";
-import { useChatStore } from "../store/useChatStore";
-import { SearchIcon, UserPlusIcon, CheckIcon, XIcon, ArrowLeftIcon, LoaderIcon } from "lucide-react";
+
+import { SearchIcon, UserPlusIcon, ArrowLeftIcon, LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
 function BrowseUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { authUser } = useAuthStore();
   const {
     searchResults,
     searchUsers,
@@ -123,6 +122,7 @@ function BrowseUsersPage() {
               </div>
             )}
           </div>
+        </div>
       </div>
     </div>
   );

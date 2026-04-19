@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuthStore, applyTheme } from "../store/useAuthStore";
-import { ArrowLeftIcon, SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, UploadIcon, LoaderIcon, LockIcon, CameraIcon, XIcon } from "lucide-react";
+import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, UploadIcon, LoaderIcon, LockIcon, CameraIcon, XIcon } from "lucide-react";
 
 
 const PRESET_WALLPAPERS = [
