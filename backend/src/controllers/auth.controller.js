@@ -13,9 +13,12 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    if (!usernameRegex.test(username)) {
-      return res.status(400).json({ message: "Username must be 3-20 characters long (letters, numbers, underscores only)" });
+    // Instagram-style username: lowercase, numbers, underscores, dots only
+    // 3-30 chars, no consecutive dots, can't start/end with dot
+    const sanitizedUsername = username.toLowerCase();
+    const usernameRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[a-z0-9_.]{3,30}$/;
+    if (!usernameRegex.test(sanitizedUsername)) {
+      return res.status(400).json({ message: "Username must be 3-30 characters. Only lowercase letters, numbers, underscores and periods allowed." });
     }
 
     if (password.length < 6) {
@@ -27,7 +30,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    const existingUsername = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, "i") } });
+    const existingUsername = await User.findOne({ username: sanitizedUsername });
     if (existingUsername) return res.status(400).json({ message: "Username already taken" });
 
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -39,7 +42,7 @@ export const signup = async (req, res) => {
     const newUser = new User({
       fullName,
       email,
-      username,
+      username: sanitizedUsername,
       password: hashedPassword,
     });
 
@@ -58,9 +61,9 @@ export const signup = async (req, res) => {
       chatBg: savedUser.chatBg,
     });
 
-    if (ENV.RESEND_API_KEY) {
-      sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL).catch(() => {});
-    }
+    // Send welcome email (don't block the response)
+    sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL)
+      .catch((err) => console.error("❌ Failed to send welcome email:", err.message || err));
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -119,18 +122,19 @@ export const updateProfile = async (req, res) => {
     }
 
     if (username) {
-      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-      if (!usernameRegex.test(username)) {
-        return res.status(400).json({ message: "Username must be 3-20 characters long (letters, numbers, underscores only)" });
+      const sanitized = username.toLowerCase();
+      const usernameRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[a-z0-9_.]{3,30}$/;
+      if (!usernameRegex.test(sanitized)) {
+        return res.status(400).json({ message: "Username must be 3-30 characters. Only lowercase letters, numbers, underscores and periods allowed." });
       }
 
       const existingUser = await User.findOne({ 
-        username: { $regex: new RegExp(`^${username}$`, "i") },
+        username: sanitized,
         _id: { $ne: userId }
       });
       
       if (existingUser) return res.status(400).json({ message: "Username already taken" });
-      updateData.username = username;
+      updateData.username = sanitized;
     }
 
     if (bio !== undefined) {

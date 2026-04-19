@@ -5,9 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { XIcon, DownloadIcon, FileTextIcon, EyeIcon, LoaderIcon } from "lucide-react";
-
-const API_BASE = import.meta.env.MODE === "development" ? "http://localhost:3000" : (import.meta.env.VITE_API_URL || "");
+import { XIcon, DownloadIcon } from "lucide-react";
 
 function ChatContainer() {
   const {
@@ -21,8 +19,6 @@ function ChatContainer() {
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [pdfPreview, setPdfPreview] = useState(null);
-  const [isDownloading, setIsDownloading] = useState(null);
 
   useEffect(() => {
     getMessagesByUserId(selectedUser._id);
@@ -37,43 +33,21 @@ function ChatContainer() {
     }
   }, [messages]);
 
-  // Build proxy URL for file operations
-  const getProxyUrl = (fileUrl, download = false, filename = "file") => {
-    const params = new URLSearchParams({ url: fileUrl });
-    if (download) {
-      params.set("download", "true");
-      params.set("filename", filename);
-    }
-    return `${API_BASE}/api/messages/proxy-file?${params.toString()}`;
-  };
-
   const handleDownload = async (url, filename) => {
-    setIsDownloading(filename);
     try {
-      const proxyUrl = getProxyUrl(url, true, filename);
-      const response = await fetch(proxyUrl, { credentials: "include" });
-      if (!response.ok) throw new Error("Download failed");
+      const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = filename;
+      link.download = filename || "download";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch {
-      // Fallback: open directly
       window.open(url, "_blank");
-    } finally {
-      setIsDownloading(null);
     }
-  };
-
-  const isFilePdf = (msg) => {
-    if (msg.fileType === "pdf") return true;
-    if (!msg.image) return false;
-    return msg.image.includes("/raw/") || msg.image.toLowerCase().includes(".pdf");
   };
 
   return (
@@ -84,7 +58,6 @@ function ChatContainer() {
           <div className="max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
-              const isFile = isFilePdf(msg);
 
               return (
                 <div
@@ -104,7 +77,7 @@ function ChatContainer() {
                     }}
                   >
                     {/* Image display */}
-                    {msg.image && !isFile && (
+                    {msg.image && (
                       <div className="relative group mb-2">
                         <img
                           src={msg.image}
@@ -124,52 +97,6 @@ function ChatContainer() {
                         >
                           <DownloadIcon className="w-4 h-4" />
                         </button>
-                      </div>
-                    )}
-
-                    {/* PDF file display */}
-                    {msg.image && isFile && (
-                      <div
-                        className="flex items-center gap-3 p-3 rounded-lg mb-2"
-                        style={{
-                          backgroundColor: isSent ? 'rgba(255,255,255,0.15)' : 'var(--bg-hover)',
-                        }}
-                      >
-                        <div className="p-2.5 rounded-lg flex-shrink-0" style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)' }}>
-                          <FileTextIcon className="w-6 h-6" style={{ color: isSent ? 'white' : 'var(--primary)' }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">PDF Document</p>
-                          <p className="text-[11px] mt-0.5" style={{ opacity: 0.6 }}>Click to view or download</p>
-                        </div>
-                        <div className="flex gap-1.5 flex-shrink-0">
-                          {/* Preview */}
-                          <button
-                            onClick={() => setPdfPreview(msg.image)}
-                            className="p-2 rounded-lg transition-all hover:scale-110 active:scale-95"
-                            style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)', color: isSent ? 'white' : 'var(--primary)' }}
-                            title="Preview PDF"
-                          >
-                            <EyeIcon className="w-4 h-4" />
-                          </button>
-                          {/* Download */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownload(msg.image, `chatify-doc-${msg._id}.pdf`);
-                            }}
-                            disabled={isDownloading === `chatify-doc-${msg._id}.pdf`}
-                            className="p-2 rounded-lg transition-all hover:scale-110 active:scale-95 disabled:opacity-50"
-                            style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)', color: isSent ? 'white' : 'var(--primary)' }}
-                            title="Download PDF"
-                          >
-                            {isDownloading === `chatify-doc-${msg._id}.pdf` ? (
-                              <LoaderIcon className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <DownloadIcon className="w-4 h-4" />
-                            )}
-                          </button>
-                        </div>
                       </div>
                     )}
 
@@ -231,49 +158,6 @@ function ChatContainer() {
             className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           />
-        </div>
-      )}
-
-      {/* PDF Preview Modal */}
-      {pdfPreview && (
-        <div
-          className="fixed inset-0 z-[200] flex flex-col animate-fade-in"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}
-        >
-          {/* Header bar */}
-          <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: 'var(--bg-base)' }}>
-            <div className="flex items-center gap-3">
-              <FileTextIcon className="w-5 h-5" style={{ color: 'var(--primary)' }} />
-              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>PDF Preview</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleDownload(pdfPreview, "chatify-document.pdf")}
-                className="px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
-              >
-                <DownloadIcon className="w-3.5 h-3.5" />
-                Download
-              </button>
-              <button
-                onClick={() => setPdfPreview(null)}
-                className="p-1.5 rounded-lg transition-colors"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                <XIcon className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* PDF iframe via proxy */}
-          <div className="flex-1 w-full">
-            <iframe
-              src={getProxyUrl(pdfPreview)}
-              className="w-full h-full border-0"
-              title="PDF Preview"
-              style={{ backgroundColor: 'white' }}
-            />
-          </div>
         </div>
       )}
     </>

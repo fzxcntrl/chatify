@@ -53,25 +53,12 @@ export const sendMessage = async (req, res) => {
     }
 
     let imageUrl;
-    let fileType = "image";
     if (image) {
-      const isPdf = image.startsWith("data:application/pdf");
-      fileType = isPdf ? "pdf" : "image";
-
-      const uploadOptions = {
+      const uploadResponse = await cloudinary.uploader.upload(image, {
         folder: "chatify_messages",
-      };
-
-      if (isPdf) {
-        // Upload as raw with explicit .pdf extension
-        uploadOptions.resource_type = "raw";
-        uploadOptions.format = "pdf";
-      } else {
-        uploadOptions.resource_type = "image";
-        uploadOptions.transformation = [{ quality: "auto", fetch_format: "auto" }];
-      }
-
-      const uploadResponse = await cloudinary.uploader.upload(image, uploadOptions);
+        resource_type: "image",
+        transformation: [{ quality: "auto", fetch_format: "auto" }],
+      });
       imageUrl = uploadResponse.secure_url;
     }
 
@@ -80,7 +67,6 @@ export const sendMessage = async (req, res) => {
       receiverId,
       text,
       image: imageUrl,
-      fileType: fileType === "pdf" ? "pdf" : undefined,
     });
 
     await newMessage.save();
@@ -119,44 +105,5 @@ export const getChatPartners = async (req, res) => {
     res.status(200).json(chatPartners);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-// Proxy file download/preview — avoids CORS issues with Cloudinary raw URLs
-export const proxyFile = async (req, res) => {
-  try {
-    const { url } = req.query;
-    const download = req.query.download === "true";
-
-    if (!url || !url.includes("cloudinary.com")) {
-      return res.status(400).json({ message: "Invalid file URL" });
-    }
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      return res.status(response.status).json({ message: "Failed to fetch file" });
-    }
-
-    const contentType = response.headers.get("content-type") || "application/octet-stream";
-    const buffer = Buffer.from(await response.arrayBuffer());
-
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Content-Length", buffer.length);
-
-    if (download) {
-      const filename = req.query.filename || "download";
-      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    } else {
-      // For PDF inline preview
-      if (contentType.includes("pdf") || url.toLowerCase().includes(".pdf")) {
-        res.setHeader("Content-Type", "application/pdf");
-      }
-      res.setHeader("Content-Disposition", "inline");
-    }
-
-    res.send(buffer);
-  } catch (error) {
-    console.error("Error in proxyFile:", error);
-    res.status(500).json({ message: "Failed to proxy file" });
   }
 };

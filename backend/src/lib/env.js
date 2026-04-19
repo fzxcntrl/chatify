@@ -6,6 +6,8 @@ const REQUIRED_VARS = [
 ];
 
 const RECOMMENDED_VARS = [
+  "GMAIL_USER",
+  "GMAIL_APP_PASSWORD",
   "RESEND_API_KEY",
   "EMAIL_FROM",
   "EMAIL_FROM_NAME",
@@ -32,6 +34,8 @@ export const ENV = {
   JWT_SECRET: process.env.JWT_SECRET,
   NODE_ENV: process.env.NODE_ENV || "development",
   CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
+  GMAIL_USER: process.env.GMAIL_USER,
+  GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM,
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || "Chatify",

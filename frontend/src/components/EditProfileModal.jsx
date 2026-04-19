@@ -147,7 +147,7 @@ function EditProfileModal({ onClose }) {
             <input
               type="text"
               value={editUsername}
-              onChange={(e) => setEditUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+              onChange={(e) => setEditUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
               className="w-full py-2.5 px-3 text-sm transition-all"
               style={{
                 backgroundColor: 'var(--bg-input)',
@@ -158,9 +158,10 @@ function EditProfileModal({ onClose }) {
               }}
               onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
               onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-              placeholder="Username"
+              placeholder="john_doe"
+              maxLength={30}
             />
-            <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>3-20 characters. Letters, numbers, underscores only.</p>
+            <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>3-30 characters. Lowercase letters, numbers, underscores and periods only.</p>
           </div>
 
           {/* Bio */}

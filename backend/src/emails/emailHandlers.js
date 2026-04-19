@@ -1,18 +1,16 @@
-import { resendClient, sender } from "../lib/resend.js";
+import { sendEmail } from "../lib/mailer.js";
 import { createWelcomeEmailTemplate } from "../emails/emailTemplates.js";
 
 export const sendWelcomeEmail = async (email, name, clientURL) => {
-  const { data, error } = await resendClient.emails.send({
-    from: `${sender.name} <${sender.email}>`,
+  const html = createWelcomeEmailTemplate(name, clientURL);
+
+  const result = await sendEmail({
     to: email,
-    subject: "Welcome to Chatify!",
-    html: createWelcomeEmailTemplate(name, clientURL),
+    subject: "Welcome to Chatify! 🎉",
+    html,
   });
 
-  if (error) {
-    console.error("Error sending welcome email:", error);
-    throw new Error("Failed to send welcome email");
+  if (result) {
+    console.log("✅ Welcome email sent to", email);
   }
-
-  console.log("Welcome Email sent successfully", data);
 };

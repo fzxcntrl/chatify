@@ -113,7 +113,7 @@ function SignUpPage() {
                   <input
                     type="text"
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '') })}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, '') })}
                     className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
                     style={{
                       backgroundColor: 'var(--bg-input)',
@@ -124,8 +124,10 @@ function SignUpPage() {
                     }}
                     onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
                     onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-                    placeholder="johndoe"
+                    placeholder="john_doe"
+                    maxLength={30}
                   />
+                  <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>Lowercase letters, numbers, underscores and periods only</p>
                 </div>
               </div>
               <div>
