@@ -114,7 +114,7 @@ function BrowseUsersPage() {
               ))
             ) : searchQuery.length > 0 ? (
               <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
-                No users found matching "{searchQuery}"
+                No users found matching &quot;{searchQuery}&quot;
               </div>
             ) : (
               <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>

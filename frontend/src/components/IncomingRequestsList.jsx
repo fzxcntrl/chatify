@@ -48,7 +48,7 @@ function IncomingRequestsList() {
             </div>
           </div>
           {req.sender.bio && (
-            <p className="text-xs text-[var(--text-secondary)] line-clamp-2 italic">"{req.sender.bio}"</p>
+            <p className="text-xs text-[var(--text-secondary)] line-clamp-2 italic">&quot;{req.sender.bio}&quot;</p>
           )}
           <div className="flex gap-2 w-full mt-1">
             <button 
