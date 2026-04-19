@@ -23,13 +23,10 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (_, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+// Vercel handles the frontend in production, so we only handle API routes here.
+app.get("/", (_, res) => {
+  res.status(200).send("Chatify API is running");
+});
 
 const start = async () => {
   await connectDB();
