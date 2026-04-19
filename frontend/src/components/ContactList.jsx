@@ -63,9 +63,11 @@ function ContactList() {
               >
                 {contact.fullName}
               </h4>
-              <p className="text-xs truncate" style={{ color: isOnline ? 'var(--online)' : 'var(--text-muted)' }}>
-                {isOnline ? 'Online' : 'Offline'}
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-[11px] truncate">
+                 <span style={{ color: 'var(--text-muted)' }}>@{contact.username}</span>
+                 <span style={{ color: 'var(--border)' }}>•</span>
+                 <span style={{ color: isOnline ? 'var(--online)' : 'var(--text-muted)' }}>{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
             </div>
           </button>
         );

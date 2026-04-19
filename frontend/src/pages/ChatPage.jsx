@@ -6,9 +6,10 @@ import ChatsList from "../components/ChatsList";
 import ContactList from "../components/ContactList";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
+import MapTrackerModal from "../components/MapTrackerModal";
 
 function ChatPage() {
-  const { activeTab, selectedUser } = useChatStore();
+  const { activeTab, selectedUser, showMapTracker, setShowMapTracker } = useChatStore();
 
   return (
     <div className="h-screen h-dvh flex items-center justify-center p-2 md:p-4">
@@ -28,7 +29,6 @@ function ChatPage() {
             selectedUser ? 'hidden md:flex' : 'flex'
           } w-full md:w-80 flex-col flex-shrink-0`}
           style={{
-            backgroundColor: 'var(--bg-surface)',
             borderRight: '1px solid var(--border)',
           }}
         >
@@ -43,10 +43,14 @@ function ChatPage() {
         <div
           className={`${
             selectedUser ? 'flex' : 'hidden md:flex'
-          } flex-1 flex-col min-w-0`}
-          style={{ backgroundColor: 'var(--bg-base)' }}
+          } flex-1 flex-col min-w-0 relative`}
+          style={{ backgroundColor: 'var(--bg-elevated)' }}
         >
           {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+          
+          {showMapTracker && (
+             <MapTrackerModal onClose={() => setShowMapTracker(false)} />
+          )}
         </div>
       </div>
     </div>

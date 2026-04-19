@@ -1,10 +1,11 @@
-import { XIcon, ArrowLeftIcon } from "lucide-react";
+
+import { XIcon, ArrowLeftIcon, MapPinIcon } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 function ChatHeader() {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, showMapTracker, setShowMapTracker } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const isOnline = onlineUsers.includes(selectedUser._id);
 
@@ -59,21 +60,44 @@ function ChatHeader() {
           <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             {selectedUser.fullName}
           </h3>
-          <p className="text-xs" style={{ color: isOnline ? 'var(--online)' : 'var(--text-muted)' }}>
-            {isOnline ? "Online" : "Offline"}
-          </p>
+          <div className="flex items-center gap-1.5 mt-0.5 text-xs">
+             <span style={{ color: 'var(--text-muted)' }}>@{selectedUser.username}</span>
+             <span style={{ color: 'var(--border)' }}>•</span>
+             <span style={{ color: isOnline ? 'var(--online)' : 'var(--text-muted)' }}>{isOnline ? 'Online' : 'Offline'}</span>
+          </div>
         </div>
       </div>
 
-      <button
-        className="hidden md:flex p-1.5 rounded-lg transition-colors"
-        style={{ color: 'var(--text-secondary)' }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        onClick={() => setSelectedUser(null)}
-      >
-        <XIcon className="w-[18px] h-[18px]" />
-      </button>
+      <div className="flex gap-2 items-center">
+         <button
+          className="p-1.5 rounded-lg transition-colors flex items-center gap-1"
+          style={{ 
+            color: showMapTracker ? 'white' : 'var(--text-secondary)',
+            backgroundColor: showMapTracker ? 'var(--primary)' : 'transparent' 
+          }}
+          onMouseEnter={(e) => {
+            if (!showMapTracker) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            if (!showMapTracker) e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+          onClick={() => setShowMapTracker(!showMapTracker)}
+          title="Share Live Location"
+         >
+           <MapPinIcon className="w-[18px] h-[18px]" />
+           {showMapTracker && <span className="text-[10px] pr-1 font-medium select-none">Tracking</span>}
+         </button>
+
+         <button
+           className="hidden md:flex p-1.5 rounded-lg transition-colors"
+           style={{ color: 'var(--text-secondary)' }}
+           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+           onClick={() => setSelectedUser(null)}
+         >
+           <XIcon className="w-[18px] h-[18px]" />
+         </button>
+      </div>
     </div>
   );
 }

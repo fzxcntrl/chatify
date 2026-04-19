@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { MailIcon, LoaderIcon, LockIcon } from "lucide-react";
+import { MailIcon, LoaderIcon, LockIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Link } from "react-router";
 
 function AuthIllustration() {
@@ -27,6 +27,7 @@ function AuthIllustration() {
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoggingIn } = useAuthStore();
 
   const handleSubmit = (e) => {
@@ -104,10 +105,10 @@ function LoginPage() {
                     style={{ color: 'var(--text-muted)' }}
                   />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                    className="w-full py-2.5 pl-10 pr-10 text-sm transition-all"
                     style={{
                       backgroundColor: 'var(--bg-input)',
                       border: '1px solid var(--border)',
@@ -119,6 +120,16 @@ function LoginPage() {
                     onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                     placeholder="Enter your password"
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onClick={() => setShowPassword(!showPassword)}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
+                    {showPassword ? <EyeOffIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
+                  </button>
                 </div>
               </div>
               <button

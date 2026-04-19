@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { LockIcon, MailIcon, UserIcon, LoaderIcon } from "lucide-react";
+import { LockIcon, MailIcon, UserIcon, LoaderIcon, AtSign, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Link } from "react-router";
 
 function AuthIllustration() {
@@ -32,7 +32,8 @@ function AuthIllustration() {
 }
 
 function SignUpPage() {
-  const [formData, setFormData] = useState({ fullName: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ fullName: "", username: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { signup, isSigningUp } = useAuthStore();
 
   const handleSubmit = (e) => {
@@ -102,6 +103,33 @@ function SignUpPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  Username
+                </label>
+                <div className="relative">
+                  <AtSign
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-[18px] h-[18px]"
+                    style={{ color: 'var(--text-muted)' }}
+                  />
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '') })}
+                    className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                    style={{
+                      backgroundColor: 'var(--bg-input)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-md)',
+                      color: 'var(--text-primary)',
+                      outline: 'none',
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                    placeholder="johndoe"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Email
                 </label>
                 <div className="relative">
@@ -137,10 +165,10 @@ function SignUpPage() {
                     style={{ color: 'var(--text-muted)' }}
                   />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                    className="w-full py-2.5 pl-10 pr-10 text-sm transition-all"
                     style={{
                       backgroundColor: 'var(--bg-input)',
                       border: '1px solid var(--border)',
@@ -152,6 +180,16 @@ function SignUpPage() {
                     onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                     placeholder="Create a password"
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onClick={() => setShowPassword(!showPassword)}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
+                    {showPassword ? <EyeOffIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
+                  </button>
                 </div>
               </div>
               <button

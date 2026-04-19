@@ -6,10 +6,10 @@
 
 :root {
   --bg-base: #0F1419;
-  --bg-surface: #1A1F2E;
-  --bg-elevated: #242936;
-  --bg-hover: #2C3241;
-  --bg-input: #161B26;
+  --bg-surface: rgba(26, 31, 46, 0.65);
+  --bg-elevated: rgba(36, 41, 54, 0.75);
+  --bg-hover: rgba(44, 50, 65, 0.6);
+  --bg-input: rgba(22, 27, 38, 0.6);
 
   --primary: #E07A5F;
   --primary-hover: #C96A50;
@@ -21,7 +21,7 @@
   --text-muted: #5C5B59;
   --text-inverse: #FFFFFF;
 
-  --border: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.1);
   --border-focus: rgba(224, 122, 95, 0.4);
 
   --online: #6BCB77;
@@ -51,6 +51,41 @@
   --transition-slow: 300ms ease;
 }
 
+[data-theme="light"] {
+  --bg-base: #F4F4F5;
+  --bg-surface: rgba(255, 255, 255, 0.6);
+  --bg-elevated: rgba(250, 250, 250, 0.75);
+  --bg-hover: rgba(228, 228, 231, 0.6);
+  --bg-input: rgba(255, 255, 255, 0.5);
+
+  --primary: #E07A5F;
+  --primary-hover: #C96A50;
+  --primary-muted: rgba(224, 122, 95, 0.12);
+  --primary-subtle: rgba(224, 122, 95, 0.06);
+
+  --text-primary: #18181B;
+  --text-secondary: #52525B;
+  --text-muted: #A1A1AA;
+  --text-inverse: #FFFFFF;
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-focus: rgba(224, 122, 95, 0.4);
+
+  --online: #6BCB77;
+  --offline: #A1A1AA;
+  --danger: #E05F5F;
+
+  --bubble-sent: #E07A5F;
+  --bubble-sent-text: #FFFFFF;
+  --bubble-received: #F4F4F5;
+  --bubble-received-text: #18181B;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 40px rgba(224, 122, 95, 0.15);
+}
+
 *,
 *::before,
 *::after {
@@ -69,6 +104,36 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.5;
+  transition: background-color var(--transition-slow);
+}
+
+/* Glassmorphism Interceptor Engine */
+[style*="var(--bg-surface)"],
+[style*="var(--bg-elevated)"],
+[class*="bg-surface"],
+.glass {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transition: background-color var(--transition-base), backdrop-filter var(--transition-base);
+}
+
+/* Animations */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(-45deg, #2A1B38, #1A1F2E, #112230, #2C3241);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
+}
+
+[data-theme="light"] .animated-gradient-bg {
+  background: linear-gradient(-45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
 }
 
 ::-webkit-scrollbar {

@@ -28,6 +28,18 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+  socket.on("send-location", ({ receiverId, latitude, longitude }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+       // Send strictly to the active receiver ID
+       io.to(receiverSocketId).emit("receive-location", {
+          id: userId,
+          latitude,
+          longitude
+       });
+    }
+  });
+
   socket.on("disconnect", () => {
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
