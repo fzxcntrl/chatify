@@ -1,52 +1,32 @@
-import { useState, useRef } from "react";
-import { useAuthStore, applyTheme } from "../store/useAuthStore";
-import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, UploadIcon, LoaderIcon, LockIcon, XIcon } from "lucide-react";
-
-const PRESET_WALLPAPERS = [
-  { id: "none", name: "Solid Dark", value: "none" },
-  { id: "ocean", name: "Ocean Blur", value: "linear-gradient(to right, #0f2027, #203a43, #2c5364)" },
-  { id: "sunset", name: "Warm Sunset", value: "linear-gradient(to right, #2b1055, #7597de)" },
-  { id: "aurora", name: "Aurora", value: "linear-gradient(to bottom, #111424, #1E1236, #0D263B)" }
-];
+import { useState } from "react";
+import { useAuthStore, applyTheme, CHAT_THEMES } from "../store/useAuthStore";
+import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon } from "lucide-react";
 
 function SettingsModal({ onClose }) {
   const { authUser, updateProfile, changePassword } = useAuthStore();
   const [activeTab, setActiveTab] = useState("display");
 
   const [selectedTheme, setSelectedTheme] = useState(authUser?.theme || "dark");
-  const [selectedWallpaper, setSelectedWallpaper] = useState(authUser?.wallpaper || "none");
+  const [selectedChatTheme, setSelectedChatTheme] = useState(authUser?.chatTheme || "default");
   const [isUpdatingDisplay, setIsUpdatingDisplay] = useState(false);
 
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
-  const fileInputRef = useRef(null);
-
   const handleThemeChange = (newTheme) => {
     setSelectedTheme(newTheme);
-    applyTheme(newTheme, selectedWallpaper);
+    applyTheme(newTheme, selectedChatTheme);
   };
 
-  const handleWallpaperChange = (newValue) => {
-    setSelectedWallpaper(newValue);
-    applyTheme(selectedTheme, newValue);
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      handleWallpaperChange(reader.result);
-    };
+  const handleChatThemeChange = (themeKey) => {
+    setSelectedChatTheme(themeKey);
+    applyTheme(selectedTheme, themeKey);
   };
 
   const saveDisplaySettings = async () => {
     setIsUpdatingDisplay(true);
-    await updateProfile({ theme: selectedTheme, wallpaper: selectedWallpaper });
+    await updateProfile({ theme: selectedTheme, chatTheme: selectedChatTheme });
     setIsUpdatingDisplay(false);
   };
 
@@ -71,7 +51,7 @@ function SettingsModal({ onClose }) {
     }
   };
 
-  const hasDisplayChanges = selectedTheme !== authUser?.theme || selectedWallpaper !== authUser?.wallpaper;
+  const hasDisplayChanges = selectedTheme !== authUser?.theme || selectedChatTheme !== (authUser?.chatTheme || "default");
 
   return (
     <div
@@ -80,7 +60,7 @@ function SettingsModal({ onClose }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="no-glass w-full max-w-4xl flex flex-col md:flex-row gap-0 md:gap-0 overflow-hidden rounded-2xl animate-fade-in-up"
+        className="no-glass w-full max-w-4xl flex flex-col md:flex-row gap-0 overflow-hidden rounded-2xl animate-fade-in-up"
         style={{
           height: 'calc(100vh - 4rem)',
           maxHeight: '700px',
@@ -180,45 +160,66 @@ function SettingsModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Background Wallpaper */}
+              {/* Chat Color Theme */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>Background Wallpaper</h3>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose a preset background or upload your own image.</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <MessageCircleIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Color Theme</h3>
+                </div>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose a color palette for your chat bubbles and message text.</p>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {PRESET_WALLPAPERS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      onClick={() => handleWallpaperChange(preset.value)}
-                      className="group relative rounded-xl overflow-hidden border-2 transition-all aspect-video"
-                      style={{
-                        borderColor: selectedWallpaper === preset.value ? 'var(--primary)' : 'transparent',
-                        background: preset.value === "none" ? 'var(--bg-base)' : preset.value,
-                        boxShadow: selectedWallpaper === preset.value ? 'var(--shadow-glow)' : 'none'
-                      }}
-                    >
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs font-medium">
-                        Select
-                      </div>
-                      {preset.value === "none" && <span className="absolute bottom-2 left-3 text-xs" style={{ color: 'var(--text-secondary)' }}>Solid</span>}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {Object.entries(CHAT_THEMES).map(([key, ct]) => {
+                    const isSelected = selectedChatTheme === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleChatThemeChange(key)}
+                        className="group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
+                        style={{
+                          borderColor: isSelected ? ct.sentBg : 'var(--border)',
+                          backgroundColor: isSelected ? `${ct.sentBg}12` : 'transparent',
+                        }}
+                      >
+                        {/* Chat preview mini bubbles */}
+                        <div className="w-full flex flex-col gap-1.5 py-2 px-1">
+                          {/* Received bubble */}
+                          <div className="flex justify-start">
+                            <div
+                              className="px-3 py-1.5 rounded-xl rounded-bl-sm text-[10px] font-medium max-w-[85%]"
+                              style={{ backgroundColor: ct.receivedBg, color: ct.receivedText }}
+                            >
+                              Hey there!
+                              <span className="block text-[8px] mt-0.5" style={{ opacity: 0.6 }}>10:30</span>
+                            </div>
+                          </div>
+                          {/* Sent bubble */}
+                          <div className="flex justify-end">
+                            <div
+                              className="px-3 py-1.5 rounded-xl rounded-br-sm text-[10px] font-medium max-w-[85%]"
+                              style={{ backgroundColor: ct.sentBg, color: ct.sentText }}
+                            >
+                              Hi! 👋
+                              <span className="block text-[8px] mt-0.5" style={{ opacity: 0.7 }}>10:31</span>
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-medium" style={{ color: isSelected ? ct.sentBg : 'var(--text-primary)' }}>
+                          {ct.name}
+                        </span>
 
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                    className="relative rounded-xl overflow-hidden border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all aspect-video hover:bg-[var(--bg-hover)]"
-                    style={{
-                      borderColor: selectedWallpaper.startsWith("data:") || selectedWallpaper.startsWith("http") ? 'var(--primary)' : 'var(--border)',
-                      borderStyle: selectedWallpaper.startsWith("data:") || selectedWallpaper.startsWith("http") ? 'solid' : 'dashed',
-                      background: selectedWallpaper.startsWith("data:") || selectedWallpaper.startsWith("http") ? `url(${selectedWallpaper}) center/cover no-repeat` : 'transparent',
-                    }}
-                  >
-                    <div className="p-2 rounded-full backdrop-blur-md bg-black/30 text-white">
-                      <UploadIcon className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-medium backdrop-blur-md bg-black/30 px-2 py-0.5 rounded text-white">Upload</span>
-                    <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-                  </button>
+                        {/* Selected checkmark */}
+                        {isSelected && (
+                          <div
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                            style={{ backgroundColor: ct.sentBg, color: ct.sentText }}
+                          >
+                            ✓
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -300,7 +301,7 @@ function SettingsModal({ onClose }) {
                 <button
                   onClick={() => {
                     handleThemeChange(authUser?.theme || "dark");
-                    handleWallpaperChange(authUser?.wallpaper || "none");
+                    handleChatThemeChange(authUser?.chatTheme || "default");
                   }}
                   disabled={isUpdatingDisplay}
                   className="px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[var(--bg-hover)] transition-colors"

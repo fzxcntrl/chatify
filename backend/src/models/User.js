@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema(
       enum: ["dark", "light"],
       default: "dark",
     },
+    chatTheme: {
+      type: String,
+      default: "default",
+    },
+    // Keep wallpaper for backward compat, but it's no longer used
     wallpaper: {
       type: String,
       default: "none",
