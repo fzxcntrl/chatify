@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "default",
     },
-    // Keep wallpaper for backward compat, but it's no longer used
+
     wallpaper: {
       type: String,
       default: "none",

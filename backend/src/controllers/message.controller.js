@@ -53,13 +53,25 @@ export const sendMessage = async (req, res) => {
     }
 
     let imageUrl;
+    let fileType = "image";
     if (image) {
       const isPdf = image.startsWith("data:application/pdf");
-      const uploadResponse = await cloudinary.uploader.upload(image, {
+      fileType = isPdf ? "pdf" : "image";
+
+      const uploadOptions = {
         folder: "chatify_messages",
-        resource_type: isPdf ? "raw" : "image",
-        ...(isPdf ? {} : { transformation: [{ quality: "auto", fetch_format: "auto" }] }),
-      });
+      };
+
+      if (isPdf) {
+        // Upload as raw with explicit .pdf extension
+        uploadOptions.resource_type = "raw";
+        uploadOptions.format = "pdf";
+      } else {
+        uploadOptions.resource_type = "image";
+        uploadOptions.transformation = [{ quality: "auto", fetch_format: "auto" }];
+      }
+
+      const uploadResponse = await cloudinary.uploader.upload(image, uploadOptions);
       imageUrl = uploadResponse.secure_url;
     }
 
@@ -68,6 +80,7 @@ export const sendMessage = async (req, res) => {
       receiverId,
       text,
       image: imageUrl,
+      fileType: fileType === "pdf" ? "pdf" : undefined,
     });
 
     await newMessage.save();

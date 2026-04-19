@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { XIcon, DownloadIcon, FileTextIcon } from "lucide-react";
+import { XIcon, DownloadIcon, FileTextIcon, ExternalLinkIcon } from "lucide-react";
 
 function ChatContainer() {
   const {
@@ -35,7 +35,7 @@ function ChatContainer() {
 
   const handleDownload = async (url, filename) => {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { mode: "cors" });
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -44,15 +44,27 @@ function ChatContainer() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch {
-      window.open(url, "_blank");
+      // Fallback: append fl_attachment to Cloudinary URL for forced download
+      const downloadUrl = url.includes("cloudinary.com")
+        ? url.replace("/upload/", "/upload/fl_attachment/")
+        : url;
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename || "download";
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
-  const isPdf = (url) => {
-    if (!url) return false;
-    return url.includes("/raw/") || url.toLowerCase().endsWith(".pdf") || url.includes("resource_type=raw");
+  const isFilePdf = (msg) => {
+    // Use fileType field if available (reliable), fallback to URL heuristic for old messages
+    if (msg.fileType === "pdf") return true;
+    if (!msg.image) return false;
+    return msg.image.includes("/raw/") || msg.image.toLowerCase().includes(".pdf");
   };
 
   return (
@@ -63,7 +75,7 @@ function ChatContainer() {
           <div className="max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
-              const isFile = isPdf(msg.image);
+              const isFile = isFilePdf(msg);
 
               return (
                 <div
@@ -82,6 +94,7 @@ function ChatContainer() {
                       boxShadow: 'var(--shadow-sm)',
                     }}
                   >
+                    {/* Image display */}
                     {msg.image && !isFile && (
                       <div className="relative group mb-2">
                         <img
@@ -109,30 +122,56 @@ function ChatContainer() {
                     {/* PDF file display */}
                     {msg.image && isFile && (
                       <div
-                        className="flex items-center gap-3 p-3 rounded-lg mb-2 cursor-pointer transition-opacity hover:opacity-80"
+                        className="flex items-center gap-3 p-3 rounded-lg mb-2"
                         style={{
                           backgroundColor: isSent ? 'rgba(255,255,255,0.15)' : 'var(--bg-hover)',
                         }}
-                        onClick={() => window.open(msg.image, "_blank")}
                       >
-                        <div className="p-2 rounded-lg" style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)' }}>
-                          <FileTextIcon className="w-5 h-5" style={{ color: isSent ? 'white' : 'var(--primary)' }} />
+                        <div className="p-2.5 rounded-lg flex-shrink-0" style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)' }}>
+                          <FileTextIcon className="w-6 h-6" style={{ color: isSent ? 'white' : 'var(--primary)' }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">Document</p>
-                          <p className="text-[11px] opacity-60">PDF File</p>
+                          <p className="text-sm font-medium truncate">PDF Document</p>
+                          <p className="text-[11px] mt-0.5" style={{ opacity: 0.6 }}>Tap to preview</p>
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDownload(msg.image, `chatify-doc-${msg._id}.pdf`);
-                          }}
-                          className="p-1.5 rounded-lg transition-colors"
-                          style={{ color: isSent ? 'white' : 'var(--text-secondary)' }}
-                          title="Download"
-                        >
-                          <DownloadIcon className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1.5 flex-shrink-0">
+                          {/* Open in new tab */}
+                          <button
+                            onClick={() => {
+                              const viewUrl = msg.image.includes("cloudinary.com")
+                                ? msg.image.replace("/raw/upload/", "/raw/upload/fl_attachment:false/")
+                                : msg.image;
+                              window.open(viewUrl, "_blank");
+                            }}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+                            style={{ color: isSent ? 'white' : 'var(--text-secondary)' }}
+                            title="Open in browser"
+                          >
+                            <ExternalLinkIcon className="w-4 h-4" />
+                          </button>
+                          {/* Download */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Use fl_attachment for proper download
+                              const downloadUrl = msg.image.includes("cloudinary.com")
+                                ? msg.image.replace("/upload/", "/upload/fl_attachment/")
+                                : msg.image;
+                              const link = document.createElement("a");
+                              link.href = downloadUrl;
+                              link.download = `chatify-doc-${msg._id}.pdf`;
+                              link.target = "_blank";
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
+                            style={{ color: isSent ? 'white' : 'var(--text-secondary)' }}
+                            title="Download"
+                          >
+                            <DownloadIcon className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     )}
 

@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
-// Get suggested users (non-friends, non-self, random sample)
+
 export const getSuggestions = async (req, res) => {
   try {
     const currentUser = await User.findById(req.user._id);
@@ -24,7 +24,7 @@ export const getSuggestions = async (req, res) => {
       },
     ]);
 
-    // Attach request status for each suggestion
+
     const suggestionsWithStatus = await Promise.all(
       suggestions.map(async (u) => {
         const existingReq = await FriendRequest.findOne({
@@ -51,7 +51,7 @@ export const getSuggestions = async (req, res) => {
 };
 
 
-// Search users by username (excluding self and existing friends)
+
 export const searchUsers = async (req, res) => {
   try {
     const { query } = req.query;
@@ -59,13 +59,13 @@ export const searchUsers = async (req, res) => {
 
     const currentUser = await User.findById(req.user._id);
 
-    // Find users matching query (case-insensitive) except current user and existing friends
+
     const users = await User.find({
       username: { $regex: new RegExp(query, "i") },
       _id: { $ne: req.user._id, $nin: currentUser.friends },
     }).select("username fullName profilePic bio");
 
-    // We also need to attach existing FriendRequest status for UI
+
     const usersWithStatus = await Promise.all(
       users.map(async (u) => {
         const existingReq = await FriendRequest.findOne({
@@ -91,7 +91,7 @@ export const searchUsers = async (req, res) => {
   }
 };
 
-// Send a friend request
+
 export const sendRequest = async (req, res) => {
   try {
     const { id: receiverId } = req.params;
@@ -120,13 +120,13 @@ export const sendRequest = async (req, res) => {
       if (existingReq.status === "accepted") {
         return res.status(400).json({ message: "Already friends" });
       }
-      // If declined previously, we could optionally allow re-sending by updating the existing doc
+
       existingReq.status = "pending";
       existingReq.sender = senderId;
       existingReq.receiver = receiverId;
       await existingReq.save();
 
-      // Notify receiver via socket
+
       const populatedReq = await FriendRequest.findById(existingReq._id).populate("sender", "username fullName profilePic bio");
       const receiverSocketId = getReceiverSocketId(receiverId);
       if (receiverSocketId) {
@@ -139,7 +139,7 @@ export const sendRequest = async (req, res) => {
     const newRequest = new FriendRequest({ sender: senderId, receiver: receiverId });
     await newRequest.save();
 
-    // Notify receiver via socket
+
     const populatedReq = await FriendRequest.findById(newRequest._id).populate("sender", "username fullName profilePic bio");
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
@@ -153,7 +153,7 @@ export const sendRequest = async (req, res) => {
   }
 };
 
-// Get pending incoming requests
+
 export const getIncomingRequests = async (req, res) => {
   try {
     const requests = await FriendRequest.find({
@@ -168,7 +168,7 @@ export const getIncomingRequests = async (req, res) => {
   }
 };
 
-// Accept friend request
+
 export const acceptRequest = async (req, res) => {
   try {
     const { id: requestId } = req.params;
@@ -186,7 +186,7 @@ export const acceptRequest = async (req, res) => {
     friendRequest.status = "accepted";
     await friendRequest.save();
 
-    // Add friends to both arrays
+
     await User.findByIdAndUpdate(req.user._id, { $addToSet: { friends: friendRequest.sender } });
     await User.findByIdAndUpdate(friendRequest.sender, { $addToSet: { friends: req.user._id } });
 
@@ -197,7 +197,7 @@ export const acceptRequest = async (req, res) => {
   }
 };
 
-// Decline friend request
+
 export const declineRequest = async (req, res) => {
   try {
     const { id: requestId } = req.params;

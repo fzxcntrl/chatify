@@ -22,6 +22,11 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    fileType: {
+      type: String,
+      enum: ["image", "pdf"],
+      default: "image",
+    },
   },
   { timestamps: true }
 );
