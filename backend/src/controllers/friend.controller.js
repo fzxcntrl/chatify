@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 // Get suggested users (non-friends, non-self, random sample)
 export const getSuggestions = async (req, res) => {
@@ -35,6 +36,7 @@ export const getSuggestions = async (req, res) => {
 
         return {
           ...u,
+          requestId: existingReq ? existingReq._id : null,
           requestStatus: existingReq ? existingReq.status : "none",
           isSender: existingReq ? existingReq.sender.equals(req.user._id) : false,
         };
@@ -75,6 +77,7 @@ export const searchUsers = async (req, res) => {
 
         return {
           ...u.toObject(),
+          requestId: existingReq ? existingReq._id : null,
           requestStatus: existingReq ? existingReq.status : "none",
           isSender: existingReq ? existingReq.sender.equals(req.user._id) : false,
         };
@@ -122,11 +125,26 @@ export const sendRequest = async (req, res) => {
       existingReq.sender = senderId;
       existingReq.receiver = receiverId;
       await existingReq.save();
+
+      // Notify receiver via socket
+      const populatedReq = await FriendRequest.findById(existingReq._id).populate("sender", "username fullName profilePic bio");
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("new-friend-request", populatedReq);
+      }
+
       return res.status(200).json(existingReq);
     }
 
     const newRequest = new FriendRequest({ sender: senderId, receiver: receiverId });
     await newRequest.save();
+
+    // Notify receiver via socket
+    const populatedReq = await FriendRequest.findById(newRequest._id).populate("sender", "username fullName profilePic bio");
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("new-friend-request", populatedReq);
+    }
 
     res.status(201).json(newRequest);
   } catch (error) {

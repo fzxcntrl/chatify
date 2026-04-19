@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFriendStore } from "../store/useFriendStore";
-import { SearchIcon, UserPlusIcon, ArrowLeftIcon, LoaderIcon, SparklesIcon } from "lucide-react";
+import { SearchIcon, UserPlusIcon, ArrowLeftIcon, LoaderIcon, SparklesIcon, CheckIcon, XIcon } from "lucide-react";
 import { Link } from "react-router";
 import UserProfileModal from "../components/UserProfileModal";
 
@@ -13,6 +13,8 @@ function BrowseUsersPage() {
     searchUsers,
     getSuggestions,
     sendFriendRequest,
+    acceptRequest,
+    declineRequest,
     isSearching,
     isFetchingSuggestions,
   } = useFriendStore();
@@ -66,10 +68,46 @@ function BrowseUsersPage() {
           <button disabled className="px-4 py-2 rounded-lg text-xs font-medium cursor-not-allowed" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
             Pending
           </button>
-        ) : user.requestStatus === "pending" && !user.isSender ? (
-          <span className="text-xs font-medium" style={{ color: 'var(--primary)' }}>Requested you</span>
+        ) : user.requestStatus === "pending" && !user.isSender && user.requestId ? (
+          <div className="flex gap-1.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                acceptRequest(user.requestId);
+                // Update local state
+                const updateUser = (u) => u._id === user._id ? { ...u, requestStatus: "accepted" } : u;
+                useFriendStore.setState({
+                  suggestions: useFriendStore.getState().suggestions.map(updateUser),
+                  searchResults: useFriendStore.getState().searchResults.map(updateUser),
+                });
+              }}
+              className="p-2 rounded-lg transition-transform hover:scale-105 active:scale-95"
+              style={{ backgroundColor: 'var(--online)', color: 'white' }}
+              title="Accept"
+            >
+              <CheckIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                declineRequest(user.requestId);
+                const updateUser = (u) => u._id === user._id ? { ...u, requestStatus: "declined" } : u;
+                useFriendStore.setState({
+                  suggestions: useFriendStore.getState().suggestions.map(updateUser),
+                  searchResults: useFriendStore.getState().searchResults.map(updateUser),
+                });
+              }}
+              className="p-2 rounded-lg transition-transform hover:scale-105 active:scale-95"
+              style={{ backgroundColor: 'var(--danger)', color: 'white' }}
+              title="Decline"
+            >
+              <XIcon className="w-4 h-4" />
+            </button>
+          </div>
         ) : user.requestStatus === "accepted" ? (
           <span className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'var(--primary-muted)', color: 'var(--primary)' }}>Friends</span>
+        ) : user.requestStatus === "declined" ? (
+          <span className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>Declined</span>
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); sendFriendRequest(user._id); }}

@@ -16,6 +16,8 @@ export const useChatStore = create((set, get) => ({
   showSettingsModal: false,
   showEditProfileModal: false,
   imagePreview: null,
+  requestCount: 0,
+  unreadChatCount: 0,
 
   setShowMapTracker: (show) => set({ showMapTracker: show }),
   setShowSettingsModal: (show) => set({ showSettingsModal: show }),
@@ -27,7 +29,10 @@ export const useChatStore = create((set, get) => ({
     set({ isSoundEnabled: !get().isSoundEnabled });
   },
 
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (tab) => {
+    if (tab === "requests") set({ requestCount: 0 });
+    set({ activeTab: tab });
+  },
   setSelectedUser: (selectedUser) => set({ selectedUser, showMapTracker: false }),
 
   getAllContacts: async () => {
@@ -101,7 +106,16 @@ export const useChatStore = create((set, get) => ({
 
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
+      if (!isMessageSentFromSelectedUser) {
+        // Message from someone else — count as unread
+        set({ unreadChatCount: get().unreadChatCount + 1 });
+        if (get().isSoundEnabled) {
+          const notificationSound = new Audio("/sounds/notification.mp3");
+          notificationSound.currentTime = 0;
+          notificationSound.play().catch(() => {});
+        }
+        return;
+      }
 
       const currentMessages = get().messages;
       set({ messages: [...currentMessages, newMessage] });
@@ -197,6 +211,34 @@ export const useChatStore = create((set, get) => ({
     if (socket) {
       socket.off("location-request");
       socket.off("location-response-received");
+    }
+  },
+
+  subscribeToFriendRequests: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("new-friend-request", (request) => {
+      // Bump the request count
+      set({ requestCount: get().requestCount + 1 });
+
+      // Play notification sound
+      if (get().isSoundEnabled) {
+        const notificationSound = new Audio("/sounds/notification.mp3");
+        notificationSound.currentTime = 0;
+        notificationSound.play().catch(() => {});
+      }
+
+      // Show toast
+      const name = request.sender?.fullName || "Someone";
+      toast.success(`${name} sent you a friend request!`);
+    });
+  },
+
+  unsubscribeFromFriendRequests: () => {
+    const socket = useAuthStore.getState().socket;
+    if (socket) {
+      socket.off("new-friend-request");
     }
   },
 }));

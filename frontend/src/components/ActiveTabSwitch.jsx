@@ -2,8 +2,15 @@ import { useChatStore } from "../store/useChatStore";
 import { useNavigate } from "react-router";
 
 function ActiveTabSwitch() {
-  const { activeTab, setActiveTab } = useChatStore();
+  const { activeTab, setActiveTab, requestCount, unreadChatCount } = useChatStore();
   const navigate = useNavigate();
+
+  const tabs = [
+    { id: "chats", label: "Chats", badge: unreadChatCount, action: () => { setActiveTab("chats"); } },
+    { id: "requests", label: "Requests", badge: requestCount, action: () => setActiveTab("requests") },
+    { id: "browse", label: "Browse", badge: 0, action: () => navigate('/browse') },
+    { id: "contacts", label: "Contacts", badge: 0, action: () => setActiveTab("contacts") },
+  ];
 
   return (
     <div
@@ -13,57 +20,43 @@ function ActiveTabSwitch() {
         borderRadius: 'var(--radius-md)',
       }}
     >
-      <button
-        onClick={() => setActiveTab("chats")}
-        className="flex-1 py-1.5 text-xs font-medium transition-all"
-        style={{
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: activeTab === "chats" ? 'var(--bg-elevated)' : 'transparent',
-          color: activeTab === "chats" ? 'var(--primary)' : 'var(--text-muted)',
-          boxShadow: activeTab === "chats" ? 'var(--shadow-sm)' : 'none',
-        }}
-      >
-        Chats
-      </button>
+      {tabs.map((tab) => {
+        const isActive = tab.id === "browse" ? false : activeTab === tab.id;
 
-      <button
-        onClick={() => setActiveTab("contacts")}
-        className="flex-1 py-1.5 text-xs font-medium transition-all"
-        style={{
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: activeTab === "contacts" ? 'var(--bg-elevated)' : 'transparent',
-          color: activeTab === "contacts" ? 'var(--primary)' : 'var(--text-muted)',
-          boxShadow: activeTab === "contacts" ? 'var(--shadow-sm)' : 'none',
-        }}
-      >
-        Contacts
-      </button>
+        return (
+          <button
+            key={tab.id}
+            onClick={() => {
+              tab.action();
+              // Clear unread chat count when switching to chats
+              if (tab.id === "chats") useChatStore.setState({ unreadChatCount: 0 });
+            }}
+            className="flex-1 py-1.5 text-xs font-medium transition-all relative"
+            style={{
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: isActive ? 'var(--bg-elevated)' : 'transparent',
+              color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+              boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+            }}
+          >
+            {tab.label}
 
-      <button
-        onClick={() => navigate('/browse')}
-        className="flex-1 py-1.5 text-xs font-medium transition-all"
-        style={{
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'transparent',
-          color: 'var(--text-muted)',
-          boxShadow: 'none',
-        }}
-      >
-        Browse
-      </button>
-
-      <button
-        onClick={() => setActiveTab("requests")}
-        className="flex-1 py-1.5 text-xs font-medium transition-all"
-        style={{
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: activeTab === "requests" ? 'var(--bg-elevated)' : 'transparent',
-          color: activeTab === "requests" ? 'var(--primary)' : 'var(--text-muted)',
-          boxShadow: activeTab === "requests" ? 'var(--shadow-sm)' : 'none',
-        }}
-      >
-        Requests
-      </button>
+            {/* Badge */}
+            {tab.badge > 0 && (
+              <span
+                className="absolute -top-1 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold px-1 animate-fade-in"
+                style={{
+                  backgroundColor: 'var(--danger)',
+                  color: 'white',
+                  boxShadow: '0 2px 6px rgba(224, 95, 95, 0.4)',
+                }}
+              >
+                {tab.badge > 99 ? "99+" : tab.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

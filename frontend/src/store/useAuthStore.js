@@ -207,6 +207,7 @@ export const useAuthStore = create((set, get) => ({
 
     import('./useChatStore').then((module) => {
       module.useChatStore.getState().subscribeToLocationRequests();
+      module.useChatStore.getState().subscribeToFriendRequests();
     });
   },
 
@@ -215,6 +216,7 @@ export const useAuthStore = create((set, get) => ({
        get().socket.disconnect();
        import('./useChatStore').then((module) => {
          module.useChatStore.getState().unsubscribeFromLocationRequests();
+         module.useChatStore.getState().unsubscribeFromFriendRequests();
        });
     }
   },
