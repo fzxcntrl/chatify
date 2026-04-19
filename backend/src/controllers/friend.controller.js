@@ -155,3 +155,41 @@ export const declineRequest = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Get a user's public profile (contact count)
+export const getUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select("username fullName profilePic bio friends");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      fullName: user.fullName,
+      profilePic: user.profilePic,
+      bio: user.bio,
+      contactCount: user.friends.length,
+    });
+  } catch (error) {
+    console.error("Error in getUserProfile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Get a user's contacts list (public info)
+export const getUserContacts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).populate({
+      path: "friends",
+      select: "username fullName profilePic",
+    });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json(user.friends);
+  } catch (error) {
+    console.error("Error in getUserContacts:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

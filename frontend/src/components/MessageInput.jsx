@@ -2,12 +2,13 @@ import { useRef, useState } from "react";
 import useKeyboardSound from "../hooks/useKeyboardSound";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
-import { ImageIcon, SendIcon, XIcon } from "lucide-react";
+import { ImageIcon, SendIcon, XIcon, PaperclipIcon, FileTextIcon } from "lucide-react";
 
 function MessageInput() {
   const { playRandomKeyStrokeSound } = useKeyboardSound();
   const [text, setText] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [fileType, setFileType] = useState(null); // "image" or "pdf"
 
   const fileInputRef = useRef(null);
 
@@ -15,33 +16,46 @@ function MessageInput() {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!text.trim() && !imagePreview) return;
+    if (!text.trim() && !filePreview) return;
     if (isSoundEnabled) playRandomKeyStrokeSound();
 
     sendMessage({
       text: text.trim(),
-      image: imagePreview,
+      image: filePreview,
     });
     setText("");
-    setImagePreview("");
+    setFilePreview(null);
+    setFileType(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleImageChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
+
+    if (!isImage && !isPdf) {
+      toast.error("Please select an image or PDF file");
       return;
     }
 
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File must be under 10MB");
+      return;
+    }
+
+    setFileType(isImage ? "image" : "pdf");
+
     const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result);
+    reader.onloadend = () => setFilePreview(reader.result);
     reader.readAsDataURL(file);
   };
 
-  const removeImage = () => {
-    setImagePreview(null);
+  const removeFile = () => {
+    setFilePreview(null);
+    setFileType(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -50,20 +64,34 @@ function MessageInput() {
       className="p-3 md:p-4"
       style={{ borderTop: '1px solid var(--border)' }}
     >
-      {imagePreview && (
+      {filePreview && (
         <div className="max-w-2xl mx-auto mb-3 flex items-center">
           <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-16 h-16 object-cover"
-              style={{
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border)',
-              }}
-            />
+            {fileType === "image" ? (
+              <img
+                src={filePreview}
+                alt="Preview"
+                className="w-16 h-16 object-cover"
+                style={{
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                }}
+              />
+            ) : (
+              <div
+                className="w-16 h-16 flex flex-col items-center justify-center gap-1"
+                style={{
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--bg-hover)',
+                }}
+              >
+                <FileTextIcon className="w-6 h-6" style={{ color: 'var(--primary)' }} />
+                <span className="text-[9px] font-medium" style={{ color: 'var(--text-muted)' }}>PDF</span>
+              </div>
+            )}
             <button
-              onClick={removeImage}
+              onClick={removeFile}
               className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
               style={{
                 backgroundColor: 'var(--bg-elevated)',
@@ -101,9 +129,9 @@ function MessageInput() {
 
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           ref={fileInputRef}
-          onChange={handleImageChange}
+          onChange={handleFileChange}
           className="hidden"
         />
 
@@ -113,18 +141,19 @@ function MessageInput() {
           className="p-2.5 rounded-lg transition-colors flex-shrink-0"
           style={{
             backgroundColor: 'var(--bg-surface)',
-            color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
+            color: filePreview ? 'var(--primary)' : 'var(--text-muted)',
             border: '1px solid var(--border)',
           }}
           onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-focus)'}
           onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+          title="Attach image or PDF"
         >
-          <ImageIcon className="w-[18px] h-[18px]" />
+          <PaperclipIcon className="w-[18px] h-[18px]" />
         </button>
 
         <button
           type="submit"
-          disabled={!text.trim() && !imagePreview}
+          disabled={!text.trim() && !filePreview}
           className="p-2.5 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
           style={{
             backgroundColor: 'var(--primary)',

@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { XIcon } from "lucide-react";
+import { XIcon, DownloadIcon, FileTextIcon } from "lucide-react";
 
 function ChatContainer() {
   const {
@@ -33,6 +33,28 @@ function ChatContainer() {
     }
   }, [messages]);
 
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  const isPdf = (url) => {
+    if (!url) return false;
+    return url.includes("/raw/") || url.toLowerCase().endsWith(".pdf") || url.includes("resource_type=raw");
+  };
+
   return (
     <>
       <ChatHeader />
@@ -41,6 +63,7 @@ function ChatContainer() {
           <div className="max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
+              const isFile = isPdf(msg.image);
 
               return (
                 <div
@@ -59,15 +82,60 @@ function ChatContainer() {
                       boxShadow: 'var(--shadow-sm)',
                     }}
                   >
-                    {msg.image && (
-                      <img
-                        src={msg.image}
-                        alt="Shared"
-                        className="rounded-lg w-full max-h-52 object-cover mb-2 cursor-pointer transition-transform hover:scale-[1.02]"
-                        style={{ borderRadius: 'var(--radius-md)' }}
-                        onClick={() => setPreviewImage(msg.image)}
-                      />
+                    {msg.image && !isFile && (
+                      <div className="relative group mb-2">
+                        <img
+                          src={msg.image}
+                          alt="Shared"
+                          className="rounded-lg w-full max-h-52 object-cover cursor-pointer transition-transform hover:scale-[1.02]"
+                          style={{ borderRadius: 'var(--radius-md)' }}
+                          onClick={() => setPreviewImage(msg.image)}
+                        />
+                        {/* Download button overlay */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(msg.image, `chatify-image-${msg._id}.jpg`);
+                          }}
+                          className="absolute bottom-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.6)', color: 'white' }}
+                          title="Download"
+                        >
+                          <DownloadIcon className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
+
+                    {/* PDF file display */}
+                    {msg.image && isFile && (
+                      <div
+                        className="flex items-center gap-3 p-3 rounded-lg mb-2 cursor-pointer transition-opacity hover:opacity-80"
+                        style={{
+                          backgroundColor: isSent ? 'rgba(255,255,255,0.15)' : 'var(--bg-hover)',
+                        }}
+                        onClick={() => window.open(msg.image, "_blank")}
+                      >
+                        <div className="p-2 rounded-lg" style={{ backgroundColor: isSent ? 'rgba(255,255,255,0.2)' : 'var(--primary-muted)' }}>
+                          <FileTextIcon className="w-5 h-5" style={{ color: isSent ? 'white' : 'var(--primary)' }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">Document</p>
+                          <p className="text-[11px] opacity-60">PDF File</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(msg.image, `chatify-doc-${msg._id}.pdf`);
+                          }}
+                          className="p-1.5 rounded-lg transition-colors"
+                          style={{ color: isSent ? 'white' : 'var(--text-secondary)' }}
+                          title="Download"
+                        >
+                          <DownloadIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
                     {msg.text && (
                       <p className="text-sm leading-relaxed break-words">{msg.text}</p>
                     )}
@@ -110,6 +178,20 @@ function ChatContainer() {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
           >
             <XIcon className="w-6 h-6" />
+          </button>
+          {/* Download in lightbox */}
+          <button
+            className="absolute top-4 left-4 p-2 rounded-full transition-colors z-10 flex items-center gap-2"
+            style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload(previewImage, `chatify-image.jpg`);
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.25)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
+          >
+            <DownloadIcon className="w-5 h-5" />
+            <span className="text-sm font-medium">Download</span>
           </button>
           <img
             src={previewImage}

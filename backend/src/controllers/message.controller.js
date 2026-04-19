@@ -54,10 +54,11 @@ export const sendMessage = async (req, res) => {
 
     let imageUrl;
     if (image) {
+      const isPdf = image.startsWith("data:application/pdf");
       const uploadResponse = await cloudinary.uploader.upload(image, {
         folder: "chatify_messages",
-        resource_type: "image",
-        transformation: [{ quality: "auto", fetch_format: "auto" }],
+        resource_type: isPdf ? "raw" : "image",
+        ...(isPdf ? {} : { transformation: [{ quality: "auto", fetch_format: "auto" }] }),
       });
       imageUrl = uploadResponse.secure_url;
     }
