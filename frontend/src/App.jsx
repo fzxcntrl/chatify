@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router";
 import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
-import SettingsPage from "./pages/SettingsPage";
 import BrowseUsersPage from "./pages/BrowseUsersPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
@@ -30,7 +29,6 @@ function App() {
       <Routes>
         <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
         <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
-        <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to={"/login"} />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
       </Routes>

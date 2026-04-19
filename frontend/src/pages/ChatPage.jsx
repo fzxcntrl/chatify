@@ -4,12 +4,14 @@ import ProfileHeader from "../components/ProfileHeader";
 import ActiveTabSwitch from "../components/ActiveTabSwitch";
 import ChatsList from "../components/ChatsList";
 import ContactList from "../components/ContactList";
+import IncomingRequestsList from "../components/IncomingRequestsList";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 import MapTrackerModal from "../components/MapTrackerModal";
+import SettingsModal from "../components/SettingsModal";
 
 function ChatPage() {
-  const { activeTab, selectedUser, showMapTracker, setShowMapTracker } = useChatStore();
+  const { activeTab, selectedUser, showMapTracker, setShowMapTracker, showSettingsModal, setShowSettingsModal } = useChatStore();
 
   return (
     <div className="h-screen h-dvh flex items-center justify-center p-2 md:p-4">
@@ -36,7 +38,9 @@ function ChatPage() {
           <ActiveTabSwitch />
 
           <div className="flex-1 overflow-y-auto p-3 space-y-1">
-            {activeTab === "chats" ? <ChatsList /> : <ContactList />}
+            {activeTab === "chats" && <ChatsList />}
+            {activeTab === "contacts" && <ContactList />}
+            {activeTab === "requests" && <IncomingRequestsList />}
           </div>
         </div>
 
@@ -48,8 +52,13 @@ function ChatPage() {
         >
           {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
           
+          
           {showMapTracker && (
              <MapTrackerModal onClose={() => setShowMapTracker(false)} />
+          )}
+
+          {showSettingsModal && (
+             <SettingsModal onClose={() => setShowSettingsModal(false)} />
           )}
         </div>
       </div>

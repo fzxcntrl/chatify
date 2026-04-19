@@ -8,7 +8,7 @@ const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
 
 function ProfileHeader() {
   const { logout, authUser, updateProfile } = useAuthStore();
-  const { isSoundEnabled, toggleSound } = useChatStore();
+  const { isSoundEnabled, toggleSound, setShowSettingsModal } = useChatStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -52,25 +52,35 @@ function ProfileHeader() {
         <div className="flex gap-1 items-center">
           <Link
             to="/browse"
-            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors"
+            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors border border-transparent"
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = 'var(--border)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'transparent';
             }}
           >
             <SearchIcon className="w-[18px] h-[18px]" />
-            <span className="text-[10px] font-medium leading-none">Find</span>
+            <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Find</span>
           </Link>
           <button
-            className="p-2 rounded-lg transition-colors"
+            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors border border-transparent"
             style={{ color: 'var(--text-secondary)' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'transparent';
+            }}
             onClick={() => {
               mouseClickSound.currentTime = 0;
               mouseClickSound.play().catch(() => {});
@@ -82,38 +92,43 @@ function ProfileHeader() {
             ) : (
               <VolumeOffIcon className="w-[18px] h-[18px]" />
             )}
+            <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Sound</span>
           </button>
-          <Link
-            to="/settings"
-            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors"
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors border border-transparent"
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.color = 'var(--primary)';
+              e.currentTarget.style.borderColor = 'var(--border)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'transparent';
             }}
           >
             <SettingsIcon className="w-[18px] h-[18px]" />
-            <span className="text-[10px] font-medium leading-none">Settings</span>
-          </Link>
+            <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Settings</span>
+          </button>
           <button
-            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors"
+            className="p-1.5 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors border border-transparent"
             style={{ color: 'var(--text-secondary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
               e.currentTarget.style.color = 'var(--danger)';
+              e.currentTarget.style.borderColor = 'var(--border)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'transparent';
             }}
             onClick={() => setShowLogoutModal(true)}
           >
             <LogOutIcon className="w-[18px] h-[18px]" />
-            <span className="text-[10px] font-medium leading-none">Log Out</span>
+            <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Log Out</span>
           </button>
         </div>
       </div>

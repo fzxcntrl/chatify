@@ -119,9 +119,18 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+
+    import('./useChatStore').then((module) => {
+      module.useChatStore.getState().subscribeToLocationRequests();
+    });
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    if (get().socket?.connected) {
+       get().socket.disconnect();
+       import('./useChatStore').then((module) => {
+         module.useChatStore.getState().unsubscribeFromLocationRequests();
+       });
+    }
   },
 }));

@@ -1,7 +1,9 @@
 import { useChatStore } from "../store/useChatStore";
+import { useNavigate } from "react-router";
 
 function ActiveTabSwitch() {
   const { activeTab, setActiveTab } = useChatStore();
+  const navigate = useNavigate();
 
   return (
     <div
@@ -13,7 +15,7 @@ function ActiveTabSwitch() {
     >
       <button
         onClick={() => setActiveTab("chats")}
-        className="flex-1 py-2 text-sm font-medium transition-all"
+        className="flex-1 py-1.5 text-xs font-medium transition-all"
         style={{
           borderRadius: 'var(--radius-sm)',
           backgroundColor: activeTab === "chats" ? 'var(--bg-elevated)' : 'transparent',
@@ -26,7 +28,7 @@ function ActiveTabSwitch() {
 
       <button
         onClick={() => setActiveTab("contacts")}
-        className="flex-1 py-2 text-sm font-medium transition-all"
+        className="flex-1 py-1.5 text-xs font-medium transition-all"
         style={{
           borderRadius: 'var(--radius-sm)',
           backgroundColor: activeTab === "contacts" ? 'var(--bg-elevated)' : 'transparent',
@@ -35,6 +37,32 @@ function ActiveTabSwitch() {
         }}
       >
         Contacts
+      </button>
+
+      <button
+        onClick={() => navigate('/browse')}
+        className="flex-1 py-1.5 text-xs font-medium transition-all"
+        style={{
+          borderRadius: 'var(--radius-sm)',
+          backgroundColor: 'transparent',
+          color: 'var(--text-muted)',
+          boxShadow: 'none',
+        }}
+      >
+        Browse
+      </button>
+
+      <button
+        onClick={() => setActiveTab("requests")}
+        className="flex-1 py-1.5 text-xs font-medium transition-all"
+        style={{
+          borderRadius: 'var(--radius-sm)',
+          backgroundColor: activeTab === "requests" ? 'var(--bg-elevated)' : 'transparent',
+          color: activeTab === "requests" ? 'var(--primary)' : 'var(--text-muted)',
+          boxShadow: activeTab === "requests" ? 'var(--shadow-sm)' : 'none',
+        }}
+      >
+        Requests
       </button>
     </div>
   );

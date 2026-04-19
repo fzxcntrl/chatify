@@ -1,6 +1,7 @@
+import { useState, useRef } from "react";
 import { useAuthStore, applyTheme } from "../store/useAuthStore";
-import { ArrowLeftIcon, SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, UploadIcon, LoaderIcon, LockIcon, CameraIcon } from "lucide-react";
-import { Link } from "react-router";
+import { ArrowLeftIcon, SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, UploadIcon, LoaderIcon, LockIcon, CameraIcon, XIcon } from "lucide-react";
+
 
 const PRESET_WALLPAPERS = [
   { id: "none", name: "Solid Dark", value: "none" },
@@ -9,7 +10,7 @@ const PRESET_WALLPAPERS = [
   { id: "aurora", name: "Aurora", value: "linear-gradient(to bottom, #111424, #1E1236, #0D263B)" }
 ];
 
-function SettingsPage() {
+function SettingsModal({ onClose }) {
   const { authUser, updateProfile, changePassword } = useAuthStore();
   const [activeTab, setActiveTab] = useState("display");
 
@@ -100,14 +101,14 @@ function SettingsPage() {
   const hasDisplayChanges = selectedTheme !== authUser?.theme || selectedWallpaper !== authUser?.wallpaper;
 
   return (
-    <div className="min-h-screen p-4 flex justify-center" style={{ backgroundColor: 'transparent' }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
       <div 
-        className="w-full max-w-4xl flex flex-col md:flex-row gap-6 animate-fade-in"
-        style={{ height: 'calc(100vh - 2rem)', maxHeight: '860px' }}
+        className="w-full max-w-4xl flex flex-col md:flex-row gap-6 animate-fade-in-up"
+        style={{ height: 'calc(100vh - 4rem)', maxHeight: '860px' }}
       >
         
         <div 
-          className="w-full md:w-64 flex flex-col overflow-hidden"
+          className="w-full md:w-64 flex flex-col overflow-hidden relative"
           style={{
             backgroundColor: 'var(--bg-surface)',
             borderRadius: 'var(--radius-lg)',
@@ -115,10 +116,17 @@ function SettingsPage() {
             boxShadow: 'var(--shadow-lg)'
           }}
         >
+          <button 
+             onClick={onClose}
+             className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[var(--bg-hover)] transition-colors md:hidden"
+             style={{ color: 'var(--text-secondary)' }}
+          >
+             <XIcon className="w-5 h-5" />
+          </button>
           <div className="p-6 border-b border-[var(--border)] flex items-center gap-4">
-            <Link to="/" className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
-              <ArrowLeftIcon className="w-5 h-5" />
-            </Link>
+            <button onClick={onClose} className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hidden md:block">
+              <XIcon className="w-5 h-5" />
+            </button>
             <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
           </div>
 
@@ -424,4 +432,4 @@ function SettingsPage() {
   );
 }
 
-export default SettingsPage;
+export default SettingsModal;

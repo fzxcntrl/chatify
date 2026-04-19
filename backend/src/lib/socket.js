@@ -40,6 +40,25 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("ask-location", ({ receiverId }) => {
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("location-request", {
+        senderId: userId,
+      });
+    }
+  });
+
+  socket.on("location-response", ({ senderId, accepted }) => {
+    const senderSocketId = getReceiverSocketId(senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("location-response-received", {
+         receiverId: userId,
+         accepted,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
