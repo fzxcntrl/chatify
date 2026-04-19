@@ -222,7 +222,7 @@ export const declineRequest = async (req, res) => {
   }
 };
 
-// Get a user's public profile (contact count)
+
 export const getUserProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -243,7 +243,7 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
-// Get a user's contacts list (public info)
+
 export const getUserContacts = async (req, res) => {
   try {
     const { id } = req.params;

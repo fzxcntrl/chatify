@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "default",
     },
+    chatBg: {
+      type: String,
+      default: "default",
+    },
 
     wallpaper: {
       type: String,

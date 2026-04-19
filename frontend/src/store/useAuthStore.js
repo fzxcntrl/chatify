@@ -5,101 +5,109 @@ import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : import.meta.env.VITE_API_URL;
 
-// 10 Chat Color Themes — each defines sent/received bubble + text colors
+// 10 Chat Background Colors — the area behind the bubbles
+export const CHAT_BACKGROUNDS = {
+  default: { name: "Charcoal", color: "#1A1F2E" },
+  slate: { name: "Slate", color: "#1E293B" },
+  navy: { name: "Navy", color: "#0F172A" },
+  forest: { name: "Forest", color: "#14261E" },
+  wine: { name: "Wine", color: "#261419" },
+  plum: { name: "Plum", color: "#1E1030" },
+  ocean: { name: "Ocean", color: "#0C2637" },
+  coffee: { name: "Coffee", color: "#1F1610" },
+  graphite: { name: "Graphite", color: "#212121" },
+  midnight: { name: "Midnight", color: "#0A0E1A" },
+};
+
+// 10 Chat Bubble Color Themes (sent/received bubble + text colors)
 export const CHAT_THEMES = {
   default: {
     name: "Terracotta",
     sentBg: "#E07A5F",
     sentText: "#FFFFFF",
-    receivedBg: "#1E2433",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#E8E6E3",
-    preview: ["#E07A5F", "#1E2433"],
   },
   ocean: {
     name: "Ocean",
     sentBg: "#0891B2",
     sentText: "#FFFFFF",
-    receivedBg: "#164E63",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#E0F2FE",
-    preview: ["#0891B2", "#164E63"],
   },
   emerald: {
     name: "Emerald",
     sentBg: "#059669",
     sentText: "#FFFFFF",
-    receivedBg: "#1B3A2D",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#D1FAE5",
-    preview: ["#059669", "#1B3A2D"],
   },
   lavender: {
     name: "Lavender",
     sentBg: "#7C3AED",
     sentText: "#FFFFFF",
-    receivedBg: "#2E1065",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#EDE9FE",
-    preview: ["#7C3AED", "#2E1065"],
   },
   rose: {
     name: "Rose",
     sentBg: "#E11D48",
     sentText: "#FFFFFF",
-    receivedBg: "#3B1124",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#FFE4E6",
-    preview: ["#E11D48", "#3B1124"],
   },
   sunset: {
     name: "Sunset",
     sentBg: "#EA580C",
     sentText: "#FFFFFF",
-    receivedBg: "#431407",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#FED7AA",
-    preview: ["#EA580C", "#431407"],
   },
   midnight: {
     name: "Midnight",
     sentBg: "#2563EB",
     sentText: "#FFFFFF",
-    receivedBg: "#1E293B",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#DBEAFE",
-    preview: ["#2563EB", "#1E293B"],
   },
   golden: {
     name: "Golden",
     sentBg: "#B45309",
     sentText: "#FFFFFF",
-    receivedBg: "#292117",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#FEF3C7",
-    preview: ["#B45309", "#292117"],
   },
   crimson: {
     name: "Crimson",
     sentBg: "#9F1239",
     sentText: "#FFFFFF",
-    receivedBg: "#1C1017",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#FECDD3",
-    preview: ["#9F1239", "#1C1017"],
   },
-  slate: {
-    name: "Slate",
+  steel: {
+    name: "Steel",
     sentBg: "#475569",
     sentText: "#FFFFFF",
-    receivedBg: "#1E293B",
+    receivedBg: "rgba(255,255,255,0.08)",
     receivedText: "#E2E8F0",
-    preview: ["#475569", "#1E293B"],
   },
 };
 
-export const applyTheme = (theme, chatTheme) => {
+export const applyTheme = (theme, chatTheme, chatBg) => {
   document.documentElement.setAttribute('data-theme', theme || 'dark');
 
-  // Apply chat color theme
+  // Apply chat bubble colors
   const ct = CHAT_THEMES[chatTheme] || CHAT_THEMES.default;
   document.documentElement.style.setProperty('--bubble-sent', ct.sentBg);
   document.documentElement.style.setProperty('--bubble-sent-text', ct.sentText);
   document.documentElement.style.setProperty('--bubble-received', ct.receivedBg);
   document.documentElement.style.setProperty('--bubble-received-text', ct.receivedText);
 
-  // Always use animated gradient background
+  // Apply chat background color
+  const bg = CHAT_BACKGROUNDS[chatBg] || CHAT_BACKGROUNDS.default;
+  document.documentElement.style.setProperty('--chat-bg', bg.color);
+
+  // Always use animated gradient background for the page
   document.body.style.background = '';
   document.body.className = 'animated-gradient-bg';
 };
@@ -116,11 +124,11 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme);
+      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
       get().connectSocket();
     } catch (error) {
       set({ authUser: null });
-      applyTheme('dark', 'default');
+      applyTheme('dark', 'default', 'default');
     } finally {
       set({ isCheckingAuth: false });
     }
@@ -131,7 +139,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme);
+      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
       toast.success("Account created successfully!");
       get().connectSocket();
     } catch (error) {
@@ -146,7 +154,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme);
+      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
@@ -160,7 +168,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
-      applyTheme('dark', 'default');
+      applyTheme('dark', 'default', 'default');
       toast.success("Logged out successfully");
       get().disconnectSocket();
     } catch (error) {
@@ -172,7 +180,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme);
+      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
       toast.success("Preferences updated successfully");
     } catch (error) {
       toast.error(error.response?.data?.message || "Connection failed");

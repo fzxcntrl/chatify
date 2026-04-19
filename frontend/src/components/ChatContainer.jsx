@@ -70,7 +70,7 @@ function ChatContainer() {
   return (
     <>
       <ChatHeader />
-      <div className="flex-1 px-4 md:px-6 overflow-y-auto py-6">
+      <div className="flex-1 px-4 md:px-6 overflow-y-auto py-6" style={{ backgroundColor: 'var(--chat-bg)' }}>
         {messages.length > 0 && !isMessagesLoading ? (
           <div className="max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {

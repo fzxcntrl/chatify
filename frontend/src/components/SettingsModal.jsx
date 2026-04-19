@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useAuthStore, applyTheme, CHAT_THEMES } from "../store/useAuthStore";
-import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon } from "lucide-react";
+import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS } from "../store/useAuthStore";
+import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, PaletteIcon } from "lucide-react";
 
 function SettingsModal({ onClose }) {
   const { authUser, updateProfile, changePassword } = useAuthStore();
@@ -8,6 +8,7 @@ function SettingsModal({ onClose }) {
 
   const [selectedTheme, setSelectedTheme] = useState(authUser?.theme || "dark");
   const [selectedChatTheme, setSelectedChatTheme] = useState(authUser?.chatTheme || "default");
+  const [selectedChatBg, setSelectedChatBg] = useState(authUser?.chatBg || "default");
   const [isUpdatingDisplay, setIsUpdatingDisplay] = useState(false);
 
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
@@ -16,17 +17,22 @@ function SettingsModal({ onClose }) {
 
   const handleThemeChange = (newTheme) => {
     setSelectedTheme(newTheme);
-    applyTheme(newTheme, selectedChatTheme);
+    applyTheme(newTheme, selectedChatTheme, selectedChatBg);
   };
 
   const handleChatThemeChange = (themeKey) => {
     setSelectedChatTheme(themeKey);
-    applyTheme(selectedTheme, themeKey);
+    applyTheme(selectedTheme, themeKey, selectedChatBg);
+  };
+
+  const handleChatBgChange = (bgKey) => {
+    setSelectedChatBg(bgKey);
+    applyTheme(selectedTheme, selectedChatTheme, bgKey);
   };
 
   const saveDisplaySettings = async () => {
     setIsUpdatingDisplay(true);
-    await updateProfile({ theme: selectedTheme, chatTheme: selectedChatTheme });
+    await updateProfile({ theme: selectedTheme, chatTheme: selectedChatTheme, chatBg: selectedChatBg });
     setIsUpdatingDisplay(false);
   };
 
@@ -51,7 +57,10 @@ function SettingsModal({ onClose }) {
     }
   };
 
-  const hasDisplayChanges = selectedTheme !== authUser?.theme || selectedChatTheme !== (authUser?.chatTheme || "default");
+  const hasDisplayChanges =
+    selectedTheme !== (authUser?.theme || "dark") ||
+    selectedChatTheme !== (authUser?.chatTheme || "default") ||
+    selectedChatBg !== (authUser?.chatBg || "default");
 
   return (
     <div
@@ -63,7 +72,7 @@ function SettingsModal({ onClose }) {
         className="no-glass w-full max-w-4xl flex flex-col md:flex-row gap-0 overflow-hidden rounded-2xl animate-fade-in-up"
         style={{
           height: 'calc(100vh - 4rem)',
-          maxHeight: '700px',
+          maxHeight: '750px',
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow-lg)',
         }}
@@ -135,13 +144,13 @@ function SettingsModal({ onClose }) {
                     style={{
                       borderColor: selectedTheme === "dark" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "dark" ? 'var(--primary-muted)' : 'transparent',
-                      width: '110px'
+                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-md" style={{ backgroundColor: '#0F1419', color: 'white' }}>
                       <MoonIcon className="w-5 h-5" />
                     </div>
-                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Dark</span>
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Dark</span>
                   </button>
                   <button
                     onClick={() => handleThemeChange("light")}
@@ -149,28 +158,70 @@ function SettingsModal({ onClose }) {
                     style={{
                       borderColor: selectedTheme === "light" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "light" ? 'var(--primary-muted)' : 'transparent',
-                      width: '110px'
+                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-sm ring-1 ring-gray-200" style={{ backgroundColor: '#FFFFFF', color: '#18181B' }}>
                       <SunIcon className="w-5 h-5" />
                     </div>
-                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Light</span>
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>Light</span>
                   </button>
                 </div>
               </div>
 
-              {/* Chat Color Theme */}
+              {/* Chat Background Color */}
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-1">
+                  <PaletteIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Background</h3>
+                </div>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose the background color for the chat area.</p>
+
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                  {Object.entries(CHAT_BACKGROUNDS).map(([key, bg]) => {
+                    const isSelected = selectedChatBg === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleChatBgChange(key)}
+                        className="flex flex-col items-center gap-1.5 group"
+                        title={bg.name}
+                      >
+                        <div
+                          className="w-10 h-10 rounded-lg border-2 transition-all"
+                          style={{
+                            backgroundColor: bg.color,
+                            borderColor: isSelected ? 'var(--primary)' : 'transparent',
+                            boxShadow: isSelected ? '0 0 0 2px var(--primary)' : 'none',
+                            transform: isSelected ? 'scale(1.1)' : 'scale(1)',
+                          }}
+                        >
+                          {isSelected && (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-white font-bold">✓</div>
+                          )}
+                        </div>
+                        <span className="text-[9px] font-medium truncate w-full text-center" style={{ color: isSelected ? 'var(--primary)' : 'var(--text-muted)' }}>
+                          {bg.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Chat Color Theme (Bubble Colors) */}
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-1">
                   <MessageCircleIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Color Theme</h3>
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Bubble Color</h3>
                 </div>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose a color palette for your chat bubbles and message text.</p>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose the color for your sent and received message bubbles.</p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                   {Object.entries(CHAT_THEMES).map(([key, ct]) => {
                     const isSelected = selectedChatTheme === key;
+                    // Use selected background for preview
+                    const previewBg = CHAT_BACKGROUNDS[selectedChatBg]?.color || CHAT_BACKGROUNDS.default.color;
                     return (
                       <button
                         key={key}
@@ -178,29 +229,32 @@ function SettingsModal({ onClose }) {
                         className="group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all"
                         style={{
                           borderColor: isSelected ? ct.sentBg : 'var(--border)',
-                          backgroundColor: isSelected ? `${ct.sentBg}12` : 'transparent',
+                          backgroundColor: isSelected ? `${ct.sentBg}15` : 'transparent',
                         }}
                       >
-                        {/* Chat preview mini bubbles */}
-                        <div className="w-full flex flex-col gap-1.5 py-2 px-1">
-                          {/* Received bubble */}
+                        {/* Chat preview */}
+                        <div
+                          className="w-full rounded-lg py-3 px-2 flex flex-col gap-1.5"
+                          style={{ backgroundColor: previewBg }}
+                        >
+                          {/* Received */}
                           <div className="flex justify-start">
                             <div
-                              className="px-3 py-1.5 rounded-xl rounded-bl-sm text-[10px] font-medium max-w-[85%]"
+                              className="px-3 py-1.5 rounded-xl rounded-bl-sm text-[10px] font-medium"
                               style={{ backgroundColor: ct.receivedBg, color: ct.receivedText }}
                             >
-                              Hey there!
-                              <span className="block text-[8px] mt-0.5" style={{ opacity: 0.6 }}>10:30</span>
+                              Hey!
+                              <span className="block text-[7px] mt-0.5" style={{ opacity: 0.6 }}>10:30</span>
                             </div>
                           </div>
-                          {/* Sent bubble */}
+                          {/* Sent */}
                           <div className="flex justify-end">
                             <div
-                              className="px-3 py-1.5 rounded-xl rounded-br-sm text-[10px] font-medium max-w-[85%]"
+                              className="px-3 py-1.5 rounded-xl rounded-br-sm text-[10px] font-medium"
                               style={{ backgroundColor: ct.sentBg, color: ct.sentText }}
                             >
                               Hi! 👋
-                              <span className="block text-[8px] mt-0.5" style={{ opacity: 0.7 }}>10:31</span>
+                              <span className="block text-[7px] mt-0.5" style={{ opacity: 0.7 }}>10:31</span>
                             </div>
                           </div>
                         </div>
@@ -208,7 +262,6 @@ function SettingsModal({ onClose }) {
                           {ct.name}
                         </span>
 
-                        {/* Selected checkmark */}
                         {isSelected && (
                           <div
                             className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
@@ -300,8 +353,13 @@ function SettingsModal({ onClose }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => {
-                    handleThemeChange(authUser?.theme || "dark");
-                    handleChatThemeChange(authUser?.chatTheme || "default");
+                    const origTheme = authUser?.theme || "dark";
+                    const origChatTheme = authUser?.chatTheme || "default";
+                    const origChatBg = authUser?.chatBg || "default";
+                    setSelectedTheme(origTheme);
+                    setSelectedChatTheme(origChatTheme);
+                    setSelectedChatBg(origChatBg);
+                    applyTheme(origTheme, origChatTheme, origChatBg);
                   }}
                   disabled={isUpdatingDisplay}
                   className="px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[var(--bg-hover)] transition-colors"

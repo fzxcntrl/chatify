@@ -52,8 +52,10 @@ export const signup = async (req, res) => {
       username: savedUser.username,
       email: savedUser.email,
       profilePic: savedUser.profilePic,
+      bio: savedUser.bio,
       theme: savedUser.theme,
-      wallpaper: savedUser.wallpaper,
+      chatTheme: savedUser.chatTheme,
+      chatBg: savedUser.chatBg,
     });
 
     if (ENV.RESEND_API_KEY) {
@@ -86,8 +88,10 @@ export const login = async (req, res) => {
       username: user.username,
       email: user.email,
       profilePic: user.profilePic,
+      bio: user.bio,
       theme: user.theme,
-      wallpaper: user.wallpaper,
+      chatTheme: user.chatTheme,
+      chatBg: user.chatBg,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -101,7 +105,7 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic, username, bio, theme, wallpaper } = req.body;
+    const { profilePic, username, bio, theme, chatTheme, chatBg } = req.body;
     const userId = req.user._id;
     let updateData = {};
 
@@ -112,19 +116,6 @@ export const updateProfile = async (req, res) => {
         transformation: [{ width: 400, height: 400, crop: "fill", quality: "auto" }],
       });
       updateData.profilePic = uploadResponse.secure_url;
-    }
-
-    if (wallpaper && wallpaper !== req.user.wallpaper) {
-      if (wallpaper.startsWith("data:image")) {
-        const uploadResponse = await cloudinary.uploader.upload(wallpaper, {
-          folder: "chatify_wallpapers",
-          resource_type: "image",
-          transformation: [{ quality: "auto", fetch_format: "auto" }],
-        });
-        updateData.wallpaper = uploadResponse.secure_url;
-      } else {
-        updateData.wallpaper = wallpaper;
-      }
     }
 
     if (username) {
@@ -148,6 +139,14 @@ export const updateProfile = async (req, res) => {
 
     if (theme && ["dark", "light"].includes(theme)) {
       updateData.theme = theme;
+    }
+
+    if (chatTheme !== undefined) {
+      updateData.chatTheme = chatTheme;
+    }
+
+    if (chatBg !== undefined) {
+      updateData.chatBg = chatBg;
     }
 
     if (Object.keys(updateData).length === 0) {
