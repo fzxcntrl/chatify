@@ -2,6 +2,7 @@ import express from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import {
   searchUsers,
+  getSuggestions,
   sendRequest,
   getIncomingRequests,
   acceptRequest,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(protectRoute);
 
 router.get("/search", searchUsers);
+router.get("/suggestions", getSuggestions);
 router.get("/requests", getIncomingRequests);
 router.get("/profile/:id", getUserProfile);
 router.get("/profile/:id/contacts", getUserContacts);

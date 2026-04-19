@@ -4,9 +4,24 @@ import toast from "react-hot-toast";
 
 export const useFriendStore = create((set, get) => ({
   searchResults: [],
+  suggestions: [],
   incomingRequests: [],
   isSearching: false,
+  isFetchingSuggestions: false,
   isFetchingRequests: false,
+
+  getSuggestions: async () => {
+    set({ isFetchingSuggestions: true });
+    try {
+      const res = await axiosInstance.get("/friends/suggestions");
+      set({ suggestions: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load suggestions");
+      set({ suggestions: [] });
+    } finally {
+      set({ isFetchingSuggestions: false });
+    }
+  },
 
   searchUsers: async (query) => {
     if (!query) {
@@ -43,9 +58,12 @@ export const useFriendStore = create((set, get) => ({
       toast.success("Friend request sent");
       
       // Update local search results state
-      const { searchResults } = get();
+      const { searchResults, suggestions } = get();
       set({
         searchResults: searchResults.map((user) =>
+          user._id === receiverId ? { ...user, requestStatus: "pending", isSender: true } : user
+        ),
+        suggestions: suggestions.map((user) =>
           user._id === receiverId ? { ...user, requestStatus: "pending", isSender: true } : user
         ),
       });
@@ -85,6 +103,6 @@ export const useFriendStore = create((set, get) => ({
   },
 
   clearFriendState: () => {
-    set({ searchResults: [], incomingRequests: [] });
+    set({ searchResults: [], suggestions: [], incomingRequests: [] });
   }
 }));

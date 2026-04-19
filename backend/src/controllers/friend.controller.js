@@ -1,6 +1,54 @@
 import User from "../models/User.js";
 import FriendRequest from "../models/FriendRequest.js";
 
+// Get suggested users (non-friends, non-self, random sample)
+export const getSuggestions = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user._id);
+
+    const suggestions = await User.aggregate([
+      {
+        $match: {
+          _id: { $ne: currentUser._id, $nin: currentUser.friends },
+        },
+      },
+      { $sample: { size: 15 } },
+      {
+        $project: {
+          username: 1,
+          fullName: 1,
+          profilePic: 1,
+          bio: 1,
+        },
+      },
+    ]);
+
+    // Attach request status for each suggestion
+    const suggestionsWithStatus = await Promise.all(
+      suggestions.map(async (u) => {
+        const existingReq = await FriendRequest.findOne({
+          $or: [
+            { sender: req.user._id, receiver: u._id },
+            { sender: u._id, receiver: req.user._id },
+          ],
+        });
+
+        return {
+          ...u,
+          requestStatus: existingReq ? existingReq.status : "none",
+          isSender: existingReq ? existingReq.sender.equals(req.user._id) : false,
+        };
+      })
+    );
+
+    res.status(200).json(suggestionsWithStatus);
+  } catch (error) {
+    console.error("Error in getSuggestions:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 // Search users by username (excluding self and existing friends)
 export const searchUsers = async (req, res) => {
   try {
