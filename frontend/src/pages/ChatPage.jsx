@@ -9,9 +9,19 @@ import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
 import MapTrackerModal from "../components/MapTrackerModal";
 import SettingsModal from "../components/SettingsModal";
+import EditProfileModal from "../components/EditProfileModal";
 
 function ChatPage() {
-  const { activeTab, selectedUser, showMapTracker, setShowMapTracker, showSettingsModal, setShowSettingsModal } = useChatStore();
+  const {
+    activeTab,
+    selectedUser,
+    showMapTracker,
+    setShowMapTracker,
+    showSettingsModal,
+    setShowSettingsModal,
+    showEditProfileModal,
+    setShowEditProfileModal,
+  } = useChatStore();
 
   return (
     <div className="h-screen h-dvh flex items-center justify-center p-2 md:p-4">
@@ -51,17 +61,21 @@ function ChatPage() {
           style={{ backgroundColor: 'var(--bg-elevated)' }}
         >
           {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
-          
-          
+
           {showMapTracker && (
              <MapTrackerModal onClose={() => setShowMapTracker(false)} />
           )}
-
-          {showSettingsModal && (
-             <SettingsModal onClose={() => setShowSettingsModal(false)} />
-          )}
         </div>
       </div>
+
+      {/* Modals rendered at page level so they overlay everything properly */}
+      {showSettingsModal && (
+        <SettingsModal onClose={() => setShowSettingsModal(false)} />
+      )}
+
+      {showEditProfileModal && (
+        <EditProfileModal onClose={() => setShowEditProfileModal(false)} />
+      )}
     </div>
   );
 }

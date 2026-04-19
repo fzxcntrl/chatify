@@ -14,9 +14,13 @@ export const useChatStore = create((set, get) => ({
   isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
   showMapTracker: false,
   showSettingsModal: false,
+  showEditProfileModal: false,
+  imagePreview: null,
 
   setShowMapTracker: (show) => set({ showMapTracker: show }),
   setShowSettingsModal: (show) => set({ showSettingsModal: show }),
+  setShowEditProfileModal: (show) => set({ showEditProfileModal: show }),
+  setImagePreview: (src) => set({ imagePreview: src }),
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
