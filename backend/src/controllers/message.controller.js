@@ -121,3 +121,42 @@ export const getChatPartners = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// Proxy file download/preview — avoids CORS issues with Cloudinary raw URLs
+export const proxyFile = async (req, res) => {
+  try {
+    const { url } = req.query;
+    const download = req.query.download === "true";
+
+    if (!url || !url.includes("cloudinary.com")) {
+      return res.status(400).json({ message: "Invalid file URL" });
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(response.status).json({ message: "Failed to fetch file" });
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Length", buffer.length);
+
+    if (download) {
+      const filename = req.query.filename || "download";
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    } else {
+      // For PDF inline preview
+      if (contentType.includes("pdf") || url.toLowerCase().includes(".pdf")) {
+        res.setHeader("Content-Type", "application/pdf");
+      }
+      res.setHeader("Content-Disposition", "inline");
+    }
+
+    res.send(buffer);
+  } catch (error) {
+    console.error("Error in proxyFile:", error);
+    res.status(500).json({ message: "Failed to proxy file" });
+  }
+};
