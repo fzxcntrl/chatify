@@ -13,11 +13,11 @@ const createTrackerIcon = (variant, markerKey) =>
   L.divIcon({
     className: "",
     html: `
-      <div class="tracker-marker tracker-marker-${variant}">
+      <div class="tracker-marker tracker-marker-${variant} tracker-marker-key-${markerKey}">
         <div class="tracker-marker-pulse"></div>
         <div class="tracker-marker-pin">
           <div class="tracker-marker-head">
-            <span>${getMarkerSymbol(markerKey)}</span>
+            <span class="tracker-marker-icon">${getMarkerSymbol(markerKey)}</span>
           </div>
           <div class="tracker-marker-tail"></div>
         </div>
@@ -61,20 +61,14 @@ function MapTrackerModal({ onClose }) {
 
       if (markersRef.current[id]) {
         markersRef.current[id].setLatLng([latitude, longitude]);
+        markersRef.current[id].setIcon(createTrackerIcon(variant, markerKey));
         return;
       }
 
       markersRef.current[id] = L.marker([latitude, longitude], {
         icon: createTrackerIcon(variant, markerKey),
         zIndexOffset: variant === "friend" ? 1200 : 1000,
-      })
-        .bindTooltip(label, {
-          permanent: true,
-          direction: "top",
-          offset: [0, -18],
-          className: "tracker-tooltip",
-        })
-        .addTo(mapRef.current);
+      }).addTo(mapRef.current);
     };
 
     if (navigator.geolocation) {

@@ -32,6 +32,17 @@ function SettingsModal({ onClose }) {
     applyTheme(selectedTheme, selectedChatTheme, bgKey);
   };
 
+  const renderMarkerPreview = (markerKey) => (
+    <div className={`tracker-marker tracker-marker-preview tracker-marker-key-${markerKey}`}>
+      <div className="tracker-marker-pin">
+        <div className="tracker-marker-head">
+          <span className="tracker-marker-icon">{LOCATION_MARKERS[markerKey].symbol}</span>
+        </div>
+        <div className="tracker-marker-tail"></div>
+      </div>
+    </div>
+  );
+
   const saveDisplaySettings = async () => {
     setIsUpdatingDisplay(true);
     await updateProfile({
@@ -324,16 +335,8 @@ function SettingsModal({ onClose }) {
                           boxShadow: isSelected ? '0 0 0 1px var(--primary)' : 'none',
                         }}
                       >
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                          style={{
-                            background: isSelected
-                              ? 'linear-gradient(135deg, #E07A5F, #F4A261)'
-                              : 'linear-gradient(135deg, rgba(107,203,119,0.18), rgba(56,189,248,0.18))',
-                            border: '1px solid var(--border)',
-                          }}
-                        >
-                          {marker.symbol}
+                        <div className="w-14 h-16 flex items-center justify-center flex-shrink-0">
+                          {renderMarkerPreview(key)}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
