@@ -304,13 +304,14 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
-  max-width: 112px;
-  padding: 5px 10px;
+  max-width: 116px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
-  backdrop-filter: blur(8px);
+  background: rgba(176, 88, 48, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 18px rgba(69, 34, 20, 0.18);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
 }
 
 .tracker-marker-label-text {
@@ -318,11 +319,12 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: 0.01em;
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(69, 34, 20, 0.2);
 }
 
 .tracker-marker-pin {
@@ -405,11 +407,11 @@ body {
 }
 
 .tracker-marker-me .tracker-marker-label {
-  background: rgba(20, 83, 45, 0.88);
+  background: rgba(176, 88, 48, 0.58);
 }
 
 .tracker-marker-friend .tracker-marker-label {
-  background: rgba(154, 52, 18, 0.88);
+  background: rgba(176, 88, 48, 0.66);
 }
 
 .tracker-marker-emoji {

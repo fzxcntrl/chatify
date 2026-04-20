@@ -83,7 +83,7 @@ function MapTrackerModal({ onClose }) {
             id: myId,
             latitude,
             longitude,
-            label: "You",
+            label: authUser.username || "you",
             variant: "me",
             markerKey: authUser.locationMarker || DEFAULT_LOCATION_MARKER,
           });
@@ -114,7 +114,7 @@ function MapTrackerModal({ onClose }) {
          id,
          latitude,
          longitude,
-         label: selectedUser.fullName,
+         label: selectedUser.username || selectedUser.fullName,
          variant: "friend",
          markerKey: selectedUser.locationMarker || DEFAULT_LOCATION_MARKER,
        });
