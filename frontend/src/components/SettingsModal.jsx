@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS } from "../store/useAuthStore";
 import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
+import { getTrackerMarkerMarkup } from "../lib/trackerMarkerMarkup";
 import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, PaletteIcon, MapPinnedIcon } from "lucide-react";
 
 function SettingsModal({ onClose }) {
@@ -33,14 +34,12 @@ function SettingsModal({ onClose }) {
   };
 
   const renderMarkerPreview = (markerKey) => (
-    <div className={`tracker-marker tracker-marker-preview tracker-marker-key-${markerKey}`}>
-      <div className="tracker-marker-pin">
-        <div className="tracker-marker-head">
-          <span className="tracker-marker-icon">{LOCATION_MARKERS[markerKey].symbol}</span>
-        </div>
-        <div className="tracker-marker-tail"></div>
-      </div>
-    </div>
+    <div
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{
+        __html: getTrackerMarkerMarkup(markerKey, { preview: true }),
+      }}
+    />
   );
 
   const saveDisplaySettings = async () => {

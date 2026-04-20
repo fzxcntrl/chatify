@@ -281,6 +281,11 @@ body {
   animation: trackerFloat 2s ease-in-out infinite;
 }
 
+.tracker-marker-shaped {
+  width: 52px;
+  height: 58px;
+}
+
 .tracker-marker-pulse {
   position: absolute;
   top: 15px;
@@ -290,6 +295,14 @@ body {
   border-radius: 999px;
   transform: translate(-50%, -50%);
   animation: trackerPulse 1.8s ease-out infinite;
+}
+
+.tracker-marker-shaped .tracker-marker-pulse {
+  top: 38px;
+  width: 34px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  filter: blur(1px);
 }
 
 .tracker-marker-pin {
@@ -337,6 +350,80 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
+.tracker-marker-shape-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.tracker-marker-shape-wrap::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 30px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.18);
+  transform: translateX(-50%);
+  filter: blur(7px);
+}
+
+.tracker-marker-shape-svg {
+  width: 44px;
+  height: 44px;
+  overflow: visible;
+  filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.2));
+}
+
+.tracker-marker-shape-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-top: 4px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f8fafc, #cbd5e1);
+  box-shadow: 0 12px 18px rgba(15, 23, 42, 0.18);
+  font-size: 24px;
+}
+
+.tracker-marker-key-compass .tracker-marker-shape-svg,
+.tracker-marker-key-target .tracker-marker-shape-svg,
+.tracker-marker-key-star .tracker-marker-shape-svg,
+.tracker-marker-key-diamond .tracker-marker-shape-svg {
+  margin-top: 4px;
+}
+
+.tracker-marker-key-lightning .tracker-marker-shape-svg {
+  width: 42px;
+  height: 54px;
+  margin-top: 1px;
+}
+
+.tracker-marker-key-flame .tracker-marker-shape-svg,
+.tracker-marker-key-ghost .tracker-marker-shape-svg,
+.tracker-marker-key-skeleton .tracker-marker-shape-svg {
+  width: 42px;
+  height: 50px;
+  margin-top: 1px;
+}
+
+.tracker-marker-key-ufo .tracker-marker-shape-svg {
+  width: 48px;
+  height: 40px;
+  margin-top: 9px;
+}
+
+.tracker-marker-key-butterfly .tracker-marker-shape-svg {
+  width: 48px;
+  height: 44px;
+  margin-top: 6px;
+}
+
 .tracker-marker-me .tracker-marker-pulse {
   background: rgba(107, 203, 119, 0.38);
 }
@@ -361,6 +448,11 @@ body {
 
 .tracker-marker-me .tracker-marker-head {
   box-shadow: 0 0 0 5px rgba(107, 203, 119, 0.18), 0 16px 32px rgba(56, 161, 105, 0.2);
+}
+
+.tracker-marker-preview .tracker-marker-head,
+.tracker-marker-preview .tracker-marker-tail {
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
 }
 
 .tracker-marker-key-classic_pin .tracker-marker-head::after {
@@ -396,69 +488,24 @@ body {
   background: #dd6b20;
 }
 
-.tracker-marker-key-compass .tracker-marker-head,
-.tracker-marker-key-compass .tracker-marker-tail {
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
-}
-
-.tracker-marker-key-target .tracker-marker-head,
-.tracker-marker-key-target .tracker-marker-tail {
-  background: linear-gradient(135deg, #ef4444, #f97316);
-}
-
-.tracker-marker-key-lightning .tracker-marker-head,
-.tracker-marker-key-lightning .tracker-marker-tail {
-  background: linear-gradient(135deg, #7c3aed, #2563eb);
-}
-
-.tracker-marker-key-flame .tracker-marker-head,
-.tracker-marker-key-flame .tracker-marker-tail {
-  background: linear-gradient(180deg, #ffb703 0%, #fb8500 45%, #d62828 100%);
-}
-
-.tracker-marker-key-flame .tracker-marker-icon {
-  font-size: 16px;
-  transform: translateY(-1px) scale(1.1);
-}
-
-.tracker-marker-key-star .tracker-marker-head,
-.tracker-marker-key-star .tracker-marker-tail {
-  background: linear-gradient(135deg, #facc15, #f59e0b);
-}
-
-.tracker-marker-key-ghost .tracker-marker-head,
-.tracker-marker-key-ghost .tracker-marker-tail {
-  background: linear-gradient(135deg, #94a3b8, #e2e8f0);
-  color: #1e293b;
-}
-
-.tracker-marker-key-skeleton .tracker-marker-head,
-.tracker-marker-key-skeleton .tracker-marker-tail {
-  background: linear-gradient(135deg, #1f2937, #4b5563);
-}
-
-.tracker-marker-key-ufo .tracker-marker-head,
-.tracker-marker-key-ufo .tracker-marker-tail {
-  background: linear-gradient(135deg, #14b8a6, #6366f1);
-}
-
-.tracker-marker-key-butterfly .tracker-marker-head,
-.tracker-marker-key-butterfly .tracker-marker-tail {
-  background: linear-gradient(135deg, #ec4899, #8b5cf6);
-}
-
-.tracker-marker-key-diamond .tracker-marker-head,
-.tracker-marker-key-diamond .tracker-marker-tail {
-  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-}
-
 .tracker-marker-preview {
   animation: none;
-  transform: scale(0.92);
 }
 
 .tracker-marker-preview .tracker-marker-pulse {
   display: none;
+}
+
+.tracker-marker-preview:not(.tracker-marker-shaped) {
+  transform: scale(0.92);
+}
+
+.tracker-marker-preview.tracker-marker-shaped {
+  transform: scale(0.88);
+}
+
+.tracker-marker-preview .tracker-marker-shape-wrap::after {
+  background: rgba(15, 23, 42, 0.14);
 }
 
 :focus-visible {

@@ -3,29 +3,20 @@ import L from "leaflet";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { XIcon, MapPinIcon, NavigationIcon } from "lucide-react";
-import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
+import { DEFAULT_LOCATION_MARKER } from "../lib/locationMarkers";
+import { getTrackerMarkerDimensions, getTrackerMarkerMarkup } from "../lib/trackerMarkerMarkup";
 import "leaflet/dist/leaflet.css";
 
-const getMarkerSymbol = (markerKey) =>
-  LOCATION_MARKERS[markerKey]?.symbol || LOCATION_MARKERS[DEFAULT_LOCATION_MARKER].symbol;
+const createTrackerIcon = (variant, markerKey) => {
+  const { iconSize, iconAnchor } = getTrackerMarkerDimensions(markerKey);
 
-const createTrackerIcon = (variant, markerKey) =>
-  L.divIcon({
+  return L.divIcon({
     className: "",
-    html: `
-      <div class="tracker-marker tracker-marker-${variant} tracker-marker-key-${markerKey}">
-        <div class="tracker-marker-pulse"></div>
-        <div class="tracker-marker-pin">
-          <div class="tracker-marker-head">
-            <span class="tracker-marker-icon">${getMarkerSymbol(markerKey)}</span>
-          </div>
-          <div class="tracker-marker-tail"></div>
-        </div>
-      </div>
-    `,
-    iconSize: [34, 48],
-    iconAnchor: [17, 44],
+    html: getTrackerMarkerMarkup(markerKey, { variant }),
+    iconSize,
+    iconAnchor,
   });
+};
 
 function MapTrackerModal({ onClose }) {
   const mapRef = useRef(null);
