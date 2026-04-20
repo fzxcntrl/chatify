@@ -56,6 +56,22 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "default",
     },
+    locationMarker: {
+      type: String,
+      default: "classic_pin",
+      enum: [
+        "classic_pin",
+        "compass",
+        "target",
+        "lightning",
+        "flame",
+        "star",
+        "ghost",
+        "skeleton",
+        "ufo",
+        "butterfly",
+      ],
+    },
 
     wallpaper: {
       type: String,

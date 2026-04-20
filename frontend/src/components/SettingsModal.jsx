@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS } from "../store/useAuthStore";
-import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, PaletteIcon } from "lucide-react";
+import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
+import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, PaletteIcon, MapPinnedIcon } from "lucide-react";
 
 function SettingsModal({ onClose }) {
   const { authUser, updateProfile, changePassword } = useAuthStore();
@@ -9,6 +10,7 @@ function SettingsModal({ onClose }) {
   const [selectedTheme, setSelectedTheme] = useState(authUser?.theme || "dark");
   const [selectedChatTheme, setSelectedChatTheme] = useState(authUser?.chatTheme || "default");
   const [selectedChatBg, setSelectedChatBg] = useState(authUser?.chatBg || "default");
+  const [selectedLocationMarker, setSelectedLocationMarker] = useState(authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
   const [isUpdatingDisplay, setIsUpdatingDisplay] = useState(false);
 
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
@@ -32,7 +34,12 @@ function SettingsModal({ onClose }) {
 
   const saveDisplaySettings = async () => {
     setIsUpdatingDisplay(true);
-    await updateProfile({ theme: selectedTheme, chatTheme: selectedChatTheme, chatBg: selectedChatBg });
+    await updateProfile({
+      theme: selectedTheme,
+      chatTheme: selectedChatTheme,
+      chatBg: selectedChatBg,
+      locationMarker: selectedLocationMarker,
+    });
     setIsUpdatingDisplay(false);
   };
 
@@ -60,7 +67,8 @@ function SettingsModal({ onClose }) {
   const hasDisplayChanges =
     selectedTheme !== (authUser?.theme || "dark") ||
     selectedChatTheme !== (authUser?.chatTheme || "default") ||
-    selectedChatBg !== (authUser?.chatBg || "default");
+    selectedChatBg !== (authUser?.chatBg || "default") ||
+    selectedLocationMarker !== (authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
 
   return (
     <div
@@ -132,11 +140,17 @@ function SettingsModal({ onClose }) {
         >
           {activeTab === "display" && (
             <div className="flex-1 overflow-y-auto p-6 md:p-8 animate-fade-in">
-              <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>Display &amp; Theme</h2>
+              <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Display &amp; Theme</h2>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+                Change how your app looks and how your live location marker appears to other people.
+              </p>
 
               {/* Theme Mode */}
               <div className="mb-8">
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>Theme Mode</h3>
+                <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>App Theme</h3>
+                <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                  Choose whether the app uses a dark look or a light look.
+                </p>
                 <div className="flex gap-4">
                   <button
                     onClick={() => handleThemeChange("dark")}
@@ -175,7 +189,9 @@ function SettingsModal({ onClose }) {
                   <PaletteIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                   <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Background</h3>
                 </div>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose the background color for the chat area.</p>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                  This changes the large background behind your messages.
+                </p>
 
                 <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
                   {Object.entries(CHAT_BACKGROUNDS).map(([key, bg]) => {
@@ -218,7 +234,9 @@ function SettingsModal({ onClose }) {
                   <MessageCircleIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                   <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Bubble Color</h3>
                 </div>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Choose the color for your sent and received message bubbles.</p>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                  This changes the color style of the message bubbles inside chat.
+                </p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                   {Object.entries(CHAT_THEMES).map(([key, ct]) => {
@@ -276,6 +294,62 @@ function SettingsModal({ onClose }) {
                             ✓
                           </div>
                         )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-1">
+                  <MapPinnedIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Live Location Marker</h3>
+                </div>
+                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                  Pick the symbol people will see for you on the live location map.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Object.entries(LOCATION_MARKERS).map(([key, marker]) => {
+                    const isSelected = selectedLocationMarker === key;
+
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedLocationMarker(key)}
+                        className="flex items-center gap-4 p-4 rounded-xl border transition-all text-left"
+                        style={{
+                          borderColor: isSelected ? 'var(--primary)' : 'var(--border)',
+                          backgroundColor: isSelected ? 'var(--primary-muted)' : 'transparent',
+                          boxShadow: isSelected ? '0 0 0 1px var(--primary)' : 'none',
+                        }}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+                          style={{
+                            background: isSelected
+                              ? 'linear-gradient(135deg, #E07A5F, #F4A261)'
+                              : 'linear-gradient(135deg, rgba(107,203,119,0.18), rgba(56,189,248,0.18))',
+                            border: '1px solid var(--border)',
+                          }}
+                        >
+                          {marker.symbol}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {marker.name}
+                            </span>
+                            {isSelected && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
+                                Selected
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                            {marker.description}
+                          </p>
+                        </div>
                       </button>
                     );
                   })}
@@ -362,9 +436,11 @@ function SettingsModal({ onClose }) {
                     const origTheme = authUser?.theme || "dark";
                     const origChatTheme = authUser?.chatTheme || "default";
                     const origChatBg = authUser?.chatBg || "default";
+                    const origLocationMarker = authUser?.locationMarker || DEFAULT_LOCATION_MARKER;
                     setSelectedTheme(origTheme);
                     setSelectedChatTheme(origChatTheme);
                     setSelectedChatBg(origChatBg);
+                    setSelectedLocationMarker(origLocationMarker);
                     applyTheme(origTheme, origChatTheme, origChatBg);
                   }}
                   disabled={isUpdatingDisplay}

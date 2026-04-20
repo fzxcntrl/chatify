@@ -59,6 +59,7 @@ export const signup = async (req, res) => {
       theme: savedUser.theme,
       chatTheme: savedUser.chatTheme,
       chatBg: savedUser.chatBg,
+      locationMarker: savedUser.locationMarker,
       token,
     });
 
@@ -96,6 +97,7 @@ export const login = async (req, res) => {
       theme: user.theme,
       chatTheme: user.chatTheme,
       chatBg: user.chatBg,
+      locationMarker: user.locationMarker,
       token,
     });
   } catch (error) {
@@ -110,9 +112,21 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic, username, bio, theme, chatTheme, chatBg } = req.body;
+    const { profilePic, username, bio, theme, chatTheme, chatBg, locationMarker } = req.body;
     const userId = req.user._id;
     let updateData = {};
+    const allowedLocationMarkers = new Set([
+      "classic_pin",
+      "compass",
+      "target",
+      "lightning",
+      "flame",
+      "star",
+      "ghost",
+      "skeleton",
+      "ufo",
+      "butterfly",
+    ]);
 
     if (profilePic) {
       const uploadResponse = await cloudinary.uploader.upload(profilePic, {
@@ -153,6 +167,13 @@ export const updateProfile = async (req, res) => {
 
     if (chatBg !== undefined) {
       updateData.chatBg = chatBg;
+    }
+
+    if (locationMarker !== undefined) {
+      if (!allowedLocationMarkers.has(locationMarker)) {
+        return res.status(400).json({ message: "Invalid location marker selected" });
+      }
+      updateData.locationMarker = locationMarker;
     }
 
     if (Object.keys(updateData).length === 0) {

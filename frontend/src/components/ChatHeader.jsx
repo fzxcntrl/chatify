@@ -10,6 +10,7 @@ function ChatHeader() {
   const { selectedUser, setSelectedUser, showMapTracker, setShowMapTracker } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const isOnline = onlineUsers.includes(selectedUser._id);
+  const firstName = selectedUser.fullName?.split(" ")[0] || selectedUser.username;
   const [showLocationMenu, setShowLocationMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
@@ -82,7 +83,7 @@ function ChatHeader() {
         <div className="flex gap-2 items-center relative">
           <div className="relative">
             <button
-              className="p-1.5 rounded-lg transition-colors flex items-center gap-1"
+              className="p-1.5 rounded-lg transition-colors flex items-center gap-1.5 max-w-[180px]"
               style={{
                 color: showMapTracker || showLocationMenu ? 'white' : 'var(--text-secondary)',
                 backgroundColor: showMapTracker || showLocationMenu ? 'var(--primary)' : 'transparent'
@@ -97,7 +98,9 @@ function ChatHeader() {
               title="Location Options"
             >
               <MapPinIcon className="w-[18px] h-[18px]" />
-              {showMapTracker && <span className="text-[10px] pr-1 font-medium select-none">Tracking</span>}
+              <span className="text-[10px] pr-1 font-medium select-none truncate">
+                See {firstName}&apos;s live location
+              </span>
             </button>
 
             {showLocationMenu && (

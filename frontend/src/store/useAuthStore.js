@@ -9,6 +9,7 @@ import {
 } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+export { LOCATION_MARKERS, DEFAULT_LOCATION_MARKER } from "../lib/locationMarkers";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : API_ORIGIN;
 

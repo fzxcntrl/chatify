@@ -3,30 +3,26 @@ import L from "leaflet";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 import { XIcon, MapPinIcon, NavigationIcon } from "lucide-react";
+import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
 import "leaflet/dist/leaflet.css";
 
-const createTrackerIcon = (variant, label) =>
+const getMarkerSymbol = (markerKey) =>
+  LOCATION_MARKERS[markerKey]?.symbol || LOCATION_MARKERS[DEFAULT_LOCATION_MARKER].symbol;
+
+const createTrackerIcon = (variant, markerKey) =>
   L.divIcon({
     className: "",
     html: `
       <div class="tracker-marker tracker-marker-${variant}">
         <div class="tracker-marker-pulse"></div>
         <div class="tracker-marker-core">
-          <span>${label}</span>
+          <span>${getMarkerSymbol(markerKey)}</span>
         </div>
       </div>
     `,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });
-
-const getMarkerBadge = (label) =>
-  label
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || "")
-    .join("");
 
 function MapTrackerModal({ onClose }) {
   const mapRef = useRef(null);
@@ -57,7 +53,7 @@ function MapTrackerModal({ onClose }) {
       })
       .addTo(mapRef.current);
 
-    const updateMarker = ({ id, latitude, longitude, label, variant }) => {
+    const updateMarker = ({ id, latitude, longitude, label, variant, markerKey }) => {
       if (!mapRef.current) return;
 
       if (markersRef.current[id]) {
@@ -66,7 +62,7 @@ function MapTrackerModal({ onClose }) {
       }
 
       markersRef.current[id] = L.marker([latitude, longitude], {
-        icon: createTrackerIcon(variant, getMarkerBadge(label)),
+        icon: createTrackerIcon(variant, markerKey),
         zIndexOffset: variant === "friend" ? 1200 : 1000,
       })
         .bindTooltip(label, {
@@ -99,6 +95,7 @@ function MapTrackerModal({ onClose }) {
             longitude,
             label: "You",
             variant: "me",
+            markerKey: authUser.locationMarker || DEFAULT_LOCATION_MARKER,
           });
 
           if (!mapRef.current._pannedOnce) {
@@ -129,6 +126,7 @@ function MapTrackerModal({ onClose }) {
          longitude,
          label: selectedUser.fullName,
          variant: "friend",
+         markerKey: selectedUser.locationMarker || DEFAULT_LOCATION_MARKER,
        });
 
        const bounds = L.latLngBounds(
