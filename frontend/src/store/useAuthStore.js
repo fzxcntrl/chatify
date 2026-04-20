@@ -1,9 +1,16 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import {
+  API_ORIGIN,
+  axiosInstance,
+  clearAuthToken,
+  isUnauthorizedError,
+  setUnauthorizedHandler,
+  storeAuthToken,
+} from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : API_ORIGIN;
 
 // 10 Chat Background Colors — dark + light variants per entry
 export const CHAT_BACKGROUNDS = {
@@ -114,15 +121,46 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
   onlineUsers: [],
 
+  clearAuthState: async () => {
+    get().disconnectSocket();
+    clearAuthToken();
+    set({
+      authUser: null,
+      isCheckingAuth: false,
+      onlineUsers: [],
+    });
+    applyTheme('dark', 'default', 'default');
+
+    const [{ useChatStore }, { useFriendStore }] = await Promise.all([
+      import("./useChatStore"),
+      import("./useFriendStore"),
+    ]);
+
+    useChatStore.getState().resetChatState();
+    useFriendStore.getState().clearFriendState();
+  },
+
+  handleUnauthorized: async () => {
+    const hadSession = Boolean(get().authUser || get().socket || get().onlineUsers.length);
+    await get().clearAuthState();
+
+    if (hadSession) {
+      toast.error("Your session expired. Please log in again.");
+    }
+  },
+
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
-      set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
+      const { token, ...user } = res.data;
+      if (token) storeAuthToken(token);
+      set({ authUser: user, isCheckingAuth: false });
+      applyTheme(user.theme, user.chatTheme, user.chatBg);
       get().connectSocket();
     } catch (error) {
-      set({ authUser: null });
-      applyTheme('dark', 'default', 'default');
+      if (!isUnauthorizedError(error)) {
+        await get().clearAuthState();
+      }
     } finally {
       set({ isCheckingAuth: false });
     }
@@ -132,8 +170,10 @@ export const useAuthStore = create((set, get) => ({
     set({ isSigningUp: true });
     try {
       const res = await axiosInstance.post("/auth/signup", data);
-      set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
+      const { token, ...user } = res.data;
+      storeAuthToken(token);
+      set({ authUser: user });
+      applyTheme(user.theme, user.chatTheme, user.chatBg);
       toast.success("Account created successfully!");
       get().connectSocket();
     } catch (error) {
@@ -147,8 +187,10 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
-      set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
+      const { token, ...user } = res.data;
+      storeAuthToken(token);
+      set({ authUser: user });
+      applyTheme(user.theme, user.chatTheme, user.chatBg);
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
@@ -161,11 +203,15 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
-      set({ authUser: null });
-      applyTheme('dark', 'default', 'default');
+      await get().clearAuthState();
       toast.success("Logged out successfully");
-      get().disconnectSocket();
     } catch (error) {
+      if (isUnauthorizedError(error)) {
+        await get().clearAuthState();
+        toast.success("Logged out successfully");
+        return;
+      }
+
       toast.error("Error logging out");
     }
   },
@@ -177,7 +223,9 @@ export const useAuthStore = create((set, get) => ({
       applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
       toast.success("Preferences updated successfully");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Connection failed");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Connection failed");
+      }
     }
   },
 
@@ -188,7 +236,9 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Password changed successfully");
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to change password");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to change password");
+      }
       return false;
     } finally {
       setUpdating(false);
@@ -199,7 +249,11 @@ export const useAuthStore = create((set, get) => ({
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
 
-    const socket = io(BASE_URL, { withCredentials: true });
+    const token = localStorage.getItem("chatify-auth-token");
+    const socket = io(BASE_URL, {
+      withCredentials: true,
+      auth: token ? { token } : undefined,
+    });
     socket.connect();
     set({ socket });
 
@@ -214,12 +268,19 @@ export const useAuthStore = create((set, get) => ({
   },
 
   disconnectSocket: () => {
-    if (get().socket?.connected) {
-       get().socket.disconnect();
-       import('./useChatStore').then((module) => {
-         module.useChatStore.getState().unsubscribeFromLocationRequests();
-         module.useChatStore.getState().unsubscribeFromFriendRequests();
-       });
+    const socket = get().socket;
+    if (socket) {
+      socket.disconnect();
+      set({ socket: null, onlineUsers: [] });
+      import('./useChatStore').then((module) => {
+        module.useChatStore.getState().unsubscribeFromMessages();
+        module.useChatStore.getState().unsubscribeFromLocationRequests();
+        module.useChatStore.getState().unsubscribeFromFriendRequests();
+      });
     }
   },
 }));
+
+setUnauthorizedHandler(async () => {
+  await useAuthStore.getState().handleUnauthorized();
+});

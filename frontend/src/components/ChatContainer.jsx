@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { XIcon, DownloadIcon } from "lucide-react";
+import { XIcon, DownloadIcon, CheckIcon, CheckCheckIcon } from "lucide-react";
 
 function ChatContainer() {
   const {
@@ -13,6 +13,7 @@ function ChatContainer() {
     getMessagesByUserId,
     messages,
     isMessagesLoading,
+    markMessagesAsRead,
     subscribeToMessages,
     unsubscribeFromMessages,
   } = useChatStore();
@@ -21,11 +22,23 @@ function ChatContainer() {
   const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
-    getMessagesByUserId(selectedUser._id);
+    let isMounted = true;
+
+    const loadChat = async () => {
+      await getMessagesByUserId(selectedUser._id);
+      if (isMounted) {
+        await markMessagesAsRead(selectedUser._id);
+      }
+    };
+
+    loadChat();
     subscribeToMessages();
 
-    return () => unsubscribeFromMessages();
-  }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeFromMessages]);
+    return () => {
+      isMounted = false;
+      unsubscribeFromMessages();
+    };
+  }, [selectedUser, getMessagesByUserId, markMessagesAsRead, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
     if (messageEndRef.current) {
@@ -48,6 +61,18 @@ function ChatContainer() {
     } catch {
       window.open(url, "_blank");
     }
+  };
+
+  const renderMessageStatus = (message) => {
+    if (message.readAt) {
+      return <CheckCheckIcon className="w-3.5 h-3.5" style={{ color: "#38BDF8" }} />;
+    }
+
+    if (message.deliveredAt) {
+      return <CheckCheckIcon className="w-3.5 h-3.5" />;
+    }
+
+    return <CheckIcon className="w-3.5 h-3.5" />;
   };
 
   return (
@@ -103,15 +128,18 @@ function ChatContainer() {
                     {msg.text && (
                       <p className="text-sm leading-relaxed break-words">{msg.text}</p>
                     )}
-                    <p
-                      className="text-[11px] mt-1.5"
+                    <div
+                      className="mt-1.5 flex items-center justify-end gap-1.5 text-[11px]"
                       style={{ opacity: isSent ? 0.7 : 0.5 }}
                     >
-                      {new Date(msg.createdAt).toLocaleTimeString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                      <span>
+                        {new Date(msg.createdAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      {isSent && renderMessageStatus(msg)}
+                    </div>
                   </div>
                 </div>
               );

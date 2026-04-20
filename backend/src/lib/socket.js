@@ -3,6 +3,7 @@ import http from "http";
 import express from "express";
 import { ENV } from "./env.js";
 import { socketAuthMiddleware } from "../middleware/socket.auth.middleware.js";
+import Message from "../models/Message.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,11 +23,50 @@ export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
+const markPendingMessagesAsDelivered = async (userId) => {
+  const pendingMessages = await Message.find({
+    receiverId: userId,
+    deliveredAt: null,
+  }).select("_id senderId");
+
+  if (!pendingMessages.length) return;
+
+  const deliveredAt = new Date();
+
+  await Message.updateMany(
+    { _id: { $in: pendingMessages.map((message) => message._id) } },
+    { $set: { deliveredAt } }
+  );
+
+  const senderGroups = pendingMessages.reduce((groups, message) => {
+    const senderId = message.senderId.toString();
+    if (!groups[senderId]) {
+      groups[senderId] = [];
+    }
+    groups[senderId].push(message._id.toString());
+    return groups;
+  }, {});
+
+  Object.entries(senderGroups).forEach(([senderId, messageIds]) => {
+    const senderSocketId = getReceiverSocketId(senderId);
+    if (!senderSocketId) return;
+
+    io.to(senderSocketId).emit("message-status-updated", {
+      messageIds,
+      deliveredAt: deliveredAt.toISOString(),
+      readAt: null,
+    });
+  });
+};
+
 io.on("connection", (socket) => {
   const userId = socket.userId;
   userSocketMap[userId] = socket.id;
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  markPendingMessagesAsDelivered(userId).catch((error) => {
+    console.error("Failed to mark delivered messages:", error.message);
+  });
 
   socket.on("send-location", ({ receiverId, latitude, longitude }) => {
     const receiverSocketId = getReceiverSocketId(receiverId);

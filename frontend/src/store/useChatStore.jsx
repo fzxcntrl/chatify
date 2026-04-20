@@ -1,7 +1,18 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance, isUnauthorizedError } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
+
+const applyMessageStatusUpdate = (messages, messageIds, deliveredAt, readAt) =>
+  messages.map((message) =>
+    messageIds.includes(message._id)
+      ? {
+          ...message,
+          deliveredAt: readAt ? deliveredAt || message.deliveredAt : deliveredAt ?? message.deliveredAt,
+          readAt: readAt ?? message.readAt,
+        }
+      : message
+  );
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -23,6 +34,22 @@ export const useChatStore = create((set, get) => ({
   setShowSettingsModal: (show) => set({ showSettingsModal: show }),
   setShowEditProfileModal: (show) => set({ showEditProfileModal: show }),
   setImagePreview: (src) => set({ imagePreview: src }),
+  resetChatState: () =>
+    set({
+      allContacts: [],
+      chats: [],
+      messages: [],
+      activeTab: "chats",
+      selectedUser: null,
+      isUsersLoading: false,
+      isMessagesLoading: false,
+      showMapTracker: false,
+      showSettingsModal: false,
+      showEditProfileModal: false,
+      imagePreview: null,
+      requestCount: 0,
+      unreadChatCount: 0,
+    }),
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
@@ -41,7 +68,10 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/messages/contacts");
       set({ allContacts: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Connection failed");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Connection failed");
+      }
+      set({ allContacts: [] });
     } finally {
       set({ isUsersLoading: false });
     }
@@ -53,7 +83,10 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/messages/chats");
       set({ chats: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Connection failed");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Connection failed");
+      }
+      set({ chats: [] });
     } finally {
       set({ isUsersLoading: false });
     }
@@ -65,9 +98,28 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/messages/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      }
+      set({ messages: [] });
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  markMessagesAsRead: async (userId) => {
+    try {
+      const res = await axiosInstance.post(`/messages/read/${userId}`);
+      const { messageIds = [], deliveredAt = null, readAt = null } = res.data;
+      if (!messageIds.length) return;
+
+      set({
+        messages: applyMessageStatusUpdate(get().messages, messageIds, deliveredAt, readAt),
+      });
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to update message status");
+      }
     }
   },
 
@@ -91,10 +143,16 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+      set({
+        messages: get().messages.map((message) =>
+          message._id === tempId ? res.data : message
+        ),
+      });
     } catch (error) {
       set({ messages: messages });
-      toast.error(error.response?.data?.message || "Something went wrong");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      }
     }
   },
 
@@ -103,6 +161,7 @@ export const useChatStore = create((set, get) => ({
     if (!selectedUser) return;
 
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
 
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
@@ -119,6 +178,7 @@ export const useChatStore = create((set, get) => ({
 
       const currentMessages = get().messages;
       set({ messages: [...currentMessages, newMessage] });
+      get().markMessagesAsRead(selectedUser._id);
 
       if (isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
@@ -126,11 +186,20 @@ export const useChatStore = create((set, get) => ({
         notificationSound.play().catch(() => {});
       }
     });
+
+    socket.on("message-status-updated", ({ messageIds, deliveredAt, readAt }) => {
+      set({
+        messages: applyMessageStatusUpdate(get().messages, messageIds, deliveredAt, readAt),
+      });
+    });
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
     socket.off("newMessage");
+    socket.off("message-status-updated");
   },
 
   subscribeToLocationRequests: () => {

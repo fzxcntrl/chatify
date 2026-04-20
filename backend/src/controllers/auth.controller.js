@@ -1,5 +1,5 @@
 import { sendWelcomeEmail } from "../emails/emailHandlers.js";
-import { generateToken } from "../lib/utils.js";
+import { clearTokenCookie, generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
@@ -47,7 +47,7 @@ export const signup = async (req, res) => {
     });
 
     const savedUser = await newUser.save();
-    generateToken(savedUser._id, res);
+    const token = generateToken(savedUser._id, res);
 
     res.status(201).json({
       _id: savedUser._id,
@@ -59,6 +59,7 @@ export const signup = async (req, res) => {
       theme: savedUser.theme,
       chatTheme: savedUser.chatTheme,
       chatBg: savedUser.chatBg,
+      token,
     });
 
     // Send welcome email (don't block the response)
@@ -83,7 +84,7 @@ export const login = async (req, res) => {
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
 
-    generateToken(user._id, res);
+    const token = generateToken(user._id, res);
 
     res.status(200).json({
       _id: user._id,
@@ -95,6 +96,7 @@ export const login = async (req, res) => {
       theme: user.theme,
       chatTheme: user.chatTheme,
       chatBg: user.chatBg,
+      token,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -102,7 +104,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = (_, res) => {
-  res.cookie("jwt", "", { maxAge: 0 });
+  clearTokenCookie(res);
   res.status(200).json({ message: "Logged out successfully" });
 };
 

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance, isUnauthorizedError } from "../lib/axios";
 import toast from "react-hot-toast";
 
 export const useFriendStore = create((set, get) => ({
@@ -16,7 +16,9 @@ export const useFriendStore = create((set, get) => ({
       const res = await axiosInstance.get("/friends/suggestions");
       set({ suggestions: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load suggestions");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to load suggestions");
+      }
       set({ suggestions: [] });
     } finally {
       set({ isFetchingSuggestions: false });
@@ -33,7 +35,9 @@ export const useFriendStore = create((set, get) => ({
       const res = await axiosInstance.get(`/friends/search?query=${query}`);
       set({ searchResults: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to search users");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to search users");
+      }
       set({ searchResults: [] });
     } finally {
       set({ isSearching: false });
@@ -46,7 +50,10 @@ export const useFriendStore = create((set, get) => ({
       const res = await axiosInstance.get("/friends/requests");
       set({ incomingRequests: res.data });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch requests");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to fetch requests");
+      }
+      set({ incomingRequests: [] });
     } finally {
       set({ isFetchingRequests: false });
     }
@@ -68,7 +75,9 @@ export const useFriendStore = create((set, get) => ({
         ),
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to send request");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to send request");
+      }
     }
   },
 
@@ -83,7 +92,9 @@ export const useFriendStore = create((set, get) => ({
         incomingRequests: incomingRequests.filter((req) => req._id !== requestId),
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to accept");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to accept");
+      }
     }
   },
 
@@ -98,11 +109,20 @@ export const useFriendStore = create((set, get) => ({
         incomingRequests: incomingRequests.filter((req) => req._id !== requestId),
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to decline");
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to decline");
+      }
     }
   },
 
   clearFriendState: () => {
-    set({ searchResults: [], suggestions: [], incomingRequests: [] });
+    set({
+      searchResults: [],
+      suggestions: [],
+      incomingRequests: [],
+      isSearching: false,
+      isFetchingSuggestions: false,
+      isFetchingRequests: false,
+    });
   }
 }));

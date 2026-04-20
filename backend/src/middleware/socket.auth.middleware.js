@@ -2,12 +2,19 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { ENV } from "../lib/env.js";
 
+const getTokenFromSocket = (socket) => {
+  const handshakeToken = socket.handshake.auth?.token;
+  if (handshakeToken) return handshakeToken;
+
+  return socket.handshake.headers.cookie
+    ?.split("; ")
+    .find((row) => row.startsWith("jwt="))
+    ?.split("=")[1];
+};
+
 export const socketAuthMiddleware = async (socket, next) => {
   try {
-    const token = socket.handshake.headers.cookie
-      ?.split("; ")
-      .find((row) => row.startsWith("jwt="))
-      ?.split("=")[1];
+    const token = getTokenFromSocket(socket);
 
     if (!token) {
       return next(new Error("Unauthorized"));

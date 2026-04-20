@@ -3,6 +3,19 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 
+const emitMessageStatusUpdate = ({ receiverId, messageIds, deliveredAt, readAt }) => {
+  if (!messageIds.length) return;
+
+  const receiverSocketId = getReceiverSocketId(receiverId);
+  if (!receiverSocketId) return;
+
+  io.to(receiverSocketId).emit("message-status-updated", {
+    messageIds,
+    deliveredAt: deliveredAt ? deliveredAt.toISOString() : null,
+    readAt: readAt ? readAt.toISOString() : null,
+  });
+};
+
 export const getAllContacts = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
@@ -73,7 +86,17 @@ export const sendMessage = async (req, res) => {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
+      const deliveredAt = new Date();
+      newMessage.deliveredAt = deliveredAt;
+      await newMessage.save();
+
       io.to(receiverSocketId).emit("newMessage", newMessage);
+      emitMessageStatusUpdate({
+        receiverId: senderId.toString(),
+        messageIds: [newMessage._id.toString()],
+        deliveredAt,
+        readAt: null,
+      });
     }
 
     res.status(201).json(newMessage);
@@ -103,6 +126,52 @@ export const getChatPartners = async (req, res) => {
     const chatPartners = await User.find({ _id: { $in: chatPartnerIds } }).select("-password");
 
     res.status(200).json(chatPartners);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const markMessagesAsRead = async (req, res) => {
+  try {
+    const myId = req.user._id;
+    const { id: senderId } = req.params;
+
+    const unreadMessages = await Message.find({
+      senderId,
+      receiverId: myId,
+      readAt: null,
+    }).select("_id");
+
+    if (!unreadMessages.length) {
+      return res.status(200).json({ messageIds: [] });
+    }
+
+    const messageIds = unreadMessages.map((message) => message._id.toString());
+    const deliveredAt = new Date();
+    const readAt = new Date();
+
+    await Message.updateMany(
+      { _id: { $in: unreadMessages.map((message) => message._id) } },
+      {
+        $set: {
+          deliveredAt,
+          readAt,
+        },
+      }
+    );
+
+    emitMessageStatusUpdate({
+      receiverId: senderId,
+      messageIds,
+      deliveredAt,
+      readAt,
+    });
+
+    res.status(200).json({
+      messageIds,
+      deliveredAt: deliveredAt.toISOString(),
+      readAt: readAt.toISOString(),
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
