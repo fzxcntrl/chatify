@@ -180,6 +180,9 @@ function SettingsModal({ onClose }) {
                 <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
                   {Object.entries(CHAT_BACKGROUNDS).map(([key, bg]) => {
                     const isSelected = selectedChatBg === key;
+                    const isDark = selectedTheme === 'dark';
+                    const swatchColor = isDark ? bg.dark : bg.light;
+                    const isLightSwatch = !isDark;
                     return (
                       <button
                         key={key}
@@ -190,14 +193,14 @@ function SettingsModal({ onClose }) {
                         <div
                           className="w-10 h-10 rounded-lg border-2 transition-all"
                           style={{
-                            backgroundColor: bg.color,
-                            borderColor: isSelected ? 'var(--primary)' : 'transparent',
+                            backgroundColor: swatchColor,
+                            borderColor: isSelected ? 'var(--primary)' : 'var(--border)',
                             boxShadow: isSelected ? '0 0 0 2px var(--primary)' : 'none',
                             transform: isSelected ? 'scale(1.1)' : 'scale(1)',
                           }}
                         >
                           {isSelected && (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] text-white font-bold">✓</div>
+                            <div className="w-full h-full flex items-center justify-center text-[10px] font-bold" style={{ color: isLightSwatch ? '#333' : '#fff' }}>✓</div>
                           )}
                         </div>
                         <span className="text-[9px] font-medium truncate w-full text-center" style={{ color: isSelected ? 'var(--primary)' : 'var(--text-muted)' }}>
@@ -220,8 +223,11 @@ function SettingsModal({ onClose }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                   {Object.entries(CHAT_THEMES).map(([key, ct]) => {
                     const isSelected = selectedChatTheme === key;
-                    // Use selected background for preview
-                    const previewBg = CHAT_BACKGROUNDS[selectedChatBg]?.color || CHAT_BACKGROUNDS.default.color;
+                    const isDark = selectedTheme === 'dark';
+                    // Use correct bg + received colors for current mode
+                    const bgEntry = CHAT_BACKGROUNDS[selectedChatBg] || CHAT_BACKGROUNDS.default;
+                    const previewBg = isDark ? bgEntry.dark : bgEntry.light;
+                    const variant = isDark ? ct.dark : ct.light;
                     return (
                       <button
                         key={key}
@@ -241,7 +247,7 @@ function SettingsModal({ onClose }) {
                           <div className="flex justify-start">
                             <div
                               className="px-3 py-1.5 rounded-xl rounded-bl-sm text-[10px] font-medium"
-                              style={{ backgroundColor: ct.receivedBg, color: ct.receivedText }}
+                              style={{ backgroundColor: variant.receivedBg, color: variant.receivedText, boxShadow: isDark ? 'none' : '0 1px 2px rgba(0,0,0,0.08)' }}
                             >
                               Hey!
                               <span className="block text-[7px] mt-0.5" style={{ opacity: 0.6 }}>10:30</span>
