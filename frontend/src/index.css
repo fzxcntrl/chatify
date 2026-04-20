@@ -276,42 +276,63 @@ body {
 
 .tracker-marker {
   position: relative;
-  width: 34px;
-  height: 48px;
+  width: 132px;
+  height: 86px;
   animation: trackerFloat 2s ease-in-out infinite;
 }
 
-.tracker-marker-shaped {
-  width: 52px;
-  height: 58px;
+.tracker-marker-live {
+  width: 132px;
+  height: 86px;
 }
 
 .tracker-marker-pulse {
   position: absolute;
-  top: 15px;
+  top: 56px;
   left: 50%;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 14px;
   border-radius: 999px;
   transform: translate(-50%, -50%);
   animation: trackerPulse 1.8s ease-out infinite;
+  filter: blur(1px);
 }
 
-.tracker-marker-shaped .tracker-marker-pulse {
-  top: 38px;
-  width: 34px;
-  height: 14px;
-  transform: translate(-50%, -50%);
-  filter: blur(1px);
+.tracker-marker-label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  max-width: 112px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+  backdrop-filter: blur(8px);
+}
+
+.tracker-marker-label-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: #ffffff;
 }
 
 .tracker-marker-pin {
   position: absolute;
-  top: 0;
+  top: 28px;
   left: 50%;
   width: 34px;
   height: 46px;
   transform: translateX(-50%);
+  z-index: 3;
 }
 
 .tracker-marker-head {
@@ -331,6 +352,7 @@ body {
   font-weight: 700;
   color: white;
   overflow: hidden;
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
 }
 
 .tracker-marker-icon {
@@ -348,111 +370,67 @@ body {
   transform: translateX(-50%) rotate(45deg);
   border-radius: 4px 0 4px 0;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
 }
 
-.tracker-marker-shape-wrap {
+.tracker-marker-emoji-wrap {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.tracker-marker-shape-wrap::after {
-  content: "";
-  position: absolute;
+  top: 26px;
   left: 50%;
-  bottom: 4px;
-  width: 30px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.18);
-  transform: translateX(-50%);
-  filter: blur(7px);
-}
-
-.tracker-marker-shape-svg {
-  width: 44px;
-  height: 44px;
-  overflow: visible;
-  filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.2));
-}
-
-.tracker-marker-shape-fallback {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin-top: 4px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #f8fafc, #cbd5e1);
-  box-shadow: 0 12px 18px rgba(15, 23, 42, 0.18);
-  font-size: 24px;
-}
-
-.tracker-marker-key-compass .tracker-marker-shape-svg,
-.tracker-marker-key-target .tracker-marker-shape-svg,
-.tracker-marker-key-star .tracker-marker-shape-svg,
-.tracker-marker-key-diamond .tracker-marker-shape-svg {
-  margin-top: 4px;
-}
-
-.tracker-marker-key-lightning .tracker-marker-shape-svg {
-  width: 42px;
-  height: 54px;
-  margin-top: 1px;
-}
-
-.tracker-marker-key-flame .tracker-marker-shape-svg,
-.tracker-marker-key-ghost .tracker-marker-shape-svg,
-.tracker-marker-key-skeleton .tracker-marker-shape-svg {
-  width: 42px;
-  height: 50px;
-  margin-top: 1px;
-}
-
-.tracker-marker-key-ufo .tracker-marker-shape-svg {
-  width: 48px;
-  height: 40px;
-  margin-top: 9px;
-}
-
-.tracker-marker-key-butterfly .tracker-marker-shape-svg {
-  width: 48px;
+  width: 44px;
   height: 44px;
-  margin-top: 6px;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.tracker-marker-emoji-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.68) 55%, rgba(255, 255, 255, 0) 100%);
+  filter: blur(2px);
+  opacity: 0.9;
 }
 
 .tracker-marker-me .tracker-marker-pulse {
   background: rgba(107, 203, 119, 0.38);
 }
 
-.tracker-marker-me .tracker-marker-head,
-.tracker-marker-me .tracker-marker-tail {
-  background: linear-gradient(135deg, #6BCB77, #38A169);
-}
-
 .tracker-marker-friend .tracker-marker-pulse {
   background: rgba(224, 122, 95, 0.42);
 }
 
-.tracker-marker-friend .tracker-marker-head,
-.tracker-marker-friend .tracker-marker-tail {
-  background: linear-gradient(135deg, #E07A5F, #F4A261);
+.tracker-marker-me .tracker-marker-label {
+  background: rgba(20, 83, 45, 0.88);
 }
 
-.tracker-marker-friend .tracker-marker-head {
-  box-shadow: 0 0 0 5px rgba(224, 122, 95, 0.18), 0 16px 32px rgba(224, 122, 95, 0.22);
+.tracker-marker-friend .tracker-marker-label {
+  background: rgba(154, 52, 18, 0.88);
 }
 
-.tracker-marker-me .tracker-marker-head {
-  box-shadow: 0 0 0 5px rgba(107, 203, 119, 0.18), 0 16px 32px rgba(56, 161, 105, 0.2);
+.tracker-marker-emoji {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  font-size: 33px;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  filter: drop-shadow(0 10px 14px rgba(15, 23, 42, 0.2));
+  transform: translateY(-1px);
 }
 
-.tracker-marker-preview .tracker-marker-head,
-.tracker-marker-preview .tracker-marker-tail {
-  background: linear-gradient(180deg, #60a5fa, #2563eb);
+.tracker-marker-key-lightning .tracker-marker-emoji,
+.tracker-marker-key-star .tracker-marker-emoji {
+  font-size: 31px;
+}
+
+.tracker-marker-key-butterfly .tracker-marker-emoji,
+.tracker-marker-key-ufo .tracker-marker-emoji {
+  font-size: 35px;
 }
 
 .tracker-marker-key-classic_pin .tracker-marker-head::after {
@@ -471,41 +449,41 @@ body {
   color: rgba(255, 255, 255, 0);
 }
 
-.tracker-marker-key-classic_pin.tracker-marker-me .tracker-marker-head::before,
-.tracker-marker-key-classic_pin.tracker-marker-friend .tracker-marker-head::before {
-  content: "";
-  position: absolute;
-  inset: 10px;
-  border-radius: 999px;
-  z-index: 2;
-}
-
-.tracker-marker-key-classic_pin.tracker-marker-me .tracker-marker-head::before {
-  background: #2f855a;
-}
-
-.tracker-marker-key-classic_pin.tracker-marker-friend .tracker-marker-head::before {
-  background: #dd6b20;
-}
-
 .tracker-marker-preview {
+  width: 34px;
+  height: 48px;
   animation: none;
+}
+
+.tracker-marker-preview.tracker-marker-emoji-mode {
+  width: 46px;
+  height: 46px;
 }
 
 .tracker-marker-preview .tracker-marker-pulse {
   display: none;
 }
 
-.tracker-marker-preview:not(.tracker-marker-shaped) {
+.tracker-marker-preview .tracker-marker-pin {
+  top: 0;
+}
+
+.tracker-marker-preview .tracker-marker-emoji-wrap {
+  top: 0;
+  width: 46px;
+  height: 46px;
+}
+
+.tracker-marker-preview .tracker-marker-emoji {
+  font-size: 30px;
+}
+
+.tracker-marker-preview:not(.tracker-marker-emoji-mode) {
   transform: scale(0.92);
 }
 
-.tracker-marker-preview.tracker-marker-shaped {
-  transform: scale(0.88);
-}
-
-.tracker-marker-preview .tracker-marker-shape-wrap::after {
-  background: rgba(15, 23, 42, 0.14);
+.tracker-marker-preview.tracker-marker-emoji-mode {
+  transform: scale(0.94);
 }
 
 :focus-visible {

@@ -2,57 +2,57 @@ export const LOCATION_MARKERS = {
   classic_pin: {
     name: "Default Pin",
     symbol: "•",
-    description: "The original map-marker look used by default.",
+    description: "The default blue location pin used on the map.",
   },
   compass: {
-    name: "Compass",
-    symbol: "🧭",
-    description: "A navigation-style marker for live tracking.",
+    name: "Pin Emoji",
+    symbol: "📍",
+    description: "A native pin emoji marker.",
   },
   target: {
     name: "Target",
     symbol: "🎯",
-    description: "A clear target icon that stands out fast.",
+    description: "A native target emoji marker.",
   },
   lightning: {
     name: "Lightning",
-    symbol: "⚡",
-    description: "A bold electric marker with a high-energy feel.",
+    symbol: "⚡️",
+    description: "A native lightning emoji marker.",
   },
   flame: {
     name: "Flame",
     symbol: "🔥",
-    description: "A hot marker that is bright and easy to notice.",
+    description: "A native fire emoji marker.",
   },
   star: {
     name: "Star",
-    symbol: "⭐",
-    description: "A clean star for a softer but visible look.",
+    symbol: "⭐️",
+    description: "A native star emoji marker.",
   },
   ghost: {
     name: "Ghost",
     symbol: "👻",
-    description: "A playful floating icon for fun location sharing.",
+    description: "A native ghost emoji marker.",
   },
   skeleton: {
     name: "Skeleton",
     symbol: "💀",
-    description: "A spooky marker if you want something different.",
+    description: "A native skull emoji marker.",
   },
   ufo: {
     name: "UFO",
     symbol: "🛸",
-    description: "A cool sci-fi marker that feels unique.",
+    description: "A native UFO emoji marker.",
   },
   butterfly: {
     name: "Butterfly",
     symbol: "🦋",
-    description: "A colorful marker with a softer style.",
+    description: "A native butterfly emoji marker.",
   },
   diamond: {
     name: "Diamond",
     symbol: "💎",
-    description: "A sharp premium-style marker with a bright center.",
+    description: "A native diamond emoji marker.",
   },
 };
 

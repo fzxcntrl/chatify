@@ -7,12 +7,14 @@ import { DEFAULT_LOCATION_MARKER } from "../lib/locationMarkers";
 import { getTrackerMarkerDimensions, getTrackerMarkerMarkup } from "../lib/trackerMarkerMarkup";
 import "leaflet/dist/leaflet.css";
 
-const createTrackerIcon = (variant, markerKey) => {
-  const { iconSize, iconAnchor } = getTrackerMarkerDimensions(markerKey);
+const createTrackerIcon = (variant, markerKey, label) => {
+  const { iconSize, iconAnchor } = getTrackerMarkerDimensions(markerKey, {
+    hasLabel: Boolean(label),
+  });
 
   return L.divIcon({
     className: "",
-    html: getTrackerMarkerMarkup(markerKey, { variant }),
+    html: getTrackerMarkerMarkup(markerKey, { variant, label }),
     iconSize,
     iconAnchor,
   });
@@ -52,12 +54,12 @@ function MapTrackerModal({ onClose }) {
 
       if (markersRef.current[id]) {
         markersRef.current[id].setLatLng([latitude, longitude]);
-        markersRef.current[id].setIcon(createTrackerIcon(variant, markerKey));
+        markersRef.current[id].setIcon(createTrackerIcon(variant, markerKey, label));
         return;
       }
 
       markersRef.current[id] = L.marker([latitude, longitude], {
-        icon: createTrackerIcon(variant, markerKey),
+        icon: createTrackerIcon(variant, markerKey, label),
         zIndexOffset: variant === "friend" ? 1200 : 1000,
       }).addTo(mapRef.current);
     };
