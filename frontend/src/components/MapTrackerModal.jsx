@@ -15,13 +15,16 @@ const createTrackerIcon = (variant, markerKey) =>
     html: `
       <div class="tracker-marker tracker-marker-${variant}">
         <div class="tracker-marker-pulse"></div>
-        <div class="tracker-marker-core">
-          <span>${getMarkerSymbol(markerKey)}</span>
+        <div class="tracker-marker-pin">
+          <div class="tracker-marker-head">
+            <span>${getMarkerSymbol(markerKey)}</span>
+          </div>
+          <div class="tracker-marker-tail"></div>
         </div>
       </div>
     `,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    iconSize: [34, 48],
+    iconAnchor: [17, 44],
   });
 
 function MapTrackerModal({ onClose }) {

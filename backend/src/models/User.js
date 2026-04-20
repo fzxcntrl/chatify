@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema(
         "skeleton",
         "ufo",
         "butterfly",
+        "diamond",
       ],
     },
 

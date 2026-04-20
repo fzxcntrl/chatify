@@ -126,6 +126,7 @@ export const updateProfile = async (req, res) => {
       "skeleton",
       "ufo",
       "butterfly",
+      "diamond",
     ]);
 
     if (profilePic) {

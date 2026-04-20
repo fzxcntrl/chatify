@@ -1,8 +1,8 @@
 export const LOCATION_MARKERS = {
   classic_pin: {
-    name: "Classic Pin",
-    symbol: "📍",
-    description: "A normal red pin that feels like a map app.",
+    name: "Default Pin",
+    symbol: "•",
+    description: "The original map-marker look used by default.",
   },
   compass: {
     name: "Compass",
@@ -48,6 +48,11 @@ export const LOCATION_MARKERS = {
     name: "Butterfly",
     symbol: "🦋",
     description: "A colorful marker with a softer style.",
+  },
+  diamond: {
+    name: "Diamond",
+    symbol: "💎",
+    description: "A sharp premium-style marker with a bright center.",
   },
 };
 

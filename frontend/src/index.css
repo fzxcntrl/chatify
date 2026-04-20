@@ -289,14 +289,14 @@ body {
 
 .tracker-marker {
   position: relative;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 48px;
   animation: trackerFloat 2s ease-in-out infinite;
 }
 
 .tracker-marker-pulse {
   position: absolute;
-  top: 50%;
+  top: 15px;
   left: 50%;
   width: 30px;
   height: 30px;
@@ -305,35 +305,56 @@ body {
   animation: trackerPulse 1.8s ease-out infinite;
 }
 
-.tracker-marker-core {
+.tracker-marker-pin {
   position: absolute;
-  top: 50%;
+  top: 0;
+  left: 50%;
+  width: 34px;
+  height: 46px;
+  transform: translateX(-50%);
+}
+
+.tracker-marker-head {
+  position: absolute;
+  top: 0;
   left: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   border: 2px solid rgba(255, 255, 255, 0.94);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 12px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
   font-size: 13px;
   font-weight: 700;
   color: white;
 }
 
-.tracker-marker-core span {
+.tracker-marker-head span {
   line-height: 1;
-  transform: translateY(0.5px);
+  transform: translateY(-0.5px);
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
+}
+
+.tracker-marker-tail {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 4px 0 4px 0;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
 .tracker-marker-me .tracker-marker-pulse {
   background: rgba(107, 203, 119, 0.38);
 }
 
-.tracker-marker-me .tracker-marker-core {
+.tracker-marker-me .tracker-marker-head,
+.tracker-marker-me .tracker-marker-tail {
   background: linear-gradient(135deg, #6BCB77, #38A169);
 }
 
@@ -341,9 +362,17 @@ body {
   background: rgba(224, 122, 95, 0.42);
 }
 
-.tracker-marker-friend .tracker-marker-core {
+.tracker-marker-friend .tracker-marker-head,
+.tracker-marker-friend .tracker-marker-tail {
   background: linear-gradient(135deg, #E07A5F, #F4A261);
-  box-shadow: 0 0 0 5px rgba(224, 122, 95, 0.24), 0 18px 40px rgba(224, 122, 95, 0.24);
+}
+
+.tracker-marker-friend .tracker-marker-head {
+  box-shadow: 0 0 0 5px rgba(224, 122, 95, 0.18), 0 16px 32px rgba(224, 122, 95, 0.22);
+}
+
+.tracker-marker-me .tracker-marker-head {
+  box-shadow: 0 0 0 5px rgba(107, 203, 119, 0.18), 0 16px 32px rgba(56, 161, 105, 0.2);
 }
 
 :focus-visible {
