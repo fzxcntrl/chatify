@@ -7,6 +7,7 @@ import {
   getIncomingRequests,
   acceptRequest,
   declineRequest,
+  removeContact,
   getUserProfile,
   getUserContacts,
 } from "../controllers/friend.controller.js";
@@ -24,5 +25,6 @@ router.get("/profile/:id/contacts", getUserContacts);
 router.post("/request/:id", sendRequest);
 router.post("/accept/:id", acceptRequest);
 router.post("/decline/:id", declineRequest);
+router.delete("/contact/:id", removeContact);
 
 export default router;

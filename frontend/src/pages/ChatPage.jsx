@@ -61,10 +61,6 @@ function ChatPage() {
           style={{ backgroundColor: 'var(--bg-elevated)' }}
         >
           {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
-
-          {showMapTracker && (
-             <MapTrackerModal onClose={() => setShowMapTracker(false)} />
-          )}
         </div>
       </div>
 
@@ -75,6 +71,10 @@ function ChatPage() {
 
       {showEditProfileModal && (
         <EditProfileModal onClose={() => setShowEditProfileModal(false)} />
+      )}
+
+      {showMapTracker && (
+        <MapTrackerModal onClose={() => setShowMapTracker(false)} />
       )}
     </div>
   );

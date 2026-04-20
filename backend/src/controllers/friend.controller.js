@@ -222,6 +222,46 @@ export const declineRequest = async (req, res) => {
   }
 };
 
+export const removeContact = async (req, res) => {
+  try {
+    const { id: contactId } = req.params;
+    const myId = req.user._id;
+
+    if (myId.equals(contactId)) {
+      return res.status(400).json({ message: "You cannot remove yourself" });
+    }
+
+    const currentUser = await User.findById(myId).select("friends");
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFriend = currentUser.friends.some(
+      (friendId) => friendId.toString() === contactId
+    );
+
+    if (!isFriend) {
+      return res.status(404).json({ message: "Contact not found in your friends list" });
+    }
+
+    await Promise.all([
+      User.findByIdAndUpdate(myId, { $pull: { friends: contactId } }),
+      User.findByIdAndUpdate(contactId, { $pull: { friends: myId } }),
+      FriendRequest.deleteMany({
+        $or: [
+          { sender: myId, receiver: contactId },
+          { sender: contactId, receiver: myId },
+        ],
+      }),
+    ]);
+
+    res.status(200).json({ message: "Contact removed successfully", contactId });
+  } catch (error) {
+    console.error("Error in removeContact:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const getUserProfile = async (req, res) => {
   try {

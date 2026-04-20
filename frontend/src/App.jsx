@@ -5,11 +5,15 @@ import SignUpPage from "./pages/SignUpPage";
 import BrowseUsersPage from "./pages/BrowseUsersPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
+import { useChatStore } from "./store/useChatStore";
+import useUiSounds from "./hooks/useUiSounds";
 import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
+  const { isSoundEnabled } = useChatStore();
+  const { playRandomTapSound } = useUiSounds();
 
   useEffect(() => {
     checkAuth();
@@ -18,7 +22,22 @@ function App() {
   if (isCheckingAuth) return <PageLoader />;
 
   return (
-    <div className="min-h-screen min-h-dvh relative overflow-hidden" style={{ backgroundColor: 'var(--bg-base)' }}>
+    <div
+      className="min-h-screen min-h-dvh relative overflow-hidden"
+      style={{ backgroundColor: 'var(--bg-base)' }}
+      onPointerDownCapture={(event) => {
+        if (!isSoundEnabled) return;
+
+        const interactiveTarget = event.target.closest(
+          'button, a[href], [role="button"], [data-ui-sound="tap"]'
+        );
+
+        if (!interactiveTarget) return;
+        if (interactiveTarget.hasAttribute("data-skip-ui-sound")) return;
+
+        playRandomTapSound();
+      }}
+    >
       <div
         className="fixed inset-0 pointer-events-none"
         style={{

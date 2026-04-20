@@ -240,6 +240,106 @@ body {
   animation: pulseWarm 2s ease-in-out infinite;
 }
 
+@keyframes trackerPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0.95;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes trackerFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.tracker-map .leaflet-control-zoom a {
+  background: rgba(18, 24, 35, 0.88);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.tracker-map .leaflet-control-zoom a:hover {
+  background: rgba(31, 39, 54, 0.96);
+}
+
+.tracker-tooltip {
+  background: rgba(12, 16, 26, 0.92);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  padding: 4px 10px;
+}
+
+.tracker-tooltip:before {
+  display: none;
+}
+
+.tracker-marker {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  animation: trackerFloat 2s ease-in-out infinite;
+}
+
+.tracker-marker-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  animation: trackerPulse 1.8s ease-out infinite;
+}
+
+.tracker-marker-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 12px 30px rgba(0, 0, 0, 0.25);
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+}
+
+.tracker-marker-me .tracker-marker-pulse {
+  background: rgba(107, 203, 119, 0.38);
+}
+
+.tracker-marker-me .tracker-marker-core {
+  background: linear-gradient(135deg, #6BCB77, #38A169);
+}
+
+.tracker-marker-friend .tracker-marker-pulse {
+  background: rgba(224, 122, 95, 0.42);
+}
+
+.tracker-marker-friend .tracker-marker-core {
+  background: linear-gradient(135deg, #E07A5F, #F4A261);
+  box-shadow: 0 0 0 5px rgba(224, 122, 95, 0.24), 0 18px 40px rgba(224, 122, 95, 0.24);
+}
+
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;

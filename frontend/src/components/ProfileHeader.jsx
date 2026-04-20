@@ -3,8 +3,6 @@ import { LogOutIcon, VolumeOffIcon, Volume2Icon, SettingsIcon, PencilIcon } from
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
-const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
-
 function ProfileHeader() {
   const { logout, authUser } = useAuthStore();
   const { isSoundEnabled, toggleSound, setShowSettingsModal, setShowEditProfileModal } = useChatStore();
@@ -66,8 +64,6 @@ function ProfileHeader() {
             e.currentTarget.style.color = 'var(--text-secondary)';
           }}
           onClick={() => {
-            mouseClickSound.currentTime = 0;
-            mouseClickSound.play().catch(() => {});
             toggleSound();
           }}
         >

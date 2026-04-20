@@ -5,12 +5,28 @@ import { useChatStore } from "../store/useChatStore";
 import { XIcon, MapPinIcon, NavigationIcon } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
+const createTrackerIcon = (variant, label) =>
+  L.divIcon({
+    className: "",
+    html: `
+      <div class="tracker-marker tracker-marker-${variant}">
+        <div class="tracker-marker-pulse"></div>
+        <div class="tracker-marker-core">
+          <span>${label}</span>
+        </div>
+      </div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+
+const getMarkerBadge = (label) =>
+  label
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
 
 function MapTrackerModal({ onClose }) {
   const mapRef = useRef(null);
@@ -26,12 +42,41 @@ function MapTrackerModal({ onClose }) {
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
-    
-    mapRef.current = L.map(mapContainerRef.current).setView([0, 0], 2);
-    
+
+    mapRef.current = L.map(mapContainerRef.current, {
+      zoomControl: false,
+    }).setView([0, 0], 2);
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "Chatify Tracker"
     }).addTo(mapRef.current);
+
+    L.control
+      .zoom({
+        position: "bottomright",
+      })
+      .addTo(mapRef.current);
+
+    const updateMarker = ({ id, latitude, longitude, label, variant }) => {
+      if (!mapRef.current) return;
+
+      if (markersRef.current[id]) {
+        markersRef.current[id].setLatLng([latitude, longitude]);
+        return;
+      }
+
+      markersRef.current[id] = L.marker([latitude, longitude], {
+        icon: createTrackerIcon(variant, getMarkerBadge(label)),
+        zIndexOffset: variant === "friend" ? 1200 : 1000,
+      })
+        .bindTooltip(label, {
+          permanent: true,
+          direction: "top",
+          offset: [0, -18],
+          className: "tracker-tooltip",
+        })
+        .addTo(mapRef.current);
+    };
 
     if (navigator.geolocation) {
       watchIdRef.current = navigator.geolocation.watchPosition(
@@ -48,14 +93,14 @@ function MapTrackerModal({ onClose }) {
           }
 
           const myId = authUser._id;
-          if (markersRef.current[myId]) {
-             markersRef.current[myId].setLatLng([latitude, longitude]);
-          } else {
-             markersRef.current[myId] = L.marker([latitude, longitude])
-               .bindTooltip("You", { permanent: true, offset: [10, 0] })
-               .addTo(mapRef.current);
-          }
-          
+          updateMarker({
+            id: myId,
+            latitude,
+            longitude,
+            label: "You",
+            variant: "me",
+          });
+
           if (!mapRef.current._pannedOnce) {
              mapRef.current.setView([latitude, longitude], 16);
              mapRef.current._pannedOnce = true;
@@ -76,15 +121,25 @@ function MapTrackerModal({ onClose }) {
     const handleReceiveLocation = (data) => {
        const { id, latitude, longitude } = data;
        if (!mapRef.current) return;
+       if (id !== selectedUser._id) return;
 
-       if (markersRef.current[id]) {
-           markersRef.current[id].setLatLng([latitude, longitude]);
-       } else {
-           if (id === selectedUser._id) {
-               markersRef.current[id] = L.marker([latitude, longitude])
-                 .bindTooltip(selectedUser.fullName, { permanent: true, offset: [10, 0] })
-                 .addTo(mapRef.current);
-           }
+       updateMarker({
+         id,
+         latitude,
+         longitude,
+         label: selectedUser.fullName,
+         variant: "friend",
+       });
+
+       const bounds = L.latLngBounds(
+         Object.values(markersRef.current).map((marker) => marker.getLatLng())
+       );
+
+       if (bounds.isValid()) {
+         mapRef.current.fitBounds(bounds, {
+           padding: [70, 70],
+           maxZoom: 16,
+         });
        }
     };
 
@@ -103,19 +158,35 @@ function MapTrackerModal({ onClose }) {
            mapRef.current.remove();
            mapRef.current = null;
        }
+       markersRef.current = {};
     };
   }, [socket, selectedUser, authUser]);
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col glass animate-fade-in" style={{ backgroundColor: 'var(--bg-surface)' }}>
-       <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-elevated)' }}>
+    <div
+      className="fixed inset-0 z-[180] flex flex-col glass animate-fade-in"
+      style={{ backgroundColor: 'rgba(10, 14, 26, 0.96)' }}
+    >
+       <div
+         className="flex items-center justify-between px-4 py-4 border-b"
+         style={{
+           borderColor: 'var(--border)',
+           backgroundColor: 'rgba(20, 25, 38, 0.92)',
+           paddingTop: 'max(1rem, env(safe-area-inset-top))',
+         }}
+       >
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg text-white" style={{ backgroundColor: 'var(--primary)' }}>
+            <span
+              className="p-2 rounded-xl text-white shadow-[0_0_30px_rgba(224,122,95,0.35)]"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
                <NavigationIcon className="w-5 h-5" />
             </span>
             <div>
               <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Live Tracker</h3>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Sharing location with {selectedUser?.fullName}</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                Sharing location with {selectedUser?.fullName}
+              </p>
             </div>
           </div>
           <button 
@@ -127,7 +198,7 @@ function MapTrackerModal({ onClose }) {
           </button>
        </div>
 
-       <div className="flex-1 relative">
+       <div className="flex-1 relative min-h-0">
          {hasPermission === false && (
             <div className="absolute inset-0 flex flex-col items-center justify-center z-[1000] p-6 text-center" style={{ backgroundColor: 'rgba(0,0,0,0.8)', color: 'white' }}>
                <MapPinIcon className="w-12 h-12 mb-3 text-[var(--danger)]" />
@@ -136,7 +207,7 @@ function MapTrackerModal({ onClose }) {
                <p className="text-xs opacity-60 mt-4">Please allow browser location permissions to track your chat partner.</p>
             </div>
          )}
-         <div ref={mapContainerRef} className="w-full h-full" style={{ background: '#e5e5e5' }}></div>
+         <div ref={mapContainerRef} className="w-full h-full tracker-map" style={{ background: '#e5e5e5' }}></div>
        </div>
     </div>
   );

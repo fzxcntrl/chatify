@@ -92,6 +92,24 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  removeContact: async (contact) => {
+    try {
+      await axiosInstance.delete(`/friends/contact/${contact._id}`);
+
+      set({
+        allContacts: get().allContacts.filter((item) => item._id !== contact._id),
+      });
+
+      toast.success(`${contact.fullName} removed from contacts`);
+      return true;
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to remove contact");
+      }
+      return false;
+    }
+  },
+
   getMessagesByUserId: async (userId) => {
     set({ isMessagesLoading: true });
     try {
