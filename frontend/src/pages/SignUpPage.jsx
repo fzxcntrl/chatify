@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { LockIcon, MailIcon, UserIcon, LoaderIcon, AtSign, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Link } from "react-router";
+import { ParallaxStarsBackground } from "../components/ParallaxStarsBackground";
 
 function AuthIllustration() {
   return (
@@ -42,9 +43,13 @@ function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center p-4">
+    <ParallaxStarsBackground
+      title={"Launch your next\nconversation"}
+      speed={0.9}
+      className="px-4"
+    >
       <div
-        className="w-full max-w-[960px] flex flex-col md:flex-row overflow-hidden animate-fade-in-up"
+        className="w-full max-w-[960px] flex flex-col md:flex-row overflow-hidden animate-fade-in-up backdrop-blur-xl"
         style={{
           backgroundColor: 'var(--bg-surface)',
           borderRadius: 'var(--radius-lg)',
@@ -66,7 +71,7 @@ function SignUpPage() {
                   <path d="M4 6.5C4 5.11929 5.11929 4 6.5 4H17.5C18.8807 4 20 5.11929 20 6.5V13.5C20 14.8807 18.8807 16 17.5 16H10.5L6 20V16H6.5C5.11929 16 4 14.8807 4 13.5V6.5Z" fill="white"/>
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-2xl font-semibold mb-1 font-heading" style={{ color: 'var(--text-primary)' }}>
                 Create your account
               </h1>
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -235,7 +240,7 @@ function SignUpPage() {
         >
           <div className="text-center">
             <AuthIllustration />
-            <h2 className="text-lg font-medium mt-6 mb-2" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-lg font-medium mt-6 mb-2 font-heading" style={{ color: 'var(--text-primary)' }}>
               Join the conversation
             </h2>
             <p className="text-sm max-w-[260px] mx-auto" style={{ color: 'var(--text-secondary)' }}>
@@ -244,7 +249,7 @@ function SignUpPage() {
           </div>
         </div>
       </div>
-    </div>
+    </ParallaxStarsBackground>
   );
 }
 export default SignUpPage;
