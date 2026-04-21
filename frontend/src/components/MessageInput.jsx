@@ -59,7 +59,7 @@ function MessageInput() {
       className="p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:p-4"
       style={{
         borderTop: '1px solid var(--border)',
-        backgroundColor: 'rgba(10, 15, 23, 0.46)',
+        backgroundColor: 'var(--app-shell-header-bg)',
       }}
     >
       {imagePreview && (
@@ -100,7 +100,7 @@ function MessageInput() {
           }}
           className="min-w-0 flex-1 rounded-full py-3 px-4 text-sm transition-all"
           style={{
-            backgroundColor: 'rgba(18, 24, 37, 0.76)',
+            backgroundColor: 'var(--app-shell-input-bg)',
             border: '1px solid var(--border)',
             color: 'var(--text-primary)',
             outline: 'none',
@@ -123,7 +123,7 @@ function MessageInput() {
           onClick={() => fileInputRef.current?.click()}
           className="rounded-full p-3 transition-colors flex-shrink-0"
           style={{
-            backgroundColor: 'rgba(18, 24, 37, 0.76)',
+            backgroundColor: 'var(--app-shell-input-bg)',
             color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
             border: '1px solid var(--border)',
           }}

@@ -108,10 +108,8 @@ export const applyTheme = (theme, chatTheme, chatBg) => {
   const bg = CHAT_BACKGROUNDS[chatBg] || CHAT_BACKGROUNDS.default;
   const bgColor = isDark ? bg.dark : bg.light;
   document.documentElement.style.setProperty('--chat-bg', bgColor);
-
-  // Always use animated gradient background for the page
+  document.body.className = '';
   document.body.style.background = '';
-  document.body.className = 'animated-gradient-bg';
 };
 
 export const useAuthStore = create((set, get) => ({

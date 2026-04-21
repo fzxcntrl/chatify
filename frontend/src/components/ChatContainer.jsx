@@ -82,14 +82,13 @@ function ChatContainer() {
         className="relative flex-1 overflow-y-auto px-3 py-4 sm:px-4 md:px-6 md:py-6"
         style={{
           background:
-            "linear-gradient(180deg, rgba(8, 12, 20, 0.16) 0%, rgba(5, 8, 14, 0.30) 100%)",
+            "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.04) 100%)",
         }}
       >
         <div
           className="absolute inset-0 pointer-events-none opacity-75"
           style={{
-            background:
-              "radial-gradient(circle at top center, rgba(126, 155, 255, 0.10) 0%, transparent 22%), radial-gradient(circle at bottom left, rgba(224, 122, 95, 0.08) 0%, transparent 24%)",
+            background: 'var(--app-shell-chat-overlay)',
           }}
         />
 

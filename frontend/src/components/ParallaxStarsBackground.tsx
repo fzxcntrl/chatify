@@ -3,8 +3,6 @@ import { memo, useMemo, type CSSProperties, type ReactNode } from "react";
 const STAR_FIELD_SIZE = 2000;
 const DEFAULT_TOP_GRADIENT = "#090A0F";
 const DEFAULT_BOTTOM_GRADIENT = "#1B2735";
-const STAR_COLOR = "#FFF";
-
 const STAR_LAYERS = [
   { count: 560, size: 1, duration: 50, seed: 17, opacity: 0.8 },
   { count: 280, size: 2, duration: 100, seed: 31, opacity: 0.7 },
@@ -42,7 +40,7 @@ const PARALLAX_STARS_STYLES = `
     position: absolute;
     left: 0;
     border-radius: 999px;
-    background: var(--parallax-star-color);
+    background: rgb(var(--parallax-star-rgb));
   }
 
   .parallax-stars-background__field--clone {
@@ -78,6 +76,7 @@ export interface ParallaxStarsBackgroundProps {
   className?: string;
   gradientTopColor?: string;
   gradientBottomColor?: string;
+  starRgb?: string;
 }
 
 function createSeededRandom(seed: number) {
@@ -98,7 +97,7 @@ function createStarShadowString(count: number, seed: number) {
     const y = Math.floor(random() * STAR_FIELD_SIZE);
     const alpha = 0.45 + random() * 0.55;
 
-    stars.push(`${x}px ${y}px 0 rgba(255, 255, 255, ${alpha.toFixed(3)})`);
+    stars.push(`${x}px ${y}px 0 rgba(var(--parallax-star-rgb), ${alpha.toFixed(3)})`);
   }
 
   return stars.join(", ");
@@ -112,6 +111,7 @@ interface ParallaxStarsThemeProps {
   className?: string;
   gradientTopColor?: string;
   gradientBottomColor?: string;
+  starRgb?: string;
 }
 
 export interface ParallaxStarsBackdropProps extends ParallaxStarsThemeProps {}
@@ -170,6 +170,7 @@ export const ParallaxStarsBackdrop = memo(function ParallaxStarsBackdrop({
   className,
   gradientTopColor = DEFAULT_TOP_GRADIENT,
   gradientBottomColor = DEFAULT_BOTTOM_GRADIENT,
+  starRgb = "255, 255, 255",
 }: ParallaxStarsBackdropProps) {
   const clampedSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
 
@@ -181,7 +182,7 @@ export const ParallaxStarsBackdrop = memo(function ParallaxStarsBackdrop({
   const rootStyle = {
     "--parallax-gradient-top": gradientTopColor,
     "--parallax-gradient-bottom": gradientBottomColor,
-    "--parallax-star-color": STAR_COLOR,
+    "--parallax-star-rgb": starRgb,
   } as CSSProperties;
 
   return (
@@ -218,6 +219,7 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
   className,
   gradientTopColor = DEFAULT_TOP_GRADIENT,
   gradientBottomColor = DEFAULT_BOTTOM_GRADIENT,
+  starRgb = "255, 255, 255",
 }: ParallaxStarsBackgroundProps) {
   const titleLines = title.split("\n");
 
@@ -232,6 +234,7 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
         speed={speed}
         gradientTopColor={gradientTopColor}
         gradientBottomColor={gradientBottomColor}
+        starRgb={starRgb}
       />
 
       <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-col items-center gap-8 px-6 py-16 text-center sm:px-10">

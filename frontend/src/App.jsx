@@ -44,14 +44,14 @@ function App() {
           <ParallaxStarsBackdrop
             speed={0.55}
             className="fixed inset-0 z-0"
-            gradientTopColor="#05070C"
-            gradientBottomColor="#162334"
+            gradientTopColor="var(--space-gradient-top)"
+            gradientBottomColor="var(--space-gradient-bottom)"
+            starRgb="var(--space-star-rgb)"
           />
           <div
             className="fixed inset-0 z-10 pointer-events-none"
             style={{
-              background:
-                "radial-gradient(circle at 18% 22%, rgba(98, 129, 255, 0.10) 0%, transparent 26%), radial-gradient(circle at 78% 12%, rgba(224, 122, 95, 0.12) 0%, transparent 24%), radial-gradient(circle at 50% 85%, rgba(122, 162, 247, 0.08) 0%, transparent 28%)",
+              background: 'var(--space-glow-overlay)',
             }}
           />
         </>

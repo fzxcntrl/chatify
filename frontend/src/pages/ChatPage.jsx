@@ -29,7 +29,7 @@ function ChatPage() {
         className="relative flex h-dvh min-h-dvh w-full overflow-hidden rounded-none animate-fade-in backdrop-blur-2xl sm:h-[calc(100dvh-1.5rem)] sm:min-h-0 sm:max-h-[860px] sm:rounded-lg md:h-[calc(100dvh-2rem)]"
         style={{
           maxWidth: '1152px',
-          background: 'linear-gradient(180deg, rgba(10, 15, 23, 0.84) 0%, rgba(13, 19, 30, 0.76) 100%)',
+          background: 'var(--app-shell-bg)',
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow-lg)',
         }}
@@ -37,8 +37,7 @@ function ChatPage() {
         <div
           className="absolute inset-0 pointer-events-none opacity-80"
           style={{
-            background:
-              "radial-gradient(circle at 16% 18%, rgba(224, 122, 95, 0.08) 0%, transparent 24%), radial-gradient(circle at 80% 10%, rgba(130, 168, 255, 0.10) 0%, transparent 22%), linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)",
+            background: 'var(--app-shell-highlight)',
           }}
         />
 
@@ -48,7 +47,7 @@ function ChatPage() {
           } relative z-10 w-full md:w-80 lg:w-[340px] flex-col flex-shrink-0 border-b md:border-b-0 md:border-r`}
           style={{
             borderColor: 'var(--border)',
-            backgroundColor: 'rgba(12, 17, 27, 0.58)',
+            backgroundColor: 'var(--app-shell-sidebar-bg)',
             backdropFilter: 'blur(18px)',
             WebkitBackdropFilter: 'blur(18px)',
           }}
@@ -68,7 +67,7 @@ function ChatPage() {
             selectedUser ? 'flex' : 'hidden md:flex'
           } relative z-10 flex-1 flex-col min-w-0`}
           style={{
-            backgroundColor: 'rgba(18, 24, 37, 0.48)',
+            backgroundColor: 'var(--app-shell-panel-bg)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
           }}

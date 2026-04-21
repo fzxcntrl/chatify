@@ -16,7 +16,7 @@ function ActiveTabSwitch() {
     <div
       className="mx-3 mt-3 grid grid-cols-4 gap-1 p-1 sm:mx-4"
       style={{
-        backgroundColor: 'rgba(7, 11, 19, 0.82)',
+        backgroundColor: 'var(--app-shell-tab-bg)',
         borderRadius: 'var(--radius-md)',
       }}
     >
@@ -34,7 +34,7 @@ function ActiveTabSwitch() {
             className="min-w-0 py-2 text-[11px] sm:text-xs font-medium transition-all relative"
             style={{
               borderRadius: 'var(--radius-sm)',
-              backgroundColor: isActive ? 'rgba(23, 31, 47, 0.9)' : 'transparent',
+              backgroundColor: isActive ? 'var(--app-shell-tab-active-bg)' : 'transparent',
               color: isActive ? 'var(--primary)' : 'var(--text-muted)',
               boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
             }}

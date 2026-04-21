@@ -42,7 +42,7 @@ function BrowseUsersPage() {
       key={user._id}
       className="flex flex-col gap-3 rounded-2xl p-4 transition-colors sm:flex-row sm:items-center sm:justify-between"
       style={{
-        backgroundColor: 'rgba(19, 26, 40, 0.72)',
+        backgroundColor: 'var(--bg-surface)',
         border: '1px solid var(--border)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
@@ -135,7 +135,7 @@ function BrowseUsersPage() {
         <div
           className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none backdrop-blur-2xl sm:rounded-lg"
           style={{
-            background: 'linear-gradient(180deg, rgba(10, 15, 23, 0.84) 0%, rgba(14, 21, 33, 0.78) 100%)',
+            background: 'var(--app-shell-bg)',
             border: '1px solid var(--border)',
             boxShadow: 'var(--shadow-lg)'
           }}

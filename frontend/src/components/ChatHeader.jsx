@@ -29,7 +29,7 @@ function ChatHeader() {
       <div
         className="flex justify-between items-center gap-3 px-3 py-3 sm:px-4 md:px-6"
         style={{
-          backgroundColor: 'rgba(11, 16, 25, 0.52)',
+          backgroundColor: 'var(--app-shell-header-bg)',
           borderBottom: '1px solid var(--border)',
         }}
       >

@@ -82,15 +82,13 @@ function SettingsModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="no-glass w-full max-w-4xl flex flex-col md:flex-row gap-0 overflow-hidden rounded-2xl animate-fade-in-up"
+        className="no-glass h-dvh w-full max-w-4xl flex flex-col md:flex-row gap-0 overflow-hidden rounded-none animate-fade-in-up sm:h-[calc(100dvh-2rem)] sm:max-h-[750px] sm:rounded-2xl"
         style={{
-          height: 'calc(100vh - 4rem)',
-          maxHeight: '750px',
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow-lg)',
         }}
@@ -98,10 +96,10 @@ function SettingsModal({ onClose }) {
 
         {/* Sidebar */}
         <div
-          className="no-glass w-full md:w-56 flex-shrink-0 flex flex-col"
+          className="no-glass w-full md:w-56 flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r"
           style={{
             backgroundColor: 'var(--bg-base)',
-            borderRight: '1px solid var(--border)',
+            borderColor: 'var(--border)',
           }}
         >
           <div className="p-5 flex items-center justify-between border-b" style={{ borderColor: 'var(--border)' }}>
@@ -115,7 +113,7 @@ function SettingsModal({ onClose }) {
             </button>
           </div>
 
-          <div className="p-3 space-y-1">
+          <div className="grid grid-cols-2 gap-1 p-3 md:block md:space-y-1">
             <button
               onClick={() => setActiveTab("display")}
               className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left text-sm"
@@ -145,11 +143,11 @@ function SettingsModal({ onClose }) {
 
         {/* Main content area */}
         <div
-          className="no-glass flex-1 flex flex-col overflow-hidden relative"
+          className="no-glass flex-1 min-h-0 flex flex-col overflow-hidden relative"
           style={{ backgroundColor: 'var(--bg-base)' }}
         >
           {activeTab === "display" && (
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 animate-fade-in">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 animate-fade-in">
               <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Display &amp; Theme</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
                 Change how your app looks and how your live location marker appears to other people.
@@ -161,7 +159,7 @@ function SettingsModal({ onClose }) {
                 <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
                   Choose whether the app uses a dark look or a light look.
                 </p>
-                <div className="flex gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
                   <button
                     onClick={() => handleThemeChange("dark")}
                     className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
@@ -361,7 +359,7 @@ function SettingsModal({ onClose }) {
           )}
 
           {activeTab === "security" && (
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 animate-fade-in">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 animate-fade-in">
               <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Account Security</h2>
               <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Update your password to keep your account secure.</p>
 
@@ -428,11 +426,11 @@ function SettingsModal({ onClose }) {
           {/* Floating save bar for display changes */}
           {activeTab === "display" && hasDisplayChanges && (
             <div
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 py-3 px-6 rounded-full shadow-2xl flex items-center gap-4 animate-fade-in-up border"
+              className="absolute bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 py-3 px-4 sm:px-6 rounded-2xl sm:rounded-full shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 animate-fade-in-up border"
               style={{ backgroundColor: 'var(--bg-elevated)', borderColor: 'var(--border)' }}
             >
-              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Unsaved changes</div>
-              <div className="flex gap-2">
+              <div className="text-sm font-medium text-center sm:text-left" style={{ color: 'var(--text-primary)' }}>Unsaved changes</div>
+              <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => {
                     const origTheme = authUser?.theme || "dark";
