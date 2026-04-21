@@ -115,6 +115,7 @@ export const updateProfile = async (req, res) => {
     const { profilePic, username, bio, theme, chatTheme, chatBg, locationMarker } = req.body;
     const userId = req.user._id;
     let updateData = {};
+    const hasProfilePicField = Object.prototype.hasOwnProperty.call(req.body, "profilePic");
     const allowedLocationMarkers = new Set([
       "classic_pin",
       "compass",
@@ -129,13 +130,17 @@ export const updateProfile = async (req, res) => {
       "diamond",
     ]);
 
-    if (profilePic) {
-      const uploadResponse = await cloudinary.uploader.upload(profilePic, {
-        folder: "chatify_avatars",
-        resource_type: "image",
-        transformation: [{ width: 400, height: 400, crop: "fill", quality: "auto" }],
-      });
-      updateData.profilePic = uploadResponse.secure_url;
+    if (hasProfilePicField) {
+      if (profilePic) {
+        const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+          folder: "chatify_avatars",
+          resource_type: "image",
+          transformation: [{ width: 400, height: 400, crop: "fill", quality: "auto" }],
+        });
+        updateData.profilePic = uploadResponse.secure_url;
+      } else {
+        updateData.profilePic = "";
+      }
     }
 
     if (username) {

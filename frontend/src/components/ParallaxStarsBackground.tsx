@@ -237,8 +237,8 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
         starRgb={starRgb}
       />
 
-      <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-col items-center gap-8 px-6 py-16 text-center sm:px-10">
-        <div className="parallax-stars-background__hero max-w-4xl">
+      <div className="relative z-20 mx-auto flex w-full max-w-[960px] flex-col items-center gap-8 px-6 py-10 text-center sm:px-10 sm:py-12">
+        <div className="parallax-stars-background__hero w-full max-w-[960px]">
           <p
             className="mb-4 text-xs font-medium uppercase tracking-[0.38em] text-white/55"
             style={{ fontFamily: "var(--font-sans)" }}
@@ -258,7 +258,7 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
         </div>
 
         {children ? (
-          <div className="w-full transition-transform duration-500 ease-out md:hover:-translate-y-1">
+          <div className="w-full max-w-[960px] transition-transform duration-500 ease-out md:hover:-translate-y-1">
             {children}
           </div>
         ) : null}
