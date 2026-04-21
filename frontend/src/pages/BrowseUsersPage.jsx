@@ -37,23 +37,24 @@ function BrowseUsersPage() {
   const displayUsers = isSearchMode ? searchResults : suggestions;
   const isLoading = isSearchMode ? isSearching : isFetchingSuggestions;
 
+  const markUserRequestState = (userId, updates) => {
+    const updateUser = (user) => (user._id === userId ? { ...user, ...updates } : user);
+    useFriendStore.setState({
+      suggestions: useFriendStore.getState().suggestions.map(updateUser),
+      searchResults: useFriendStore.getState().searchResults.map(updateUser),
+    });
+  };
+
   const renderUserCard = (user) => (
     <div
       key={user._id}
-      className="flex flex-col gap-3 rounded-2xl p-4 transition-colors sm:flex-row sm:items-center sm:justify-between"
-      style={{
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
-      }}
+      className="app-surface flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
     >
-      {/* Clickable profile area */}
       <button
-        className="flex items-center gap-4 text-left transition-opacity hover:opacity-80 min-w-0 flex-1"
+        className="flex min-w-0 flex-1 items-center gap-4 text-left transition-opacity hover:opacity-90"
         onClick={() => setProfileUser(user)}
       >
-        <div className="w-12 h-12 rounded-full overflow-hidden border border-[var(--border)] flex-shrink-0">
+        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-[var(--border)]">
           <img src={user.profilePic || "/avatar.png"} alt={user.fullName} className="w-full h-full object-cover" />
         </div>
         <div className="min-w-0">
@@ -67,60 +68,60 @@ function BrowseUsersPage() {
         </div>
       </button>
 
-      {/* Action button */}
       <div className="flex w-full flex-shrink-0 sm:ml-3 sm:w-auto sm:justify-end">
         {user.requestStatus === "pending" && user.isSender ? (
-          <button disabled className="w-full px-4 py-2 rounded-lg text-xs font-medium cursor-not-allowed sm:w-auto" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
+          <button
+            disabled
+            className="app-secondary-button inline-flex w-full items-center justify-center gap-2 px-4 text-sm font-medium cursor-not-allowed sm:w-auto"
+          >
+            <LoaderIcon className="h-4 w-4" />
             Pending
           </button>
         ) : user.requestStatus === "pending" && !user.isSender && user.requestId ? (
-          <div className="flex w-full gap-1.5 sm:w-auto">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 acceptRequest(user.requestId);
-                // Update local state
-                const updateUser = (u) => u._id === user._id ? { ...u, requestStatus: "accepted" } : u;
-                useFriendStore.setState({
-                  suggestions: useFriendStore.getState().suggestions.map(updateUser),
-                  searchResults: useFriendStore.getState().searchResults.map(updateUser),
-                });
+                markUserRequestState(user._id, { requestStatus: "accepted" });
               }}
-              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
-              style={{ backgroundColor: 'var(--online)', color: 'white' }}
+              className="app-primary-button inline-flex flex-1 items-center justify-center gap-2 px-4 text-sm font-medium sm:flex-none"
+              style={{ background: "linear-gradient(135deg, #6BCB77, #4FB65D)" }}
               title="Accept"
             >
               <CheckIcon className="w-4 h-4" />
+              <span>Accept</span>
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 declineRequest(user.requestId);
-                const updateUser = (u) => u._id === user._id ? { ...u, requestStatus: "declined" } : u;
-                useFriendStore.setState({
-                  suggestions: useFriendStore.getState().suggestions.map(updateUser),
-                  searchResults: useFriendStore.getState().searchResults.map(updateUser),
-                });
+                markUserRequestState(user._id, { requestStatus: "declined" });
               }}
-              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
-              style={{ backgroundColor: 'var(--danger)', color: 'white' }}
+              className="app-secondary-button inline-flex flex-1 items-center justify-center gap-2 px-4 text-sm font-medium sm:flex-none"
+              style={{ color: "var(--danger)", borderColor: "rgba(224, 95, 95, 0.22)" }}
               title="Decline"
             >
               <XIcon className="w-4 h-4" />
+              <span>Decline</span>
             </button>
           </div>
         ) : user.requestStatus === "accepted" ? (
-          <span className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'var(--primary-muted)', color: 'var(--primary)' }}>Friends</span>
+          <span className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium sm:w-auto" style={{ backgroundColor: 'var(--primary-muted)', color: 'var(--primary)' }}>
+            Friends
+          </span>
         ) : user.requestStatus === "declined" ? (
-          <span className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>Declined</span>
+          <span className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium sm:w-auto" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-muted)' }}>
+            Declined
+          </span>
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); sendFriendRequest(user._id); }}
-            className="w-full p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:w-auto"
-            style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+            className="app-primary-button inline-flex w-full items-center justify-center gap-2 px-4 text-sm font-medium sm:w-auto"
             title="Send Friend Request"
           >
             <UserPlusIcon className="w-5 h-5" />
+            <span>Send request</span>
           </button>
         )}
       </div>
