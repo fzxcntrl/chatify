@@ -150,6 +150,18 @@ This project is ready for single-server deployment on platforms like [Render](ht
 
 The backend will serve the built frontend assets in production mode automatically.
 
+### Keep-alive health checks
+
+The API now exposes `GET /api/health` for uptime checks.
+
+If you use GitHub Actions, add a repository secret named `KEEP_ALIVE_URL` with your deployed health-check URL, for example:
+
+```bash
+https://your-backend.example.com/api/health
+```
+
+The bundled workflow at `.github/workflows/keep-alive.yml` pings that endpoint every 12 minutes so low-traffic deployments are less likely to idle.
+
 ## License
 
 ISC

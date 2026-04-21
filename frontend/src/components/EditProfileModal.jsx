@@ -45,16 +45,11 @@ function EditProfileModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      className="app-modal-backdrop z-[100]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up"
-        style={{
-          backgroundColor: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-        }}
+        className="app-modal-panel w-full max-w-md overflow-hidden animate-fade-in-up"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--border)' }}>
@@ -64,7 +59,7 @@ function EditProfileModal({ onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-hover)]"
+            className="app-icon-button"
             style={{ color: 'var(--text-secondary)' }}
           >
             <XIcon className="w-5 h-5" />
@@ -92,7 +87,7 @@ function EditProfileModal({ onClose }) {
                 )}
               </div>
               <button
-                className="absolute bottom-0 right-0 p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                className="app-icon-button absolute bottom-0 right-0 rounded-full shadow-lg"
                 style={{ backgroundColor: 'var(--primary)', color: 'white' }}
                 onClick={() => setShowAvatarMenu(!showAvatarMenu)}
                 disabled={isUpdatingProfile}
@@ -108,18 +103,17 @@ function EditProfileModal({ onClose }) {
                   onClick={() => setShowAvatarMenu(false)}
                 />
                 <div
-                  className="relative z-50 mt-2 w-56 rounded-xl shadow-xl border overflow-hidden animate-fade-in-up"
-                  style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+                  className="app-card relative z-50 mt-2 w-56 overflow-hidden animate-fade-in-up"
                 >
                   <button
-                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
+                    className="app-action-button flex w-full items-center gap-2 rounded-none px-4 py-3 text-left text-sm"
                     style={{ color: 'var(--text-primary)' }}
                     onClick={() => { avatarInputRef.current?.click(); setShowAvatarMenu(false); }}
                   >
                     <UploadIcon className="w-4 h-4" /> Upload Photo
                   </button>
                   <button
-                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition-colors hover:bg-red-500/10"
+                    className="app-action-button flex w-full items-center gap-2 rounded-none border-t px-4 py-3 text-left text-sm"
                     style={{ color: 'var(--danger)', borderTop: '1px solid var(--border)' }}
                     onClick={handleRemovePhoto}
                   >
@@ -139,16 +133,11 @@ function EditProfileModal({ onClose }) {
               type="text"
               value={editUsername}
               onChange={(e) => setEditUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
-              className="w-full py-2.5 px-3 text-sm transition-all"
+              className="app-input-field py-2.5 px-3 text-sm"
               style={{
                 backgroundColor: 'var(--bg-input)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-md)',
                 color: 'var(--text-primary)',
-                outline: 'none',
               }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
               placeholder="john_doe"
               maxLength={30}
             />
@@ -161,16 +150,11 @@ function EditProfileModal({ onClose }) {
             <textarea
               value={editBio}
               onChange={(e) => setEditBio(e.target.value.slice(0, 150))}
-              className="w-full py-2.5 px-3 text-sm transition-all resize-none h-20"
+              className="app-textarea-field h-20 px-3 py-2.5 text-sm resize-none"
               style={{
                 backgroundColor: 'var(--bg-input)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-md)',
                 color: 'var(--text-primary)',
-                outline: 'none',
               }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
               placeholder="Tell us about yourself..."
             />
             <p className="text-[11px] mt-1 text-right" style={{ color: 'var(--text-muted)' }}>{editBio.length}/150</p>
@@ -180,21 +164,15 @@ function EditProfileModal({ onClose }) {
         {/* Footer */}
         <div className="flex gap-3 justify-end p-5 border-t" style={{ borderColor: 'var(--border)' }}>
           <button
-            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-            style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+            className="app-secondary-button px-4 text-sm font-medium"
             onClick={onClose}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             Cancel
           </button>
           <button
             onClick={handleSaveProfileInfo}
             disabled={isUpdatingProfile || !hasChanges}
-            className="px-5 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            style={{ backgroundColor: 'var(--primary)', color: 'white' }}
-            onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.opacity = '0.9'; }}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+            className="app-primary-button flex items-center gap-2 px-5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isUpdatingProfile ? <LoaderIcon className="w-4 h-4 animate-spin" /> : null}
             Save Changes

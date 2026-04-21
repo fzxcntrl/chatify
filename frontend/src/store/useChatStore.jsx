@@ -238,7 +238,14 @@ export const useChatStore = create((set, get) => ({
             }`}
           >
             <div className="flex items-start gap-4">
-               <div className="pt-1"><div className="w-8 h-8 rounded-full bg-[var(--primary)] flex justify-center items-center text-white text-xs">📍</div></div>
+               <div className="pt-1">
+                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-white">
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                     <path d="M12 21C15.5 17 18 13.8 18 10.5A6 6 0 1 0 6 10.5C6 13.8 8.5 17 12 21Z" fill="currentColor" opacity="0.88" />
+                     <circle cx="12" cy="10.5" r="2.5" fill="white" />
+                   </svg>
+                 </div>
+               </div>
                <div className="flex-1">
                  <p className="text-sm font-medium text-[var(--text-primary)]">
                    {name} wants to see your location

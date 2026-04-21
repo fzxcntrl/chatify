@@ -50,22 +50,18 @@ function UserProfileModal({ user, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      className="app-modal-backdrop z-[100]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="no-glass w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up"
-        style={{
-          backgroundColor: 'var(--bg-base)',
-          border: '1px solid var(--border)',
-        }}
+        className="app-modal-panel no-glass w-full max-w-sm overflow-hidden animate-fade-in-up"
+        style={{ backgroundColor: 'var(--bg-base)' }}
       >
         {/* Header with close */}
         <div className="relative flex justify-end p-3">
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-hover)]"
+            className="app-icon-button"
             style={{ color: 'var(--text-secondary)' }}
           >
             <XIcon className="w-5 h-5" />
@@ -113,16 +109,10 @@ function UserProfileModal({ user, onClose }) {
           {/* Contact Count */}
           <button
             onClick={handleShowContacts}
-            className="flex items-center gap-2 mt-4 px-4 py-2 rounded-lg transition-colors"
+            className="app-secondary-button mt-4 flex items-center gap-2 px-4"
             style={{
               backgroundColor: showContacts ? 'var(--primary-muted)' : 'var(--bg-hover)',
               color: showContacts ? 'var(--primary)' : 'var(--text-primary)',
-            }}
-            onMouseEnter={(e) => {
-              if (!showContacts) e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
-            }}
-            onMouseLeave={(e) => {
-              if (!showContacts) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
             }}
           >
             <UsersIcon className="w-4 h-4" />
@@ -132,8 +122,7 @@ function UserProfileModal({ user, onClose }) {
           {/* Message button */}
           <button
             onClick={handleMessage}
-            className="flex items-center gap-2 mt-3 px-6 py-2.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-            style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+            className="app-primary-button mt-3 flex items-center gap-2 px-6 text-sm font-medium"
           >
             <MessageCircleIcon className="w-4 h-4" />
             Message

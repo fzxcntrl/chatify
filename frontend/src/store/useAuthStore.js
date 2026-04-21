@@ -3,6 +3,7 @@ import {
   API_ORIGIN,
   axiosInstance,
   clearAuthToken,
+  getStoredAuthToken,
   isUnauthorizedError,
   setUnauthorizedHandler,
   storeAuthToken,
@@ -27,6 +28,9 @@ export const CHAT_BACKGROUNDS = {
   midnight: { name: "Midnight",  dark: "#0A0E1A", light: "#F0F4FF" },
 };
 export const DEFAULT_CHAT_BACKGROUND = "default";
+
+const USERNAME_REGEX = /^(?!.*\.\.)(?!\.)(?!.*\.$)[a-z0-9_.]{3,30}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 10 Chat Bubble Themes — dark + light variants for received bubbles
 export const CHAT_THEMES = {
@@ -92,7 +96,7 @@ export const CHAT_THEMES = {
   },
 };
 
-export const applyTheme = (theme, chatTheme, chatBg) => {
+export const applyTheme = (theme, chatTheme) => {
   const mode = theme || 'dark';
   const isDark = mode === 'dark';
   document.documentElement.setAttribute('data-theme', mode);
@@ -150,6 +154,17 @@ export const useAuthStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
+    const token = getStoredAuthToken();
+
+    if (!token) {
+      set({
+        authUser: null,
+        isCheckingAuth: false,
+        onlineUsers: [],
+      });
+      return;
+    }
+
     try {
       const res = await axiosInstance.get("/auth/check");
       const { token, ...user } = res.data;
@@ -167,9 +182,39 @@ export const useAuthStore = create((set, get) => ({
   },
 
   signup: async (data) => {
+    const fullName = data.fullName.trim();
+    const username = data.username.trim().toLowerCase();
+    const email = data.email.trim().toLowerCase();
+    const password = data.password;
+
+    if (!fullName || !username || !email || !password) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (!USERNAME_REGEX.test(username)) {
+      toast.error("Username must be 3-30 characters using only lowercase letters, numbers, underscores, and periods");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
     set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post("/auth/signup", data);
+      const res = await axiosInstance.post("/auth/signup", {
+        fullName,
+        username,
+        email,
+        password,
+      });
       const { token, ...user } = res.data;
       storeAuthToken(token);
       set({ authUser: user });
@@ -184,9 +229,25 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (data) => {
+    const email = data.email.trim().toLowerCase();
+    const password = data.password;
+
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post("/auth/login", data);
+      const res = await axiosInstance.post("/auth/login", {
+        email,
+        password,
+      });
       const { token, ...user } = res.data;
       storeAuthToken(token);
       set({ authUser: user });

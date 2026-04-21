@@ -1,8 +1,10 @@
 const NoChatHistoryPlaceholder = ({ name }) => {
+  const prompts = ["Say hello", "Break the ice", "Plan a catch-up"];
+
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-6 animate-fade-in-up">
+    <div className="app-empty-state flex h-full flex-col items-center justify-center p-6 text-center animate-fade-in-up sm:p-8">
       <div
-        className="w-14 h-14 flex items-center justify-center mb-5"
+        className="mb-5 flex h-14 w-14 items-center justify-center"
         style={{
           backgroundColor: 'var(--primary-muted)',
           borderRadius: 'var(--radius-lg)',
@@ -30,37 +32,20 @@ const NoChatHistoryPlaceholder = ({ name }) => {
         style={{ backgroundColor: 'var(--border)' }}
       />
 
-      <div className="flex flex-wrap gap-2 justify-center">
-        <span
-          className="px-3.5 py-1.5 text-xs font-medium"
-          style={{
-            backgroundColor: 'var(--primary-muted)',
-            color: 'var(--primary)',
-            borderRadius: 'var(--radius-full)',
-          }}
-        >
-          👋 Say Hello
-        </span>
-        <span
-          className="px-3.5 py-1.5 text-xs font-medium"
-          style={{
-            backgroundColor: 'var(--primary-muted)',
-            color: 'var(--primary)',
-            borderRadius: 'var(--radius-full)',
-          }}
-        >
-          🤝 How are you?
-        </span>
-        <span
-          className="px-3.5 py-1.5 text-xs font-medium"
-          style={{
-            backgroundColor: 'var(--primary-muted)',
-            color: 'var(--primary)',
-            borderRadius: 'var(--radius-full)',
-          }}
-        >
-          📅 Let's catch up
-        </span>
+      <div className="flex flex-wrap justify-center gap-2">
+        {prompts.map((prompt) => (
+          <span
+            key={prompt}
+            className="px-3.5 py-1.5 text-xs font-medium"
+            style={{
+              backgroundColor: 'var(--primary-muted)',
+              color: 'var(--primary)',
+              borderRadius: 'var(--radius-full)',
+            }}
+          >
+            {prompt}
+          </span>
+        ))}
       </div>
     </div>
   );

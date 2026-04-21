@@ -1,0 +1,23 @@
+name: Keep Backend Awake
+
+on:
+  schedule:
+    - cron: "*/12 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping backend health check
+        env:
+          KEEP_ALIVE_URL: ${{ secrets.KEEP_ALIVE_URL }}
+        run: |
+          if [ -z "$KEEP_ALIVE_URL" ]; then
+            echo "KEEP_ALIVE_URL is not configured. Skipping ping."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error --max-time 20 "$KEEP_ALIVE_URL"

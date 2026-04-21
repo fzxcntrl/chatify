@@ -23,11 +23,12 @@ function IncomingRequestsList() {
 
   if (incomingRequests.length === 0) {
     return (
-      <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
-        <div className="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center bg-[var(--bg-elevated)] text-[var(--text-muted)]">
-          <UserPlusIcon className="w-6 h-6 opacity-30" />
+      <div className="app-empty-state py-12 text-center" style={{ color: 'var(--text-muted)' }}>
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl" style={{ backgroundColor: "var(--bg-elevated)" }}>
+          <UserPlusIcon className="h-6 w-6 opacity-40" />
         </div>
-        <p className="text-sm">No new requests</p>
+        <h3 className="text-base font-medium" style={{ color: "var(--text-primary)" }}>No pending requests</h3>
+        <p className="mt-1 text-sm">New connection requests will show up here.</p>
       </div>
     );
   }
@@ -37,31 +38,34 @@ function IncomingRequestsList() {
       {incomingRequests.map((req) => (
         <div 
           key={req._id}
-          className="p-3 mx-2 rounded-xl flex flex-col gap-3 animate-fade-in"
-          style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+          className="app-card mx-1 flex flex-col gap-3 p-4 animate-fade-in"
         >
-          <div className="flex items-center gap-3">
-            <img src={req.sender.profilePic || "/avatar.png"} alt={req.sender.username} className="w-10 h-10 rounded-full object-cover border border-[var(--border)]" />
+          <div className="flex items-start gap-3">
+            <img src={req.sender.profilePic || "/avatar.png"} alt={req.sender.username} className="h-11 w-11 rounded-full object-cover border border-[var(--border)]" />
             <div className="overflow-hidden">
               <h4 className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{req.sender.fullName}</h4>
-              <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>@{req.sender.username}</p>
+              <p className="mt-0.5 text-xs truncate" style={{ color: 'var(--text-muted)' }}>@{req.sender.username}</p>
             </div>
           </div>
           {req.sender.bio && (
-            <p className="text-xs text-[var(--text-secondary)] line-clamp-2 italic">&quot;{req.sender.bio}&quot;</p>
+            <p className="line-clamp-2 text-xs" style={{ color: "var(--text-secondary)" }}>{req.sender.bio}</p>
           )}
-          <div className="flex gap-2 w-full mt-1">
+          <div className="mt-1 grid w-full grid-cols-2 gap-2">
             <button 
               onClick={() => handleAccept(req._id)}
-              className="flex-1 py-1.5 flex justify-center items-center rounded-lg bg-[var(--online)] text-white hover:opacity-90 transition-opacity"
+              className="app-primary-button flex items-center justify-center gap-2 px-4 text-sm"
+              style={{ background: "linear-gradient(135deg, #6BCB77, #4FB65D)" }}
             >
               <CheckIcon className="w-4 h-4" />
+              Accept
             </button>
             <button 
               onClick={() => declineRequest(req._id)}
-              className="flex-1 py-1.5 flex justify-center items-center rounded-lg bg-[var(--danger)] text-white hover:opacity-90 transition-opacity"
+              className="app-secondary-button flex items-center justify-center gap-2 px-4 text-sm"
+              style={{ color: "var(--danger)", borderColor: "rgba(224, 95, 95, 0.22)" }}
             >
               <XIcon className="w-4 h-4" />
+              Decline
             </button>
           </div>
         </div>

@@ -63,24 +63,22 @@ function MessageInput() {
       }}
     >
       {imagePreview && (
-        <div className="max-w-2xl mx-auto mb-3 flex items-center">
-          <div className="relative">
+        <div className="mx-auto mb-3 flex max-w-3xl items-center">
+          <div className="app-card relative p-2">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-16 h-16 object-cover"
+              className="h-16 w-16 object-cover"
               style={{
                 borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border)',
               }}
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+              className="app-icon-button absolute -right-2 -top-2 h-7 min-h-0 w-7 min-w-0 rounded-full"
               style={{
                 backgroundColor: 'var(--bg-elevated)',
                 color: 'var(--text-primary)',
-                border: '1px solid var(--border)',
               }}
               type="button"
             >
@@ -90,7 +88,7 @@ function MessageInput() {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="max-w-2xl mx-auto flex items-center gap-2">
+      <form onSubmit={handleSendMessage} className="mx-auto flex max-w-3xl items-center gap-2">
         <input
           type="text"
           value={text}
@@ -98,15 +96,11 @@ function MessageInput() {
             setText(e.target.value);
             isSoundEnabled && playRandomKeyStrokeSound();
           }}
-          className="min-w-0 flex-1 rounded-full py-3 px-4 text-sm transition-all"
+          className="app-input-field min-w-0 flex-1 rounded-full px-4 py-3 text-sm"
           style={{
             backgroundColor: 'var(--app-shell-input-bg)',
-            border: '1px solid var(--border)',
             color: 'var(--text-primary)',
-            outline: 'none',
           }}
-          onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-          onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
           placeholder="Type a message..."
         />
 
@@ -121,14 +115,12 @@ function MessageInput() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="rounded-full p-3 transition-colors flex-shrink-0"
+          className="app-icon-button flex-shrink-0 rounded-full"
           style={{
             backgroundColor: 'var(--app-shell-input-bg)',
             color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
             border: '1px solid var(--border)',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-focus)'}
-          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
           title="Attach image"
         >
           <ImageIcon className="w-[18px] h-[18px]" />
@@ -137,17 +129,7 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
-          style={{
-            backgroundColor: 'var(--primary)',
-            color: 'var(--text-inverse)',
-          }}
-          onMouseEnter={(e) => {
-            if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--primary)';
-          }}
+          className="app-primary-button flex-shrink-0 rounded-full p-3 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <SendIcon className="w-[18px] h-[18px]" />
         </button>

@@ -75,16 +75,11 @@ function SettingsModal({ onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+      className="app-modal-backdrop z-[100]"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="no-glass h-dvh w-full max-w-4xl flex flex-col md:flex-row gap-0 overflow-hidden rounded-none animate-fade-in-up sm:h-[calc(100dvh-2rem)] sm:max-h-[750px] sm:rounded-2xl"
-        style={{
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
-        }}
+        className="app-modal-panel no-glass h-dvh w-full max-w-4xl animate-fade-in-up md:h-[min(88vh,760px)]"
       >
 
         {/* Sidebar */}
@@ -155,11 +150,10 @@ function SettingsModal({ onClose }) {
                 <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
                   <button
                     onClick={() => handleThemeChange("dark")}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
+                    className="flex min-h-[120px] w-full flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all"
                     style={{
                       borderColor: selectedTheme === "dark" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "dark" ? 'var(--primary-muted)' : 'transparent',
-                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-md" style={{ backgroundColor: '#0F1419', color: 'white' }}>
@@ -169,11 +163,10 @@ function SettingsModal({ onClose }) {
                   </button>
                   <button
                     onClick={() => handleThemeChange("light")}
-                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
+                    className="flex min-h-[120px] w-full flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all"
                     style={{
                       borderColor: selectedTheme === "light" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "light" ? 'var(--primary-muted)' : 'transparent',
-                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-sm ring-1 ring-gray-200" style={{ backgroundColor: '#FFFFFF', color: '#18181B' }}>
@@ -318,9 +311,8 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.oldPassword}
                       onChange={(e) => setPasswords({...passwords, oldPassword: e.target.value})}
-                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
-                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
+                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
                     />
                   </div>
                 </div>
@@ -332,9 +324,8 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.newPassword}
                       onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
-                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
-                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
+                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
                     />
                   </div>
                 </div>
@@ -346,9 +337,8 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.confirmPassword}
                       onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
-                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
-                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
+                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
                     />
                   </div>
                 </div>
@@ -360,8 +350,7 @@ function SettingsModal({ onClose }) {
                 <button
                   type="submit"
                   disabled={isUpdatingPassword || !passwords.oldPassword || !passwords.newPassword || !passwords.confirmPassword}
-                  className="py-2.5 px-6 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-                  style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))', color: 'white', borderRadius: 'var(--radius-md)' }}
+                  className="app-primary-button mt-4 px-6 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isUpdatingPassword ? <LoaderIcon className="w-5 h-5 mx-auto animate-spin" /> : "Update Password"}
                 </button>
@@ -388,16 +377,16 @@ function SettingsModal({ onClose }) {
                     applyTheme(origTheme, origChatTheme, DEFAULT_CHAT_BACKGROUND);
                   }}
                   disabled={isUpdatingDisplay}
-                  className="px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[var(--bg-hover)] transition-colors"
-                  style={{ color: 'var(--text-secondary)' }}
+                  className="app-secondary-button rounded-full px-4 text-xs font-medium"
+                  style={{ minHeight: "36px" }}
                 >
                   Discard
                 </button>
                 <button
                   onClick={saveDisplaySettings}
                   disabled={isUpdatingDisplay}
-                  className="px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition-opacity hover:opacity-90 disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+                  className="app-primary-button flex items-center gap-1 rounded-full px-4 text-xs font-medium disabled:opacity-50"
+                  style={{ minHeight: "36px" }}
                 >
                   {isUpdatingDisplay ? <LoaderIcon className="w-3 h-3 animate-spin"/> : <SaveIcon className="w-3 h-3" />}
                   Save

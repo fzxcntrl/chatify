@@ -1,5 +1,5 @@
 
-import { XIcon, ArrowLeftIcon, MapPinIcon } from "lucide-react";
+import { XIcon, ArrowLeftIcon, MapPinIcon, SendIcon } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
@@ -27,7 +27,7 @@ function ChatHeader() {
   return (
     <>
       <div
-        className="flex justify-between items-center gap-3 px-3 py-3 sm:px-4 md:px-6"
+        className="flex items-center justify-between gap-3 px-3 py-3 sm:px-4 md:px-6"
         style={{
           backgroundColor: 'var(--app-shell-header-bg)',
           borderBottom: '1px solid var(--border)',
@@ -35,7 +35,7 @@ function ChatHeader() {
       >
         <div className="flex min-w-0 items-center gap-3">
           <button
-            className="md:hidden p-1.5 rounded-lg transition-colors"
+            className="app-icon-button md:hidden"
             style={{ color: 'var(--text-secondary)' }}
             onClick={() => setSelectedUser(null)}
           >
@@ -44,7 +44,7 @@ function ChatHeader() {
 
           {/* Clickable profile area */}
           <button
-            className="flex min-w-0 items-center gap-3 transition-opacity hover:opacity-80"
+            className="flex min-w-0 items-center gap-3 text-left transition-opacity hover:opacity-90"
             onClick={() => setShowProfile(true)}
           >
             <div className="relative">
@@ -83,16 +83,10 @@ function ChatHeader() {
         <div className="flex flex-shrink-0 gap-2 items-center relative">
           <div className="relative">
             <button
-              className="p-2 rounded-lg transition-colors flex items-center gap-1.5 max-w-[44px] sm:max-w-[220px]"
+              className="app-icon-button flex max-w-[48px] items-center gap-1.5 px-2 sm:max-w-[240px] sm:px-3"
               style={{
                 color: showMapTracker || showLocationMenu ? 'white' : 'var(--text-secondary)',
                 backgroundColor: showMapTracker || showLocationMenu ? 'var(--primary)' : 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                if (!showMapTracker && !showLocationMenu) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
-              }}
-              onMouseLeave={(e) => {
-                if (!showMapTracker && !showLocationMenu) e.currentTarget.style.backgroundColor = 'transparent';
               }}
               onClick={() => setShowLocationMenu(!showLocationMenu)}
               title="Location Options"
@@ -110,21 +104,21 @@ function ChatHeader() {
                   onClick={() => setShowLocationMenu(false)}
                 />
                 <div
-                  className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-xl border overflow-hidden z-50 animate-fade-in-up"
-                  style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+                  className="app-card absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden animate-fade-in-up"
                 >
                   <button
-                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
+                    className="app-action-button flex w-full items-center gap-2 rounded-none px-4 py-3 text-left text-sm"
                     style={{ color: 'var(--text-primary)' }}
                     onClick={() => {
                       setShowMapTracker(true);
                       setShowLocationMenu(false);
                     }}
                   >
-                    📍 Share your location
+                    <MapPinIcon className="h-4 w-4" />
+                    Share your location
                   </button>
                   <button
-                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
+                    className="app-action-button flex w-full items-center gap-2 rounded-none border-t px-4 py-3 text-left text-sm"
                     style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border)' }}
                     onClick={() => {
                       const socket = useAuthStore.getState().socket;
@@ -133,7 +127,8 @@ function ChatHeader() {
                       setShowLocationMenu(false);
                     }}
                   >
-                    ❓ Ask for location
+                    <SendIcon className="h-4 w-4" />
+                    Ask for location
                   </button>
                 </div>
               </>
@@ -141,10 +136,8 @@ function ChatHeader() {
           </div>
 
           <button
-            className="hidden md:flex p-1.5 rounded-lg transition-colors"
+            className="app-icon-button hidden md:inline-flex"
             style={{ color: 'var(--text-secondary)' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             onClick={() => setSelectedUser(null)}
           >
             <XIcon className="w-[18px] h-[18px]" />
