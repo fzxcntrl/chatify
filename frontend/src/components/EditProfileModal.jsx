@@ -10,7 +10,6 @@ function EditProfileModal({ onClose }) {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   const avatarInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
   const [showAvatarMenu, setShowAvatarMenu] = useState(false);
 
   const handleAvatarUpload = async (e) => {
@@ -120,13 +119,6 @@ function EditProfileModal({ onClose }) {
                     <UploadIcon className="w-4 h-4" /> Upload Photo
                   </button>
                   <button
-                    className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 hover:bg-[var(--bg-hover)] transition-colors"
-                    style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border)' }}
-                    onClick={() => { cameraInputRef.current?.click(); setShowAvatarMenu(false); }}
-                  >
-                    <CameraIcon className="w-4 h-4" /> Take Picture
-                  </button>
-                  <button
                     className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition-colors hover:bg-red-500/10"
                     style={{ color: 'var(--danger)', borderTop: '1px solid var(--border)' }}
                     onClick={handleRemovePhoto}
@@ -138,7 +130,6 @@ function EditProfileModal({ onClose }) {
             )}
 
             <input type="file" accept="image/*" ref={avatarInputRef} onChange={handleAvatarUpload} className="hidden" />
-            <input type="file" accept="image/*" capture="user" ref={cameraInputRef} onChange={handleAvatarUpload} className="hidden" />
           </div>
 
           {/* Username */}

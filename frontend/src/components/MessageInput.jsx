@@ -56,8 +56,11 @@ function MessageInput() {
 
   return (
     <div
-      className="p-3 md:p-4"
-      style={{ borderTop: '1px solid var(--border)' }}
+      className="p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:p-4"
+      style={{
+        borderTop: '1px solid var(--border)',
+        backgroundColor: 'rgba(10, 15, 23, 0.46)',
+      }}
     >
       {imagePreview && (
         <div className="max-w-2xl mx-auto mb-3 flex items-center">
@@ -95,11 +98,10 @@ function MessageInput() {
             setText(e.target.value);
             isSoundEnabled && playRandomKeyStrokeSound();
           }}
-          className="flex-1 py-2.5 px-4 text-sm transition-all"
+          className="min-w-0 flex-1 rounded-full py-3 px-4 text-sm transition-all"
           style={{
-            backgroundColor: 'var(--bg-surface)',
+            backgroundColor: 'rgba(18, 24, 37, 0.76)',
             border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
             color: 'var(--text-primary)',
             outline: 'none',
           }}
@@ -119,9 +121,9 @@ function MessageInput() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="p-2.5 rounded-lg transition-colors flex-shrink-0"
+          className="rounded-full p-3 transition-colors flex-shrink-0"
           style={{
-            backgroundColor: 'var(--bg-surface)',
+            backgroundColor: 'rgba(18, 24, 37, 0.76)',
             color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
             border: '1px solid var(--border)',
           }}
@@ -135,7 +137,7 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="p-2.5 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+          className="rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
           style={{
             backgroundColor: 'var(--primary)',
             color: 'var(--text-inverse)',

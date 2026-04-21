@@ -40,8 +40,13 @@ function BrowseUsersPage() {
   const renderUserCard = (user) => (
     <div
       key={user._id}
-      className="flex items-center justify-between p-4 rounded-xl transition-colors"
-      style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+      className="flex flex-col gap-3 rounded-2xl p-4 transition-colors sm:flex-row sm:items-center sm:justify-between"
+      style={{
+        backgroundColor: 'rgba(19, 26, 40, 0.72)',
+        border: '1px solid var(--border)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
     >
       {/* Clickable profile area */}
       <button
@@ -63,13 +68,13 @@ function BrowseUsersPage() {
       </button>
 
       {/* Action button */}
-      <div className="flex-shrink-0 ml-3">
+      <div className="flex w-full flex-shrink-0 sm:ml-3 sm:w-auto sm:justify-end">
         {user.requestStatus === "pending" && user.isSender ? (
-          <button disabled className="px-4 py-2 rounded-lg text-xs font-medium cursor-not-allowed" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
+          <button disabled className="w-full px-4 py-2 rounded-lg text-xs font-medium cursor-not-allowed sm:w-auto" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
             Pending
           </button>
         ) : user.requestStatus === "pending" && !user.isSender && user.requestId ? (
-          <div className="flex gap-1.5">
+          <div className="flex w-full gap-1.5 sm:w-auto">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -81,7 +86,7 @@ function BrowseUsersPage() {
                   searchResults: useFriendStore.getState().searchResults.map(updateUser),
                 });
               }}
-              className="p-2 rounded-lg transition-transform hover:scale-105 active:scale-95"
+              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
               style={{ backgroundColor: 'var(--online)', color: 'white' }}
               title="Accept"
             >
@@ -97,7 +102,7 @@ function BrowseUsersPage() {
                   searchResults: useFriendStore.getState().searchResults.map(updateUser),
                 });
               }}
-              className="p-2 rounded-lg transition-transform hover:scale-105 active:scale-95"
+              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
               style={{ backgroundColor: 'var(--danger)', color: 'white' }}
               title="Decline"
             >
@@ -111,7 +116,7 @@ function BrowseUsersPage() {
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); sendFriendRequest(user._id); }}
-            className="p-2 rounded-lg transition-transform hover:scale-105 active:scale-95"
+            className="w-full p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:w-auto"
             style={{ backgroundColor: 'var(--primary)', color: 'white' }}
             title="Send Friend Request"
           >
@@ -123,33 +128,31 @@ function BrowseUsersPage() {
   );
 
   return (
-    <div className="min-h-screen p-4 flex justify-center" style={{ backgroundColor: 'var(--bg-base)' }}>
+    <div className="min-h-screen min-h-dvh p-0 sm:p-4 flex justify-center">
       <div
-        className="w-full max-w-4xl flex flex-col md:flex-row gap-6 animate-fade-in"
-        style={{ height: 'calc(100vh - 2rem)', maxHeight: '860px' }}
+        className="h-dvh min-h-dvh w-full max-w-4xl animate-fade-in sm:h-[calc(100dvh-2rem)] sm:min-h-0 sm:max-h-[860px]"
       >
         <div
-          className="w-full flex flex-col overflow-hidden mx-auto max-w-3xl"
+          className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none backdrop-blur-2xl sm:rounded-lg"
           style={{
-            backgroundColor: 'var(--bg-surface)',
-            borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(180deg, rgba(10, 15, 23, 0.84) 0%, rgba(14, 21, 33, 0.78) 100%)',
             border: '1px solid var(--border)',
             boxShadow: 'var(--shadow-lg)'
           }}
         >
           {/* Header */}
-          <div className="p-6 border-b border-[var(--border)] flex items-center gap-4">
+          <div className="p-4 sm:p-6 border-b border-[var(--border)] flex items-center gap-4">
             <Link to="/" className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
               <ArrowLeftIcon className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Browse</h1>
+              <h1 className="text-xl font-semibold font-heading" style={{ color: 'var(--text-primary)' }}>Browse</h1>
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover people and send requests</p>
             </div>
           </div>
 
           {/* Search */}
-          <div className="p-6 pb-2">
+          <div className="p-4 pb-2 sm:p-6 sm:pb-2">
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
               <input
@@ -172,7 +175,7 @@ function BrowseUsersPage() {
 
           {/* Section label */}
           {!isSearchMode && !isLoading && displayUsers.length > 0 && (
-            <div className="px-6 pt-3 pb-1 flex items-center gap-2">
+            <div className="px-4 pt-3 pb-1 flex items-center gap-2 sm:px-6">
               <SparklesIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
               <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                 Suggested for you
@@ -181,7 +184,7 @@ function BrowseUsersPage() {
           )}
 
           {/* Users list */}
-          <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-3 sm:p-6 sm:pt-2">
             {isLoading ? (
               <div className="flex justify-center items-center h-32">
                 <LoaderIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />

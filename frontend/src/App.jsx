@@ -9,6 +9,7 @@ import { useChatStore } from "./store/useChatStore";
 import useUiSounds from "./hooks/useUiSounds";
 import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
+import { ParallaxStarsBackdrop } from "./components/ParallaxStarsBackground";
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
@@ -38,45 +39,60 @@ function App() {
         playRandomTapSound();
       }}
     >
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(224,122,95,0.04) 0%, transparent 70%)',
-        }}
-      />
+      {authUser ? (
+        <>
+          <ParallaxStarsBackdrop
+            speed={0.55}
+            className="fixed inset-0 z-0"
+            gradientTopColor="#05070C"
+            gradientBottomColor="#162334"
+          />
+          <div
+            className="fixed inset-0 z-10 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle at 18% 22%, rgba(98, 129, 255, 0.10) 0%, transparent 26%), radial-gradient(circle at 78% 12%, rgba(224, 122, 95, 0.12) 0%, transparent 24%), radial-gradient(circle at 50% 85%, rgba(122, 162, 247, 0.08) 0%, transparent 28%)",
+            }}
+          />
+        </>
+      ) : null}
 
-      <Routes>
-        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
-        <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
-        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
-      </Routes>
+      <div className="relative z-20">
+        <Routes>
+          <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
+          <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
+          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
+          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
+        </Routes>
+      </div>
 
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: 'var(--bg-elevated)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius-md)',
-            fontFamily: 'var(--font-sans)',
-            fontSize: '14px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#6BCB77',
-              secondary: 'var(--bg-elevated)',
+      <div className="relative z-30">
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: '14px',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: '#E05F5F',
-              secondary: 'var(--bg-elevated)',
+            success: {
+              iconTheme: {
+                primary: '#6BCB77',
+                secondary: 'var(--bg-elevated)',
+              },
             },
-          },
-        }}
-      />
+            error: {
+              iconTheme: {
+                primary: '#E05F5F',
+                secondary: 'var(--bg-elevated)',
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 }

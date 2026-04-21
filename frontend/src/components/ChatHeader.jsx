@@ -27,13 +27,13 @@ function ChatHeader() {
   return (
     <>
       <div
-        className="flex justify-between items-center px-4 md:px-6 py-3"
+        className="flex justify-between items-center gap-3 px-3 py-3 sm:px-4 md:px-6"
         style={{
-          backgroundColor: 'var(--bg-surface)',
+          backgroundColor: 'rgba(11, 16, 25, 0.52)',
           borderBottom: '1px solid var(--border)',
         }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             className="md:hidden p-1.5 rounded-lg transition-colors"
             style={{ color: 'var(--text-secondary)' }}
@@ -44,7 +44,7 @@ function ChatHeader() {
 
           {/* Clickable profile area */}
           <button
-            className="flex items-center gap-3 transition-opacity hover:opacity-80"
+            className="flex min-w-0 items-center gap-3 transition-opacity hover:opacity-80"
             onClick={() => setShowProfile(true)}
           >
             <div className="relative">
@@ -67,12 +67,12 @@ function ChatHeader() {
               />
             </div>
 
-            <div className="text-left">
-              <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+            <div className="min-w-0 text-left">
+              <h3 className="truncate text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {selectedUser.fullName}
               </h3>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs">
-                <span style={{ color: 'var(--text-muted)' }}>@{selectedUser.username}</span>
+              <div className="mt-0.5 flex items-center gap-1.5 text-xs">
+                <span className="truncate" style={{ color: 'var(--text-muted)' }}>@{selectedUser.username}</span>
                 <span style={{ color: 'var(--border)' }}>•</span>
                 <span style={{ color: isOnline ? 'var(--online)' : 'var(--text-muted)' }}>{isOnline ? 'Online' : 'Offline'}</span>
               </div>
@@ -80,10 +80,10 @@ function ChatHeader() {
           </button>
         </div>
 
-        <div className="flex gap-2 items-center relative">
+        <div className="flex flex-shrink-0 gap-2 items-center relative">
           <div className="relative">
             <button
-              className="p-1.5 rounded-lg transition-colors flex items-center gap-1.5 max-w-[180px]"
+              className="p-2 rounded-lg transition-colors flex items-center gap-1.5 max-w-[44px] sm:max-w-[220px]"
               style={{
                 color: showMapTracker || showLocationMenu ? 'white' : 'var(--text-secondary)',
                 backgroundColor: showMapTracker || showLocationMenu ? 'var(--primary)' : 'transparent'
@@ -98,7 +98,7 @@ function ChatHeader() {
               title="Location Options"
             >
               <MapPinIcon className="w-[18px] h-[18px]" />
-              <span className="text-[10px] pr-1 font-medium select-none truncate">
+              <span className="hidden pr-1 text-[10px] font-medium select-none truncate sm:inline">
                 See {firstName}&apos;s live location
               </span>
             </button>

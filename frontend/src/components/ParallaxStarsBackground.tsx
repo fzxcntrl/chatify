@@ -107,16 +107,71 @@ function createStarShadowString(count: number, seed: number) {
 const joinClassNames = (...classNames: Array<string | undefined>) =>
   classNames.filter(Boolean).join(" ");
 
-export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
-  title,
+interface ParallaxStarsThemeProps {
+  speed?: number;
+  className?: string;
+  gradientTopColor?: string;
+  gradientBottomColor?: string;
+}
+
+export interface ParallaxStarsBackdropProps extends ParallaxStarsThemeProps {}
+
+const ParallaxStarsLayer = memo(function ParallaxStarsLayer({
+  size,
+  duration,
+  opacity,
+  shadow,
+  speed,
+}: {
+  size: number;
+  duration: number;
+  opacity: number;
+  shadow: string;
+  speed: number;
+}) {
+  const layerStyle = {
+    width: `${STAR_FIELD_SIZE}px`,
+    height: `${STAR_FIELD_SIZE}px`,
+  };
+
+  const starStyle = {
+    width: `${size}px`,
+    height: `${size}px`,
+    opacity,
+    boxShadow: shadow,
+  } as CSSProperties;
+
+  return (
+    <div
+      className="absolute left-1/2 top-0 -translate-x-1/2"
+      style={layerStyle}
+    >
+      <div
+        className="parallax-stars-background__motion relative"
+        style={{
+          ...layerStyle,
+          animationDuration: `${duration / speed}s`,
+        }}
+      >
+        <span className="parallax-stars-background__field" style={{ ...starStyle, top: 0 }} />
+        <span
+          className="parallax-stars-background__field parallax-stars-background__field--clone"
+          style={starStyle}
+        />
+      </div>
+    </div>
+  );
+});
+
+ParallaxStarsLayer.displayName = "ParallaxStarsLayer";
+
+export const ParallaxStarsBackdrop = memo(function ParallaxStarsBackdrop({
   speed = 1,
-  children,
   className,
   gradientTopColor = DEFAULT_TOP_GRADIENT,
   gradientBottomColor = DEFAULT_BOTTOM_GRADIENT,
-}: ParallaxStarsBackgroundProps) {
+}: ParallaxStarsBackdropProps) {
   const clampedSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
-  const titleLines = title.split("\n");
 
   const layerShadows = useMemo(
     () => STAR_LAYERS.map((layer) => createStarShadowString(layer.count, layer.seed)),
@@ -130,11 +185,8 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
   } as CSSProperties;
 
   return (
-    <section
-      className={joinClassNames(
-        "relative isolate flex h-screen min-h-dvh w-full items-center justify-center overflow-hidden bg-[#090A0F] text-white",
-        className
-      )}
+    <div
+      className={joinClassNames("absolute inset-0 overflow-hidden pointer-events-none", className)}
       style={rootStyle}
     >
       <style>{PARALLAX_STARS_STYLES}</style>
@@ -142,42 +194,45 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
       <div className="parallax-stars-background__gradient absolute inset-0 z-0" />
 
       <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        {STAR_LAYERS.map((layer, index) => {
-          const layerStyle = {
-            width: `${STAR_FIELD_SIZE}px`,
-            height: `${STAR_FIELD_SIZE}px`,
-          };
-
-          const starStyle = {
-            width: `${layer.size}px`,
-            height: `${layer.size}px`,
-            opacity: layer.opacity,
-            boxShadow: layerShadows[index],
-          } as CSSProperties;
-
-          return (
-            <div
-              key={`${layer.size}-${layer.duration}`}
-              className="absolute left-1/2 top-0 -translate-x-1/2"
-              style={layerStyle}
-            >
-              <div
-                className="parallax-stars-background__motion relative"
-                style={{
-                  ...layerStyle,
-                  animationDuration: `${layer.duration / clampedSpeed}s`,
-                }}
-              >
-                <span className="parallax-stars-background__field" style={{ ...starStyle, top: 0 }} />
-                <span
-                  className="parallax-stars-background__field parallax-stars-background__field--clone"
-                  style={starStyle}
-                />
-              </div>
-            </div>
-          );
-        })}
+        {STAR_LAYERS.map((layer, index) => (
+          <ParallaxStarsLayer
+            key={`${layer.size}-${layer.duration}`}
+            size={layer.size}
+            duration={layer.duration}
+            opacity={layer.opacity}
+            shadow={layerShadows[index]}
+            speed={clampedSpeed}
+          />
+        ))}
       </div>
+    </div>
+  );
+});
+
+ParallaxStarsBackdrop.displayName = "ParallaxStarsBackdrop";
+
+export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
+  title,
+  speed = 1,
+  children,
+  className,
+  gradientTopColor = DEFAULT_TOP_GRADIENT,
+  gradientBottomColor = DEFAULT_BOTTOM_GRADIENT,
+}: ParallaxStarsBackgroundProps) {
+  const titleLines = title.split("\n");
+
+  return (
+    <section
+      className={joinClassNames(
+        "relative isolate flex h-screen min-h-dvh w-full items-center justify-center overflow-hidden bg-[#090A0F] text-white",
+        className
+      )}
+    >
+      <ParallaxStarsBackdrop
+        speed={speed}
+        gradientTopColor={gradientTopColor}
+        gradientBottomColor={gradientBottomColor}
+      />
 
       <div className="relative z-20 mx-auto flex w-full max-w-7xl flex-col items-center gap-8 px-6 py-16 text-center sm:px-10">
         <div className="parallax-stars-background__hero max-w-4xl">

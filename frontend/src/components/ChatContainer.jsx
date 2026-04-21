@@ -78,9 +78,23 @@ function ChatContainer() {
   return (
     <>
       <ChatHeader />
-      <div className="flex-1 px-4 md:px-6 overflow-y-auto py-6" style={{ backgroundColor: 'var(--chat-bg)' }}>
+      <div
+        className="relative flex-1 overflow-y-auto px-3 py-4 sm:px-4 md:px-6 md:py-6"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(8, 12, 20, 0.16) 0%, rgba(5, 8, 14, 0.30) 100%)",
+        }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none opacity-75"
+          style={{
+            background:
+              "radial-gradient(circle at top center, rgba(126, 155, 255, 0.10) 0%, transparent 22%), radial-gradient(circle at bottom left, rgba(224, 122, 95, 0.08) 0%, transparent 24%)",
+          }}
+        />
+
         {messages.length > 0 && !isMessagesLoading ? (
-          <div className="max-w-2xl mx-auto space-y-3">
+          <div className="relative z-10 max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
 
@@ -90,7 +104,7 @@ function ChatContainer() {
                   className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div
-                    className="max-w-[75%] md:max-w-[65%]"
+                    className="max-w-[85%] sm:max-w-[78%] md:max-w-[65%]"
                     style={{
                       backgroundColor: isSent ? 'var(--bubble-sent)' : 'var(--bubble-received)',
                       color: isSent ? 'var(--bubble-sent-text)' : 'var(--bubble-received-text)',
@@ -149,7 +163,9 @@ function ChatContainer() {
         ) : isMessagesLoading ? (
           <MessagesLoadingSkeleton />
         ) : (
-          <NoChatHistoryPlaceholder name={selectedUser.fullName} />
+          <div className="relative z-10">
+            <NoChatHistoryPlaceholder name={selectedUser.fullName} />
+          </div>
         )}
       </div>
 
