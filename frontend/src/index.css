@@ -143,49 +143,18 @@
 }
 
 html {
-  min-height: 100%;
-  text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100%;
   font-family: var(--font-sans);
   background-color: var(--bg-base);
   color: var(--text-primary);
   margin: 0;
   padding: 0;
   line-height: 1.5;
-  overflow-x: hidden;
   transition: background-color var(--transition-slow);
-}
-
-#root {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  touch-action: manipulation;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 /* Glassmorphism Interceptor Engine */
@@ -573,18 +542,19 @@ a {
   box-shadow: var(--shadow-lg);
 }
 
-.app-surface {
-  border: 1px solid var(--border);
-  background-color: var(--bg-surface);
-  backdrop-filter: blur(18px) saturate(180%);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-}
-
 .app-card {
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   background-color: var(--bg-elevated);
   box-shadow: var(--shadow-sm);
+}
+
+.app-surface {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background-color: var(--bg-surface);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
 }
 
 .app-list-item {
@@ -630,16 +600,16 @@ a {
 }
 
 .app-action-button {
-  min-height: 48px;
+  min-height: 46px;
   border-radius: var(--radius-lg);
 }
 
 .app-icon-button {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-md);
 }
 
@@ -690,9 +660,9 @@ a {
 
 .app-input-field:focus,
 .app-textarea-field:focus {
+  outline: none;
   border-color: var(--border-focus);
   box-shadow: 0 0 0 4px rgba(224, 122, 95, 0.08);
-  outline: none;
 }
 
 .app-modal-backdrop {
@@ -727,23 +697,52 @@ a {
   margin-inline: auto;
 }
 
+.auth-shell {
+  width: 100%;
+  max-width: 1080px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: rgba(12, 17, 26, 0.72);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+[data-theme="light"] .auth-shell {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.auth-panel {
+  background:
+    radial-gradient(circle at top left, rgba(224, 122, 95, 0.08), transparent 38%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+}
+
+[data-theme="light"] .auth-panel {
+  background:
+    radial-gradient(circle at top left, rgba(224, 122, 95, 0.10), transparent 38%),
+    linear-gradient(180deg, rgba(255,255,255,0.45), transparent);
+}
+
+.auth-aside {
+  background:
+    radial-gradient(circle at top, rgba(130, 168, 255, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+}
+
+[data-theme="light"] .auth-aside {
+  background:
+    radial-gradient(circle at top, rgba(96, 165, 250, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.56), rgba(255,255,255,0.32));
+}
+
 .app-kicker {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
-}
-
-.app-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: var(--radius-full);
-  background-color: var(--primary-muted);
-  color: var(--primary);
 }
 
 @media (hover: hover) {
@@ -770,19 +769,18 @@ a {
 }
 
 @media (max-width: 768px) {
-  :root {
-    --radius-lg: 16px;
-    --radius-xl: 22px;
-  }
-
   .app-modal-backdrop {
-    align-items: stretch;
     padding: 0;
+    align-items: stretch;
   }
 
   .app-modal-panel {
     max-height: 100dvh;
     border-radius: 0;
+  }
+
+  .auth-shell {
+    border-radius: 24px;
   }
 
   .app-empty-state {

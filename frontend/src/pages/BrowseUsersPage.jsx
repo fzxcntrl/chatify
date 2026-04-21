@@ -40,8 +40,15 @@ function BrowseUsersPage() {
   const renderUserCard = (user) => (
     <div
       key={user._id}
-      className="app-surface flex flex-col gap-3 rounded-[24px] p-4 sm:flex-row sm:items-center sm:justify-between"
+      className="flex flex-col gap-3 rounded-2xl p-4 transition-colors sm:flex-row sm:items-center sm:justify-between"
+      style={{
+        backgroundColor: 'var(--bg-surface)',
+        border: '1px solid var(--border)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+      }}
     >
+      {/* Clickable profile area */}
       <button
         className="flex items-center gap-4 text-left transition-opacity hover:opacity-80 min-w-0 flex-1"
         onClick={() => setProfileUser(user)}
@@ -63,7 +70,7 @@ function BrowseUsersPage() {
       {/* Action button */}
       <div className="flex w-full flex-shrink-0 sm:ml-3 sm:w-auto sm:justify-end">
         {user.requestStatus === "pending" && user.isSender ? (
-          <button disabled className="app-secondary-button w-full px-4 text-xs font-medium cursor-not-allowed sm:w-auto">
+          <button disabled className="w-full px-4 py-2 rounded-lg text-xs font-medium cursor-not-allowed sm:w-auto" style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
             Pending
           </button>
         ) : user.requestStatus === "pending" && !user.isSender && user.requestId ? (
@@ -79,8 +86,8 @@ function BrowseUsersPage() {
                   searchResults: useFriendStore.getState().searchResults.map(updateUser),
                 });
               }}
-              className="app-primary-button flex-1 px-3 sm:flex-none"
-              style={{ background: "linear-gradient(135deg, #6BCB77, #4FB65D)" }}
+              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
+              style={{ backgroundColor: 'var(--online)', color: 'white' }}
               title="Accept"
             >
               <CheckIcon className="w-4 h-4" />
@@ -95,8 +102,8 @@ function BrowseUsersPage() {
                   searchResults: useFriendStore.getState().searchResults.map(updateUser),
                 });
               }}
-              className="app-secondary-button flex-1 px-3 sm:flex-none"
-              style={{ color: "var(--danger)", borderColor: "rgba(224, 95, 95, 0.22)" }}
+              className="flex-1 p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:flex-none"
+              style={{ backgroundColor: 'var(--danger)', color: 'white' }}
               title="Decline"
             >
               <XIcon className="w-4 h-4" />
@@ -109,7 +116,8 @@ function BrowseUsersPage() {
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); sendFriendRequest(user._id); }}
-            className="app-primary-button w-full px-3 sm:w-auto"
+            className="w-full p-2 rounded-lg transition-transform hover:scale-105 active:scale-95 sm:w-auto"
+            style={{ backgroundColor: 'var(--primary)', color: 'white' }}
             title="Send Friend Request"
           >
             <UserPlusIcon className="w-5 h-5" />
@@ -120,15 +128,21 @@ function BrowseUsersPage() {
   );
 
   return (
-    <div className="min-h-screen min-h-dvh flex justify-center p-0 md:p-4">
+    <div className="min-h-screen min-h-dvh p-0 sm:p-4 flex justify-center">
       <div
-        className="h-dvh min-h-dvh w-full max-w-5xl animate-fade-in md:h-[calc(100dvh-2rem)] md:min-h-0 md:max-h-[900px]"
+        className="h-dvh min-h-dvh w-full max-w-4xl animate-fade-in sm:h-[calc(100dvh-2rem)] sm:min-h-0 sm:max-h-[860px]"
       >
         <div
-          className="app-shell mx-auto flex h-full w-full max-w-4xl flex-col overflow-hidden rounded-none md:rounded-[28px]"
+          className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none backdrop-blur-2xl sm:rounded-lg"
+          style={{
+            background: 'var(--app-shell-bg)',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow-lg)'
+          }}
         >
-          <div className="flex items-center gap-4 border-b border-[var(--border)] p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
-            <Link to="/" className="app-icon-button text-[var(--text-secondary)]">
+          {/* Header */}
+          <div className="p-4 sm:p-6 border-b border-[var(--border)] flex items-center gap-4">
+            <Link to="/" className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
               <ArrowLeftIcon className="w-5 h-5" />
             </Link>
             <div>
@@ -137,6 +151,7 @@ function BrowseUsersPage() {
             </div>
           </div>
 
+          {/* Search */}
           <div className="p-4 pb-2 sm:p-6 sm:pb-2">
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
@@ -145,15 +160,20 @@ function BrowseUsersPage() {
                 placeholder="Search by username..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="app-input-field pl-10 pr-4 py-3 text-sm"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm transition-all"
                 style={{
                   backgroundColor: 'var(--bg-input)',
+                  border: '1px solid var(--border)',
                   color: 'var(--text-primary)',
+                  outline: 'none',
                 }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
               />
             </div>
           </div>
 
+          {/* Section label */}
           {!isSearchMode && !isLoading && displayUsers.length > 0 && (
             <div className="px-4 pt-3 pb-1 flex items-center gap-2 sm:px-6">
               <SparklesIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
@@ -163,6 +183,7 @@ function BrowseUsersPage() {
             </div>
           )}
 
+          {/* Users list */}
           <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-3 sm:p-6 sm:pt-2">
             {isLoading ? (
               <div className="flex justify-center items-center h-32">

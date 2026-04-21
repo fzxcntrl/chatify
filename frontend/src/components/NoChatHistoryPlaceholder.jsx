@@ -4,7 +4,7 @@ const NoChatHistoryPlaceholder = ({ name }) => {
   return (
     <div className="app-empty-state flex h-full flex-col items-center justify-center p-6 text-center animate-fade-in-up sm:p-8">
       <div
-        className="mb-5 flex h-14 w-14 items-center justify-center"
+        className="w-14 h-14 flex items-center justify-center mb-5"
         style={{
           backgroundColor: 'var(--primary-muted)',
           borderRadius: 'var(--radius-lg)',
@@ -32,7 +32,7 @@ const NoChatHistoryPlaceholder = ({ name }) => {
         style={{ backgroundColor: 'var(--border)' }}
       />
 
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-wrap gap-2 justify-center">
         {prompts.map((prompt) => (
           <span
             key={prompt}

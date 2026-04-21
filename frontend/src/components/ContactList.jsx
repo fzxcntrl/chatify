@@ -31,11 +31,15 @@ function ContactList() {
         return (
           <div
             key={contact._id}
-            className={`app-list-item flex items-center gap-3 p-3 sm:p-3.5 ${
-              isSelected ? "app-list-item--active" : ""
-            }`}
+            className="w-full flex items-center gap-3 p-3 rounded-lg transition-all"
             style={{
-              backgroundColor: isSelected ? "var(--primary-muted)" : undefined,
+              backgroundColor: isSelected ? 'var(--primary-muted)' : 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (!isSelected) e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
             <button
@@ -45,7 +49,7 @@ function ContactList() {
             >
               <div className="relative flex-shrink-0">
                 <div
-                  className="h-11 w-11 overflow-hidden rounded-full"
+                  className="w-10 h-10 rounded-full overflow-hidden"
                   style={{ border: '1px solid var(--border)' }}
                 >
                   <img
@@ -66,23 +70,12 @@ function ContactList() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h4
-                    className="text-sm font-medium truncate"
-                    style={{ color: isSelected ? 'var(--primary)' : 'var(--text-primary)' }}
-                  >
-                    {contact.fullName}
-                  </h4>
-                  <span
-                    className="hidden rounded-full px-2 py-1 text-[10px] font-semibold sm:inline-flex"
-                    style={{
-                      backgroundColor: isOnline ? "rgba(107, 203, 119, 0.14)" : "var(--bg-hover)",
-                      color: isOnline ? "var(--online)" : "var(--text-muted)",
-                    }}
-                  >
-                    {isOnline ? "Online" : "Offline"}
-                  </span>
-                </div>
+                <h4
+                  className="text-sm font-medium truncate"
+                  style={{ color: isSelected ? 'var(--primary)' : 'var(--text-primary)' }}
+                >
+                  {contact.fullName}
+                </h4>
                 <div className="flex items-center gap-1.5 mt-0.5 text-[11px] truncate">
                    <span style={{ color: 'var(--text-muted)' }}>@{contact.username}</span>
                    <span style={{ color: 'var(--border)' }}>•</span>
@@ -93,11 +86,17 @@ function ContactList() {
 
             <button
               type="button"
-              className="app-icon-button flex-shrink-0"
-              style={{ color: 'var(--danger)', backgroundColor: "rgba(224, 95, 95, 0.08)" }}
+              className="flex-shrink-0 p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--danger)' }}
               onClick={(e) => {
                 e.stopPropagation();
                 setContactToRemove(contact);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(224, 95, 95, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
               }}
               title={`Remove ${contact.fullName}`}
             >
@@ -109,13 +108,19 @@ function ContactList() {
 
       {contactToRemove && (
         <div
-          className="app-modal-backdrop z-[120]"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) setContactToRemove(null);
           }}
         >
           <div
-            className="app-modal-panel w-full max-w-sm animate-fade-in-up p-6"
+            className="w-full max-w-sm rounded-2xl p-6 animate-fade-in-up"
+            style={{
+              backgroundColor: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-lg)',
+            }}
           >
             <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
               Remove Contact
@@ -126,15 +131,22 @@ function ContactList() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                className="app-secondary-button px-4 text-sm font-medium"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border)',
+                }}
                 onClick={() => setContactToRemove(null)}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="app-primary-button px-4 text-sm font-medium"
-                style={{ background: "linear-gradient(135deg, #E05F5F, #C94D4D)" }}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-opacity"
+                style={{
+                  backgroundColor: 'var(--danger)',
+                  color: 'white',
+                }}
                 onClick={async () => {
                   const didRemove = await removeContact(contactToRemove);
                   if (didRemove) {

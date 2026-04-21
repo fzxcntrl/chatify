@@ -177,22 +177,18 @@ function MapTrackerModal({ onClose }) {
               </p>
             </div>
           </div>
-          <button 
-             onClick={onClose}
-             className="p-2 rounded-full hover:bg-[var(--bg-hover)] transition-colors"
-             style={{ color: 'var(--text-secondary)' }}
-          >
+          <button onClick={onClose} className="app-icon-button rounded-full" style={{ color: 'var(--text-secondary)' }}>
              <XIcon className="w-5 h-5" />
           </button>
        </div>
 
        <div className="flex-1 relative min-h-0">
          {hasPermission === false && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-[1000] p-6 text-center" style={{ backgroundColor: 'rgba(0,0,0,0.8)', color: 'white' }}>
+            <div className="absolute inset-0 z-[1000] flex flex-col items-center justify-center p-6 text-center" style={{ backgroundColor: 'rgba(0,0,0,0.8)', color: 'white' }}>
                <MapPinIcon className="w-12 h-12 mb-3 text-[var(--danger)]" />
                <h4 className="text-lg font-semibold mb-1">Tracker Disabled</h4>
                <p className="text-sm opacity-80">{errorMsg}</p>
-               <p className="text-xs opacity-60 mt-4">Please allow browser location permissions to track your chat partner.</p>
+               <p className="mt-4 max-w-sm text-xs opacity-60">Please allow browser location permissions to share live location on both mobile and desktop.</p>
             </div>
          )}
          <div ref={mapContainerRef} className="w-full h-full tracker-map" style={{ background: '#e5e5e5' }}></div>

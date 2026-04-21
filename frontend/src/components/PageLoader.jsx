@@ -1,12 +1,13 @@
 function PageLoader() {
   return (
     <div
-      className="flex flex-col items-center justify-center h-screen h-dvh gap-4"
+      className="flex h-screen h-dvh flex-col items-center justify-center gap-4 px-6 text-center"
       style={{ backgroundColor: 'var(--bg-base)' }}
     >
+      <div className="app-kicker">Chatify</div>
       <div className="animate-pulse-warm">
         <div
-          className="w-12 h-12 flex items-center justify-center"
+          className="flex h-12 w-12 items-center justify-center"
           style={{
             backgroundColor: 'var(--primary)',
             borderRadius: 'var(--radius-md)',
@@ -21,9 +22,7 @@ function PageLoader() {
           </svg>
         </div>
       </div>
-      <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
-        Loading...
-      </p>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Loading your workspace…</p>
     </div>
   );
 }

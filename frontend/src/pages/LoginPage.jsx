@@ -38,41 +38,25 @@ function LoginPage() {
 
   return (
     <ParallaxStarsBackground
-      title={"Real-time chats\nfor every orbit"}
+      title={"Stay in touch,\nwithout the noise"}
       speed={1.1}
       className="px-4"
     >
-      <div
-        className="w-full max-w-[960px] flex flex-col md:flex-row overflow-hidden animate-fade-in-up backdrop-blur-xl"
-        style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
-        }}
-      >
-        <div className="md:w-1/2 p-8 md:p-12 flex items-center justify-center">
-          <div className="w-full max-w-sm">
-            <div className="mb-8">
-              <div
-                className="w-10 h-10 flex items-center justify-center mb-5"
-                style={{
-                  backgroundColor: 'var(--primary)',
-                  borderRadius: 'var(--radius-sm)',
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 6.5C4 5.11929 5.11929 4 6.5 4H17.5C18.8807 4 20 5.11929 20 6.5V13.5C20 14.8807 18.8807 16 17.5 16H10.5L6 20V16H6.5C5.11929 16 4 14.8807 4 13.5V6.5Z" fill="white"/>
-                </svg>
+      <div className="auth-shell animate-fade-in-up">
+        <div className="flex flex-col md:flex-row">
+          <div className="auth-panel flex items-center justify-center p-6 sm:p-8 md:w-1/2 md:p-12">
+            <div className="w-full max-w-sm">
+              <div className="mb-8">
+                <p className="app-kicker mb-3">Chatify</p>
+                <h1 className="mb-2 text-3xl font-semibold font-heading sm:text-4xl" style={{ color: 'var(--text-primary)' }}>
+                  Welcome back
+                </h1>
+                <p className="text-sm sm:text-[15px]" style={{ color: 'var(--text-secondary)' }}>
+                  Sign in to pick up your conversations across desktop and mobile.
+                </p>
               </div>
-              <h1 className="text-2xl font-semibold mb-1 font-heading" style={{ color: 'var(--text-primary)' }}>
-                Welcome back
-              </h1>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Sign in to continue to Chatify
-              </p>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
+
+              <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Email
@@ -86,16 +70,8 @@ function LoginPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
-                    style={{
-                      backgroundColor: 'var(--bg-input)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)',
-                      color: 'var(--text-primary)',
-                      outline: 'none',
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                    className="app-input-field py-2.5 pl-10 pr-4 text-sm"
+                    style={{ color: 'var(--text-primary)' }}
                     placeholder="you@example.com"
                   />
                 </div>
@@ -113,25 +89,15 @@ function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full py-2.5 pl-10 pr-10 text-sm transition-all"
-                    style={{
-                      backgroundColor: 'var(--bg-input)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)',
-                      color: 'var(--text-primary)',
-                      outline: 'none',
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+                    className="app-input-field py-2.5 pl-10 pr-10 text-sm"
+                    style={{ color: 'var(--text-primary)' }}
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    className="app-icon-button absolute right-1 top-1/2 h-9 min-h-0 w-9 min-w-0 -translate-y-1/2"
                     style={{ color: 'var(--text-muted)' }}
                     onClick={() => setShowPassword(!showPassword)}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                   >
                     {showPassword ? <EyeOffIcon className="w-[18px] h-[18px]" /> : <EyeIcon className="w-[18px] h-[18px]" />}
                   </button>
@@ -140,50 +106,35 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-2.5 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))',
-                  color: 'var(--text-inverse)',
-                  borderRadius: 'var(--radius-md)',
-                  border: 'none',
-                }}
-                onMouseEnter={(e) => { if (!isLoggingIn) e.target.style.opacity = '0.9'; }}
-                onMouseLeave={(e) => { e.target.style.opacity = '1'; }}
+                className="app-primary-button w-full text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isLoggingIn ? (
                   <LoaderIcon className="w-5 h-5 mx-auto animate-spin" />
                 ) : (
-                  "Sign In"
+                  "Sign in"
                 )}
               </button>
-            </form>
-            <p className="mt-6 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="font-medium transition-colors hover:opacity-80"
-                style={{ color: 'var(--primary)' }}
-              >
-                Create one
-              </Link>
-            </p>
+              </form>
+
+              <p className="mt-6 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
+                Don&apos;t have an account?{" "}
+                <Link to="/signup" className="font-medium" style={{ color: 'var(--primary)' }}>
+                  Create one
+                </Link>
+              </p>
+            </div>
           </div>
-        </div>
-        <div
-          className="hidden md:flex md:w-1/2 items-center justify-center p-10"
-          style={{
-            backgroundColor: 'var(--bg-elevated)',
-            borderLeft: '1px solid var(--border)',
-          }}
-        >
-          <div className="text-center">
-            <AuthIllustration />
-            <h2 className="text-lg font-medium mt-6 mb-2 font-heading" style={{ color: 'var(--text-primary)' }}>
-              Connect anytime, anywhere
-            </h2>
-            <p className="text-sm max-w-[260px] mx-auto" style={{ color: 'var(--text-secondary)' }}>
-              Real-time messaging that feels natural and effortless.
-            </p>
+
+          <div className="auth-aside hidden items-center justify-center border-l p-10 md:flex md:w-1/2" style={{ borderColor: 'var(--border)' }}>
+            <div className="max-w-sm text-center">
+              <AuthIllustration />
+              <h2 className="mt-6 mb-2 text-lg font-medium font-heading" style={{ color: 'var(--text-primary)' }}>
+                A calmer way to chat
+              </h2>
+              <p className="mx-auto max-w-[280px] text-sm leading-6" style={{ color: 'var(--text-secondary)' }}>
+                Clean threads, live presence, and a layout that feels at home on both small screens and wide monitors.
+              </p>
+            </div>
           </div>
         </div>
       </div>

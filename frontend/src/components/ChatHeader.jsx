@@ -27,22 +27,17 @@ function ChatHeader() {
   return (
     <>
       <div
-        className="flex items-center justify-between gap-3 px-3 py-3 sm:px-4 md:px-6"
+        className="flex justify-between items-center gap-3 px-3 py-3 sm:px-4 md:px-6"
         style={{
           backgroundColor: 'var(--app-shell-header-bg)',
           borderBottom: '1px solid var(--border)',
         }}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <button
-            className="app-icon-button md:hidden"
-            style={{ color: 'var(--text-secondary)' }}
-            onClick={() => setSelectedUser(null)}
-          >
+          <button className="app-icon-button md:hidden" style={{ color: 'var(--text-secondary)' }} onClick={() => setSelectedUser(null)}>
             <ArrowLeftIcon className="w-5 h-5" />
           </button>
 
-          {/* Clickable profile area */}
           <button
             className="flex min-w-0 items-center gap-3 text-left transition-opacity hover:opacity-90"
             onClick={() => setShowProfile(true)}
@@ -104,7 +99,7 @@ function ChatHeader() {
                   onClick={() => setShowLocationMenu(false)}
                 />
                 <div
-                  className="app-card absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden animate-fade-in-up"
+                  className="app-card absolute right-0 top-full mt-2 w-56 overflow-hidden z-50 animate-fade-in-up"
                 >
                   <button
                     className="app-action-button flex w-full items-center gap-2 rounded-none px-4 py-3 text-left text-sm"
@@ -118,7 +113,7 @@ function ChatHeader() {
                     Share your location
                   </button>
                   <button
-                    className="app-action-button flex w-full items-center gap-2 rounded-none border-t px-4 py-3 text-left text-sm"
+                    className="app-action-button flex w-full items-center gap-2 rounded-none px-4 py-3 text-left text-sm"
                     style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border)' }}
                     onClick={() => {
                       const socket = useAuthStore.getState().socket;

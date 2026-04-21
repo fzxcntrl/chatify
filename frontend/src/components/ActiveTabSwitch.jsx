@@ -14,9 +14,10 @@ function ActiveTabSwitch() {
 
   return (
     <div
-      className="mx-3 mt-1 grid grid-cols-4 gap-1 rounded-2xl p-1.5 sm:mx-4"
+      className="mx-3 mt-3 grid grid-cols-4 gap-1 p-1 sm:mx-4"
       style={{
         backgroundColor: 'var(--app-shell-tab-bg)',
+        borderRadius: 'var(--radius-md)',
       }}
     >
       {tabs.map((tab) => {
@@ -30,11 +31,12 @@ function ActiveTabSwitch() {
               // Clear unread chat count when switching to chats
               if (tab.id === "chats") useChatStore.setState({ unreadChatCount: 0 });
             }}
-            className={`app-tab-button relative min-w-0 px-1 py-2 text-[11px] font-medium sm:text-xs ${
-              isActive ? "app-tab-button--active" : ""
-            }`}
+            className="min-w-0 py-2 text-[11px] sm:text-xs font-medium transition-all relative"
             style={{
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: isActive ? 'var(--app-shell-tab-active-bg)' : 'transparent',
               color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+              boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
             }}
           >
             {tab.label}

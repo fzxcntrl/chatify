@@ -14,17 +14,12 @@ function ProfileHeader() {
       className="px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4"
       style={{ borderBottom: '1px solid var(--border)' }}
     >
-      <div
-        className="app-card mb-3 p-3 sm:p-4"
-        style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%)",
-        }}
-      >
+      <div className="app-card mb-3 p-3 sm:p-4">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <div
               className="h-11 w-11 overflow-hidden rounded-full sm:h-12 sm:w-12"
-              style={{ border: "2px solid var(--border)" }}
+              style={{ border: '2px solid var(--border)' }}
             >
               <img
                 src={authUser.profilePic || "/avatar.png"}
@@ -35,18 +30,18 @@ function ProfileHeader() {
             <span
               className="absolute bottom-0 right-0 h-3 w-3 rounded-full"
               style={{
-                backgroundColor: "var(--online)",
-                border: "2px solid var(--bg-surface)",
+                backgroundColor: 'var(--online)',
+                border: '2px solid var(--bg-surface)',
               }}
             />
           </div>
 
           <div className="min-w-0 flex-1">
             <p className="app-kicker mb-1">Your profile</p>
-            <h3 className="truncate text-sm font-semibold sm:text-base" style={{ color: "var(--text-primary)" }}>
+            <h3 className="truncate text-sm font-semibold sm:text-base" style={{ color: 'var(--text-primary)' }}>
               {authUser.fullName}
             </h3>
-            <p className="truncate text-xs" style={{ color: "var(--text-secondary)" }}>
+            <p className="truncate text-xs" style={{ color: 'var(--text-secondary)' }}>
               @{authUser.username}
             </p>
           </div>
@@ -61,39 +56,39 @@ function ProfileHeader() {
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <button
-            className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
-            style={{ color: 'var(--text-secondary)' }}
-            onClick={() => {
-              toggleSound();
-            }}
-          >
-            {isSoundEnabled ? (
-              <Volume2Icon className="w-4 h-4" />
-            ) : (
-              <VolumeOffIcon className="w-4 h-4" />
-            )}
-            <span className="text-[11px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Sound</span>
-          </button>
+        <button
+          className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
+          style={{ color: 'var(--text-secondary)' }}
+          onClick={() => {
+            toggleSound();
+          }}
+        >
+          {isSoundEnabled ? (
+            <Volume2Icon className="w-4 h-4" />
+          ) : (
+            <VolumeOffIcon className="w-4 h-4" />
+          )}
+          <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Sound</span>
+        </button>
 
-          <button
-            onClick={() => setShowSettingsModal(true)}
-            className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            <SettingsIcon className="w-4 h-4" />
-            <span className="text-[11px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Settings</span>
-          </button>
+        <button
+          onClick={() => setShowSettingsModal(true)}
+          className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
+          style={{ color: 'var(--text-secondary)' }}
+        >
+          <SettingsIcon className="w-4 h-4" />
+          <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--text-primary)' }}>Settings</span>
+        </button>
 
-          <button
-            className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
-            style={{ color: 'var(--danger)' }}
-            onClick={() => setShowLogoutModal(true)}
-          >
-            <LogOutIcon className="w-4 h-4" />
-            <span className="text-[11px] font-medium leading-none" style={{ color: 'var(--danger)' }}>Log out</span>
-          </button>
-        </div>
+        <button
+          className="app-action-button flex flex-col items-center justify-center gap-1 px-2 py-2.5"
+          style={{ color: 'var(--danger)' }}
+          onClick={() => setShowLogoutModal(true)}
+        >
+          <LogOutIcon className="w-4 h-4" />
+          <span className="text-[10px] font-medium leading-none" style={{ color: 'var(--danger)' }}>Log out</span>
+        </button>
+      </div>
       </div>
 
       {showLogoutModal && typeof document !== "undefined"
@@ -105,7 +100,7 @@ function ProfileHeader() {
               }}
             >
               <div
-                className="app-modal-panel w-full max-w-sm animate-fade-in-up p-6"
+                className="app-modal-panel w-full max-w-sm p-6 animate-fade-in-up"
               >
                 <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Log out
@@ -122,7 +117,7 @@ function ProfileHeader() {
                   </button>
                   <button
                     className="app-primary-button flex items-center gap-2 px-4 text-sm font-medium"
-                    style={{ background: "linear-gradient(135deg, #E05F5F, #C94D4D)" }}
+                    style={{ background: 'linear-gradient(135deg, #E05F5F, #C94D4D)' }}
                     onClick={() => {
                       setShowLogoutModal(false);
                       logout();

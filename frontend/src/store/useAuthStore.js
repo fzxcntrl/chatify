@@ -133,7 +133,7 @@ export const useAuthStore = create((set, get) => ({
       isCheckingAuth: false,
       onlineUsers: [],
     });
-    applyTheme('dark', 'default', 'default');
+    applyTheme('dark', 'default');
 
     const [{ useChatStore }, { useFriendStore }] = await Promise.all([
       import("./useChatStore"),
@@ -170,7 +170,7 @@ export const useAuthStore = create((set, get) => ({
       const { token, ...user } = res.data;
       if (token) storeAuthToken(token);
       set({ authUser: user, isCheckingAuth: false });
-      applyTheme(user.theme, user.chatTheme, user.chatBg);
+      applyTheme(user.theme, user.chatTheme);
       get().connectSocket();
     } catch (error) {
       if (!isUnauthorizedError(error)) {
@@ -218,7 +218,7 @@ export const useAuthStore = create((set, get) => ({
       const { token, ...user } = res.data;
       storeAuthToken(token);
       set({ authUser: user });
-      applyTheme(user.theme, user.chatTheme, user.chatBg);
+      applyTheme(user.theme, user.chatTheme);
       toast.success("Account created successfully!");
       get().connectSocket();
     } catch (error) {
@@ -251,7 +251,7 @@ export const useAuthStore = create((set, get) => ({
       const { token, ...user } = res.data;
       storeAuthToken(token);
       set({ authUser: user });
-      applyTheme(user.theme, user.chatTheme, user.chatBg);
+      applyTheme(user.theme, user.chatTheme);
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
@@ -281,7 +281,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
-      applyTheme(res.data.theme, res.data.chatTheme, res.data.chatBg);
+      applyTheme(res.data.theme, res.data.chatTheme);
       toast.success("Preferences updated successfully");
     } catch (error) {
       if (!isUnauthorizedError(error)) {

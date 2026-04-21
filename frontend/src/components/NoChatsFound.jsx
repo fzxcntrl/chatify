@@ -32,8 +32,15 @@ function NoChatsFound() {
 
       <button
         onClick={() => setActiveTab("contacts")}
-        className="app-secondary-button px-4 text-xs font-medium"
-        style={{ color: "var(--primary)", borderColor: "rgba(224,122,95,0.18)" }}
+        className="px-4 py-2 text-xs font-medium transition-colors"
+        style={{
+          backgroundColor: 'var(--primary-muted)',
+          color: 'var(--primary)',
+          borderRadius: 'var(--radius-full)',
+          border: 'none',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(224,122,95,0.18)'}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-muted)'}
       >
         Browse contacts
       </button>

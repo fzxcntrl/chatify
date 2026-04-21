@@ -28,7 +28,7 @@ function ChatPage() {
       <div
         className="app-shell relative flex h-dvh min-h-dvh w-full overflow-hidden rounded-none animate-fade-in md:h-[calc(100dvh-2rem)] md:min-h-0 md:max-h-[900px] md:max-w-[1180px] md:rounded-[28px]"
         style={{
-          maxWidth: "1180px",
+          maxWidth: '1180px',
         }}
       >
         <div
@@ -40,13 +40,13 @@ function ChatPage() {
 
         <div
           className={`${
-            selectedUser ? "hidden md:flex" : "flex"
+            selectedUser ? 'hidden md:flex' : 'flex'
           } relative z-10 w-full md:w-[360px] lg:w-[380px] flex-col flex-shrink-0 border-b md:border-b-0 md:border-r`}
           style={{
-            borderColor: "var(--border)",
-            backgroundColor: "var(--app-shell-sidebar-bg)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
+            borderColor: 'var(--border)',
+            backgroundColor: 'var(--app-shell-sidebar-bg)',
+            backdropFilter: 'blur(18px)',
+            WebkitBackdropFilter: 'blur(18px)',
           }}
         >
           <ProfileHeader />
@@ -61,12 +61,12 @@ function ChatPage() {
 
         <div
           className={`${
-            selectedUser ? "flex" : "hidden md:flex"
+            selectedUser ? 'flex' : 'hidden md:flex'
           } relative z-10 flex-1 flex-col min-w-0`}
           style={{
-            backgroundColor: "var(--app-shell-panel-bg)",
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
+            backgroundColor: 'var(--app-shell-panel-bg)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
           }}
         >
           {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}

@@ -93,7 +93,7 @@ function ChatContainer() {
         />
 
         {messages.length > 0 && !isMessagesLoading ? (
-          <div className="relative z-10 mx-auto max-w-3xl space-y-3">
+          <div className="relative z-10 max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
 
@@ -103,7 +103,7 @@ function ChatContainer() {
                   className={`flex ${isSent ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div
-                    className="max-w-[88%] sm:max-w-[78%] md:max-w-[68%]"
+                    className="max-w-[85%] sm:max-w-[78%] md:max-w-[65%]"
                     style={{
                       backgroundColor: isSent ? 'var(--bubble-sent)' : 'var(--bubble-received)',
                       color: isSent ? 'var(--bubble-sent-text)' : 'var(--bubble-received-text)',
@@ -171,21 +171,21 @@ function ChatContainer() {
       <MessageInput />
 
       {/* Image Preview Lightbox */}
-        {previewImage && (
+      {previewImage && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in"
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
           onClick={() => setPreviewImage(null)}
         >
           <button
-            className="app-icon-button absolute right-4 top-4 z-10"
+            className="absolute top-4 right-4 p-2 rounded-full transition-colors z-10"
             style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}
             onClick={() => setPreviewImage(null)}
           >
             <XIcon className="w-6 h-6" />
           </button>
           <button
-            className="absolute left-4 top-4 z-10 flex min-h-[44px] items-center gap-2 rounded-full px-4 transition-colors"
+            className="absolute top-4 left-4 p-2 rounded-full transition-colors z-10 flex items-center gap-2"
             style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}
             onClick={(e) => {
               e.stopPropagation();

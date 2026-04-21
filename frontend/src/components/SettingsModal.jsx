@@ -20,12 +20,12 @@ function SettingsModal({ onClose }) {
 
   const handleThemeChange = (newTheme) => {
     setSelectedTheme(newTheme);
-    applyTheme(newTheme, selectedChatTheme, DEFAULT_CHAT_BACKGROUND);
+    applyTheme(newTheme, selectedChatTheme);
   };
 
   const handleChatThemeChange = (themeKey) => {
     setSelectedChatTheme(themeKey);
-    applyTheme(selectedTheme, themeKey, DEFAULT_CHAT_BACKGROUND);
+    applyTheme(selectedTheme, themeKey);
   };
 
   const renderMarkerPreview = (markerKey) => (
@@ -79,7 +79,7 @@ function SettingsModal({ onClose }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="app-modal-panel no-glass h-dvh w-full max-w-4xl animate-fade-in-up md:h-[min(88vh,760px)]"
+        className="app-modal-panel no-glass h-dvh w-full max-w-4xl flex flex-col md:h-[min(88vh,760px)] md:flex-row gap-0 overflow-hidden animate-fade-in-up"
       >
 
         {/* Sidebar */}
@@ -94,7 +94,7 @@ function SettingsModal({ onClose }) {
             <h1 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+              className="app-icon-button"
               style={{ color: 'var(--text-secondary)' }}
             >
               <XIcon className="w-5 h-5" />
@@ -150,10 +150,11 @@ function SettingsModal({ onClose }) {
                 <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
                   <button
                     onClick={() => handleThemeChange("dark")}
-                    className="flex min-h-[120px] w-full flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all"
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
                     style={{
                       borderColor: selectedTheme === "dark" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "dark" ? 'var(--primary-muted)' : 'transparent',
+                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-md" style={{ backgroundColor: '#0F1419', color: 'white' }}>
@@ -163,10 +164,11 @@ function SettingsModal({ onClose }) {
                   </button>
                   <button
                     onClick={() => handleThemeChange("light")}
-                    className="flex min-h-[120px] w-full flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all"
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all"
                     style={{
                       borderColor: selectedTheme === "light" ? 'var(--primary)' : 'var(--border)',
                       backgroundColor: selectedTheme === "light" ? 'var(--primary-muted)' : 'transparent',
+                      width: '100px'
                     }}
                   >
                     <div className="p-3 rounded-full shadow-sm ring-1 ring-gray-200" style={{ backgroundColor: '#FFFFFF', color: '#18181B' }}>
@@ -224,7 +226,7 @@ function SettingsModal({ onClose }) {
                               className="px-3 py-1.5 rounded-xl rounded-br-sm text-[10px] font-medium"
                               style={{ backgroundColor: ct.sentBg, color: ct.sentText }}
                             >
-                              Hi! 👋
+                              Sounds good
                               <span className="block text-[7px] mt-0.5" style={{ opacity: 0.7 }}>10:31</span>
                             </div>
                           </div>
@@ -311,8 +313,9 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.oldPassword}
                       onChange={(e) => setPasswords({...passwords, oldPassword: e.target.value})}
-                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
-                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
+                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                     />
                   </div>
                 </div>
@@ -324,8 +327,9 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.newPassword}
                       onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
-                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
-                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
+                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                     />
                   </div>
                 </div>
@@ -337,8 +341,9 @@ function SettingsModal({ onClose }) {
                       type="password"
                       value={passwords.confirmPassword}
                       onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
-                      className="app-input-field py-2.5 pl-10 pr-4 text-sm"
-                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-primary)' }}
+                      className="w-full py-2.5 pl-10 pr-4 text-sm transition-all"
+                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', outline: 'none' }}
+                      onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'} onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
                     />
                   </div>
                 </div>
@@ -350,7 +355,8 @@ function SettingsModal({ onClose }) {
                 <button
                   type="submit"
                   disabled={isUpdatingPassword || !passwords.oldPassword || !passwords.newPassword || !passwords.confirmPassword}
-                  className="app-primary-button mt-4 px-6 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                  className="py-2.5 px-6 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                  style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-hover))', color: 'white', borderRadius: 'var(--radius-md)' }}
                 >
                   {isUpdatingPassword ? <LoaderIcon className="w-5 h-5 mx-auto animate-spin" /> : "Update Password"}
                 </button>
@@ -374,11 +380,11 @@ function SettingsModal({ onClose }) {
                     setSelectedTheme(origTheme);
                     setSelectedChatTheme(origChatTheme);
                     setSelectedLocationMarker(origLocationMarker);
-                    applyTheme(origTheme, origChatTheme, DEFAULT_CHAT_BACKGROUND);
+                    applyTheme(origTheme, origChatTheme);
                   }}
                   disabled={isUpdatingDisplay}
                   className="app-secondary-button rounded-full px-4 text-xs font-medium"
-                  style={{ minHeight: "36px" }}
+                  style={{ minHeight: '36px' }}
                 >
                   Discard
                 </button>
@@ -386,7 +392,7 @@ function SettingsModal({ onClose }) {
                   onClick={saveDisplaySettings}
                   disabled={isUpdatingDisplay}
                   className="app-primary-button flex items-center gap-1 rounded-full px-4 text-xs font-medium disabled:opacity-50"
-                  style={{ minHeight: "36px" }}
+                  style={{ minHeight: '36px' }}
                 >
                   {isUpdatingDisplay ? <LoaderIcon className="w-3 h-3 animate-spin"/> : <SaveIcon className="w-3 h-3" />}
                   Save
