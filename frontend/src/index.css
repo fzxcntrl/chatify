@@ -114,7 +114,7 @@
 
   --space-gradient-top: #F7FBFF;
   --space-gradient-bottom: #DCEBFF;
-  --space-star-rgb: 109, 126, 163;
+  --space-star-rgb: 52, 70, 102;
   --space-glow-overlay:
     radial-gradient(circle at 14% 20%, rgba(96, 165, 250, 0.16) 0%, transparent 24%),
     radial-gradient(circle at 82% 14%, rgba(244, 114, 182, 0.12) 0%, transparent 24%),

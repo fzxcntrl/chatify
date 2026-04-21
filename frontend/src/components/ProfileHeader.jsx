@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { LogOutIcon, VolumeOffIcon, Volume2Icon, SettingsIcon, PencilIcon } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
@@ -108,48 +109,54 @@ function ProfileHeader() {
         </button>
       </div>
 
-      {showLogoutModal && (
-        <div
-          className="fixed inset-0 flex items-center justify-center z-[100] p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-        >
-          <div
-            className="rounded-2xl p-6 w-full max-w-sm shadow-xl animate-fade-in-up"
-            style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
-          >
-            <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-              Log Out
-            </h3>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Are you sure you want to log out? You will need to sign back in to access your chats.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-                style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
-                onClick={() => setShowLogoutModal(false)}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+      {showLogoutModal && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[160] flex items-center justify-center p-4"
+              style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setShowLogoutModal(false);
+              }}
+            >
+              <div
+                className="w-full max-w-sm rounded-2xl p-6 shadow-xl animate-fade-in-up"
+                style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
               >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-opacity flex items-center gap-2"
-                style={{ backgroundColor: 'var(--danger)', color: 'white', border: 'none' }}
-                onClick={() => {
-                  setShowLogoutModal(false);
-                  logout();
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-              >
-                <LogOutIcon className="w-4 h-4" />
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Log Out
+                </h3>
+                <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  Are you sure you want to log out? You will need to sign back in to access your chats.
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                    style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+                    onClick={() => setShowLogoutModal(false)}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-opacity flex items-center gap-2"
+                    style={{ backgroundColor: 'var(--danger)', color: 'white', border: 'none' }}
+                    onClick={() => {
+                      setShowLogoutModal(false);
+                      logout();
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  >
+                    <LogOutIcon className="w-4 h-4" />
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS } from "../store/useAuthStore";
+import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS, DEFAULT_CHAT_BACKGROUND } from "../store/useAuthStore";
 import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
 import { getTrackerMarkerMarkup } from "../lib/trackerMarkerMarkup";
-import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, PaletteIcon, MapPinnedIcon } from "lucide-react";
+import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, MapPinnedIcon } from "lucide-react";
 
 function SettingsModal({ onClose }) {
   const { authUser, updateProfile, changePassword } = useAuthStore();
@@ -10,27 +10,22 @@ function SettingsModal({ onClose }) {
 
   const [selectedTheme, setSelectedTheme] = useState(authUser?.theme || "dark");
   const [selectedChatTheme, setSelectedChatTheme] = useState(authUser?.chatTheme || "default");
-  const [selectedChatBg, setSelectedChatBg] = useState(authUser?.chatBg || "default");
   const [selectedLocationMarker, setSelectedLocationMarker] = useState(authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
   const [isUpdatingDisplay, setIsUpdatingDisplay] = useState(false);
 
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const previewBgEntry = CHAT_BACKGROUNDS[DEFAULT_CHAT_BACKGROUND] || CHAT_BACKGROUNDS.default;
 
   const handleThemeChange = (newTheme) => {
     setSelectedTheme(newTheme);
-    applyTheme(newTheme, selectedChatTheme, selectedChatBg);
+    applyTheme(newTheme, selectedChatTheme, DEFAULT_CHAT_BACKGROUND);
   };
 
   const handleChatThemeChange = (themeKey) => {
     setSelectedChatTheme(themeKey);
-    applyTheme(selectedTheme, themeKey, selectedChatBg);
-  };
-
-  const handleChatBgChange = (bgKey) => {
-    setSelectedChatBg(bgKey);
-    applyTheme(selectedTheme, selectedChatTheme, bgKey);
+    applyTheme(selectedTheme, themeKey, DEFAULT_CHAT_BACKGROUND);
   };
 
   const renderMarkerPreview = (markerKey) => (
@@ -47,7 +42,6 @@ function SettingsModal({ onClose }) {
     await updateProfile({
       theme: selectedTheme,
       chatTheme: selectedChatTheme,
-      chatBg: selectedChatBg,
       locationMarker: selectedLocationMarker,
     });
     setIsUpdatingDisplay(false);
@@ -77,7 +71,6 @@ function SettingsModal({ onClose }) {
   const hasDisplayChanges =
     selectedTheme !== (authUser?.theme || "dark") ||
     selectedChatTheme !== (authUser?.chatTheme || "default") ||
-    selectedChatBg !== (authUser?.chatBg || "default") ||
     selectedLocationMarker !== (authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
 
   return (
@@ -191,51 +184,6 @@ function SettingsModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Chat Background Color */}
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-1">
-                  <PaletteIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                  <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Chat Background</h3>
-                </div>
-                <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-                  This changes the large background behind your messages.
-                </p>
-
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
-                  {Object.entries(CHAT_BACKGROUNDS).map(([key, bg]) => {
-                    const isSelected = selectedChatBg === key;
-                    const isDark = selectedTheme === 'dark';
-                    const swatchColor = isDark ? bg.dark : bg.light;
-                    const isLightSwatch = !isDark;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => handleChatBgChange(key)}
-                        className="flex flex-col items-center gap-1.5 group"
-                        title={bg.name}
-                      >
-                        <div
-                          className="w-10 h-10 rounded-lg border-2 transition-all"
-                          style={{
-                            backgroundColor: swatchColor,
-                            borderColor: isSelected ? 'var(--primary)' : 'var(--border)',
-                            boxShadow: isSelected ? '0 0 0 2px var(--primary)' : 'none',
-                            transform: isSelected ? 'scale(1.1)' : 'scale(1)',
-                          }}
-                        >
-                          {isSelected && (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] font-bold" style={{ color: isLightSwatch ? '#333' : '#fff' }}>✓</div>
-                          )}
-                        </div>
-                        <span className="text-[9px] font-medium truncate w-full text-center" style={{ color: isSelected ? 'var(--primary)' : 'var(--text-muted)' }}>
-                          {bg.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               {/* Chat Color Theme (Bubble Colors) */}
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-1">
@@ -250,9 +198,7 @@ function SettingsModal({ onClose }) {
                   {Object.entries(CHAT_THEMES).map(([key, ct]) => {
                     const isSelected = selectedChatTheme === key;
                     const isDark = selectedTheme === 'dark';
-                    // Use correct bg + received colors for current mode
-                    const bgEntry = CHAT_BACKGROUNDS[selectedChatBg] || CHAT_BACKGROUNDS.default;
-                    const previewBg = isDark ? bgEntry.dark : bgEntry.light;
+                    const previewBg = isDark ? previewBgEntry.dark : previewBgEntry.light;
                     const variant = isDark ? ct.dark : ct.light;
                     return (
                       <button
@@ -435,13 +381,11 @@ function SettingsModal({ onClose }) {
                   onClick={() => {
                     const origTheme = authUser?.theme || "dark";
                     const origChatTheme = authUser?.chatTheme || "default";
-                    const origChatBg = authUser?.chatBg || "default";
                     const origLocationMarker = authUser?.locationMarker || DEFAULT_LOCATION_MARKER;
                     setSelectedTheme(origTheme);
                     setSelectedChatTheme(origChatTheme);
-                    setSelectedChatBg(origChatBg);
                     setSelectedLocationMarker(origLocationMarker);
-                    applyTheme(origTheme, origChatTheme, origChatBg);
+                    applyTheme(origTheme, origChatTheme, DEFAULT_CHAT_BACKGROUND);
                   }}
                   disabled={isUpdatingDisplay}
                   className="px-4 py-1.5 rounded-full text-xs font-medium hover:bg-[var(--bg-hover)] transition-colors"

@@ -26,6 +26,7 @@ export const CHAT_BACKGROUNDS = {
   graphite: { name: "Graphite",  dark: "#212121", light: "#E0E0E0" },
   midnight: { name: "Midnight",  dark: "#0A0E1A", light: "#F0F4FF" },
 };
+export const DEFAULT_CHAT_BACKGROUND = "default";
 
 // 10 Chat Bubble Themes — dark + light variants for received bubbles
 export const CHAT_THEMES = {
@@ -105,7 +106,7 @@ export const applyTheme = (theme, chatTheme, chatBg) => {
   document.documentElement.style.setProperty('--bubble-received-text', variant.receivedText);
 
   // Apply chat background color — pick dark/light variant
-  const bg = CHAT_BACKGROUNDS[chatBg] || CHAT_BACKGROUNDS.default;
+  const bg = CHAT_BACKGROUNDS[DEFAULT_CHAT_BACKGROUND] || CHAT_BACKGROUNDS.default;
   const bgColor = isDark ? bg.dark : bg.light;
   document.documentElement.style.setProperty('--chat-bg', bgColor);
   document.body.className = '';
