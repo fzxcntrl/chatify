@@ -2,20 +2,41 @@ import { useState } from "react";
 import { useAuthStore, applyTheme, CHAT_THEMES, CHAT_BACKGROUNDS, DEFAULT_CHAT_BACKGROUND } from "../store/useAuthStore";
 import { DEFAULT_LOCATION_MARKER, LOCATION_MARKERS } from "../lib/locationMarkers";
 import { getTrackerMarkerMarkup } from "../lib/trackerMarkerMarkup";
-import { SaveIcon, MonitorIcon, ShieldIcon, SunIcon, MoonIcon, LoaderIcon, LockIcon, XIcon, MessageCircleIcon, MapPinnedIcon } from "lucide-react";
+import {
+  SaveIcon,
+  MonitorIcon,
+  ShieldIcon,
+  SunIcon,
+  MoonIcon,
+  LoaderIcon,
+  LockIcon,
+  XIcon,
+  MessageCircleIcon,
+  MapPinnedIcon,
+  Trash2Icon,
+  TimerOffIcon,
+} from "lucide-react";
+import ConfirmationModal from "./ConfirmationModal";
 
 function SettingsModal({ onClose }) {
-  const { authUser, updateProfile, changePassword } = useAuthStore();
+  const { authUser, updateProfile, changePassword, deleteAccount } = useAuthStore();
   const [activeTab, setActiveTab] = useState("display");
 
   const [selectedTheme, setSelectedTheme] = useState(authUser?.theme || "dark");
   const [selectedChatTheme, setSelectedChatTheme] = useState(authUser?.chatTheme || "default");
   const [selectedLocationMarker, setSelectedLocationMarker] = useState(authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
   const [isUpdatingDisplay, setIsUpdatingDisplay] = useState(false);
+  const [selectedDisappearingChatsEnabled, setSelectedDisappearingChatsEnabled] = useState(
+    authUser?.disappearingChatsEnabled === true
+  );
 
   const [passwords, setPasswords] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deleteUsernameConfirmation, setDeleteUsernameConfirmation] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const previewBgEntry = CHAT_BACKGROUNDS[DEFAULT_CHAT_BACKGROUND] || CHAT_BACKGROUNDS.default;
 
   const handleThemeChange = (newTheme) => {
@@ -72,6 +93,8 @@ function SettingsModal({ onClose }) {
     selectedTheme !== (authUser?.theme || "dark") ||
     selectedChatTheme !== (authUser?.chatTheme || "default") ||
     selectedLocationMarker !== (authUser?.locationMarker || DEFAULT_LOCATION_MARKER);
+  const hasPrivacyChanges =
+    selectedDisappearingChatsEnabled !== (authUser?.disappearingChatsEnabled === true);
 
   return (
     <div
@@ -302,7 +325,9 @@ function SettingsModal({ onClose }) {
           {activeTab === "security" && (
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 animate-fade-in">
               <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Account Security</h2>
-              <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Update your password to keep your account secure.</p>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+                Update your password to keep your account secure, or permanently delete your account if you need to leave Chatify.
+              </p>
 
               <form onSubmit={handlePasswordSubmit} className="max-w-md space-y-5">
                 <div>
@@ -361,6 +386,122 @@ function SettingsModal({ onClose }) {
                   {isUpdatingPassword ? <LoaderIcon className="w-5 h-5 mx-auto animate-spin" /> : "Update Password"}
                 </button>
               </form>
+
+              <div
+                className="mt-10 max-w-md rounded-3xl border p-5"
+                style={{
+                  borderColor: hasPrivacyChanges ? "var(--primary)" : "var(--border)",
+                  backgroundColor: "var(--bg-elevated)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: "var(--primary-muted)", color: "var(--primary)" }}
+                  >
+                    <TimerOffIcon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                      Disappearing Chats When Offline
+                    </h3>
+                    <p className="mt-1 text-xs leading-6" style={{ color: "var(--text-secondary)" }}>
+                      When this is turned on, all chats involving your account will be permanently deleted as soon as you go offline.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDisappearingChatsEnabled((current) => !current)}
+                      className="mt-4 flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition-colors"
+                      style={{
+                        borderColor: selectedDisappearingChatsEnabled ? "var(--primary)" : "var(--border)",
+                        backgroundColor: selectedDisappearingChatsEnabled ? "var(--primary-muted)" : "transparent",
+                      }}
+                    >
+                      <div>
+                        <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                          {selectedDisappearingChatsEnabled ? "Enabled" : "Disabled"}
+                        </div>
+                        <div className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                          {selectedDisappearingChatsEnabled
+                            ? "Chats will disappear after you go offline."
+                            : "Chats will stay unless you delete them manually."}
+                        </div>
+                      </div>
+                      <div
+                        className="flex h-7 w-12 items-center rounded-full px-1 transition-all"
+                        style={{
+                          backgroundColor: selectedDisappearingChatsEnabled ? "var(--primary)" : "var(--border)",
+                          justifyContent: selectedDisappearingChatsEnabled ? "flex-end" : "flex-start",
+                        }}
+                      >
+                        <span className="block h-5 w-5 rounded-full bg-white" />
+                      </div>
+                    </button>
+
+                    {hasPrivacyChanges && (
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setIsUpdatingPrivacy(true);
+                            await updateProfile({
+                              disappearingChatsEnabled: selectedDisappearingChatsEnabled,
+                            });
+                            setIsUpdatingPrivacy(false);
+                          }}
+                          disabled={isUpdatingPrivacy}
+                          className="app-primary-button flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium disabled:opacity-50"
+                        >
+                          {isUpdatingPrivacy ? (
+                            <LoaderIcon className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <SaveIcon className="h-3.5 w-3.5" />
+                          )}
+                          Save Chat Privacy
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="mt-10 max-w-md rounded-3xl border p-5"
+                style={{
+                  borderColor: "rgba(220, 38, 38, 0.25)",
+                  backgroundColor: "rgba(220, 38, 38, 0.06)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-full"
+                    style={{ backgroundColor: "rgba(220, 38, 38, 0.14)", color: "var(--danger)" }}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                      Delete Account
+                    </h3>
+                    <p className="mt-1 text-xs leading-6" style={{ color: "var(--text-secondary)" }}>
+                      This permanently deletes your ID, profile, friends, and chat history. You will need to type your username before the delete button is enabled.
+                    </p>
+                    <button
+                      type="button"
+                      className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
+                      style={{ backgroundColor: "var(--danger)", color: "white" }}
+                      onClick={() => {
+                        setDeleteUsernameConfirmation("");
+                        setShowDeleteAccountModal(true);
+                      }}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                      Permanently Delete My ID
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -403,6 +544,33 @@ function SettingsModal({ onClose }) {
         </div>
 
       </div>
+
+      {showDeleteAccountModal && (
+        <ConfirmationModal
+          title="Delete Your ID?"
+          description="Are you sure you want to permanently delete your ID? This action cannot be undone."
+          confirmLabel="Delete My ID"
+          inputLabel="Confirm your username"
+          inputPlaceholder={`Type ${authUser?.username}`}
+          inputValue={deleteUsernameConfirmation}
+          onInputChange={setDeleteUsernameConfirmation}
+          requiredConfirmationValue={authUser?.username || ""}
+          onClose={() => {
+            if (!isDeletingAccount) {
+              setShowDeleteAccountModal(false);
+              setDeleteUsernameConfirmation("");
+            }
+          }}
+          onConfirm={async () => {
+            const didDelete = await deleteAccount(deleteUsernameConfirmation, setIsDeletingAccount);
+            if (didDelete) {
+              setShowDeleteAccountModal(false);
+              onClose();
+            }
+          }}
+          isLoading={isDeletingAccount}
+        />
+      )}
     </div>
   );
 }

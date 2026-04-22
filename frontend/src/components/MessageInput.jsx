@@ -15,17 +15,28 @@ function MessageInput() {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!text.trim() && !imagePreview) return;
+    const trimmedText = text.trim();
+    const draftImage = imagePreview;
+
+    if (!trimmedText && !draftImage) return;
+
+    setText("");
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
 
     try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
+      const didSend = await sendMessage({
+        text: trimmedText,
+        image: draftImage,
       });
-      setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      if (!didSend) {
+        setText(trimmedText);
+        setImagePreview(draftImage);
+      }
     } catch {
+      setText(trimmedText);
+      setImagePreview(draftImage);
       toast.error("Failed to send message");
     }
   };

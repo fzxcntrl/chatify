@@ -78,6 +78,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "none",
     },
+    disappearingChatsEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

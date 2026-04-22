@@ -1,5 +1,7 @@
 import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { clearTokenCookie, generateToken } from "../lib/utils.js";
+import FriendRequest from "../models/FriendRequest.js";
+import Message from "../models/Message.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { ENV } from "../lib/env.js";
@@ -60,6 +62,7 @@ export const signup = async (req, res) => {
       chatTheme: savedUser.chatTheme,
       chatBg: savedUser.chatBg,
       locationMarker: savedUser.locationMarker,
+      disappearingChatsEnabled: savedUser.disappearingChatsEnabled,
       token,
     });
 
@@ -98,6 +101,7 @@ export const login = async (req, res) => {
       chatTheme: user.chatTheme,
       chatBg: user.chatBg,
       locationMarker: user.locationMarker,
+      disappearingChatsEnabled: user.disappearingChatsEnabled,
       token,
     });
   } catch (error) {
@@ -112,7 +116,16 @@ export const logout = (_, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic, username, bio, theme, chatTheme, chatBg, locationMarker } = req.body;
+    const {
+      profilePic,
+      username,
+      bio,
+      theme,
+      chatTheme,
+      chatBg,
+      locationMarker,
+      disappearingChatsEnabled,
+    } = req.body;
     const userId = req.user._id;
     let updateData = {};
     const hasProfilePicField = Object.prototype.hasOwnProperty.call(req.body, "profilePic");
@@ -182,6 +195,10 @@ export const updateProfile = async (req, res) => {
       updateData.locationMarker = locationMarker;
     }
 
+    if (disappearingChatsEnabled !== undefined) {
+      updateData.disappearingChatsEnabled = Boolean(disappearingChatsEnabled);
+    }
+
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No fields provided to update" });
     }
@@ -225,6 +242,45 @@ export const updatePassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const usernameConfirmation = req.body.usernameConfirmation?.trim().toLowerCase();
+    const user = await User.findById(userId).select("username friends");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!usernameConfirmation) {
+      return res.status(400).json({ message: "Username confirmation is required" });
+    }
+
+    if (usernameConfirmation !== user.username) {
+      return res.status(400).json({ message: "Entered username does not match your account" });
+    }
+
+    await Promise.all([
+      User.updateMany(
+        { _id: { $in: user.friends } },
+        { $pull: { friends: userId } }
+      ),
+      FriendRequest.deleteMany({
+        $or: [{ sender: userId }, { receiver: userId }],
+      }),
+      Message.deleteMany({
+        $or: [{ senderId: userId }, { receiverId: userId }],
+      }),
+      User.findByIdAndDelete(userId),
+    ]);
+
+    clearTokenCookie(res);
+    res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

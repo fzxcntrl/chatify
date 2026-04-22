@@ -14,6 +14,25 @@ const applyMessageStatusUpdate = (messages, messageIds, deliveredAt, readAt) =>
       : message
   );
 
+const upsertChatPartner = (chats, user) => {
+  if (!user?._id) return chats;
+
+  const existingIndex = chats.findIndex((chat) => chat._id === user._id);
+  if (existingIndex === -1) {
+    return [user, ...chats];
+  }
+
+  const nextChats = [...chats];
+  nextChats[existingIndex] = {
+    ...nextChats[existingIndex],
+    ...user,
+  };
+  return nextChats;
+};
+
+const replaceMessage = (messages, updatedMessage) =>
+  messages.map((message) => (message._id === updatedMessage._id ? updatedMessage : message));
+
 export const useChatStore = create((set, get) => ({
   allContacts: [],
   chats: [],
@@ -162,15 +181,68 @@ export const useChatStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
       set({
-        messages: get().messages.map((message) =>
-          message._id === tempId ? res.data : message
-        ),
+        messages: get().messages.map((message) => (message._id === tempId ? res.data : message)),
+        chats: upsertChatPartner(get().chats, selectedUser),
       });
+      return true;
     } catch (error) {
       set({ messages: messages });
       if (!isUnauthorizedError(error)) {
         toast.error(error.response?.data?.message || "Something went wrong");
       }
+      return false;
+    }
+  },
+
+  updateMessage: async (messageId, text) => {
+    try {
+      const res = await axiosInstance.patch(`/messages/${messageId}`, { text: text.trim() });
+      set({
+        messages: replaceMessage(get().messages, res.data),
+      });
+      toast.success("Message updated");
+      return true;
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to update message");
+      }
+      return false;
+    }
+  },
+
+  deleteMessage: async (messageId) => {
+    try {
+      await axiosInstance.delete(`/messages/${messageId}`);
+      set({
+        messages: get().messages.filter((message) => message._id !== messageId),
+      });
+      toast.success("Message deleted");
+      get().getMyChatPartners();
+      return true;
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to delete message");
+      }
+      return false;
+    }
+  },
+
+  deleteConversation: async (user) => {
+    try {
+      await axiosInstance.delete(`/messages/conversation/${user._id}`);
+
+      set({
+        chats: get().chats.filter((chat) => chat._id !== user._id),
+        messages: get().selectedUser?._id === user._id ? [] : get().messages,
+      });
+
+      toast.success(`Deleted chat with ${user.fullName}`);
+      return true;
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error(error.response?.data?.message || "Failed to delete chat");
+      }
+      return false;
     }
   },
 
@@ -195,7 +267,14 @@ export const useChatStore = create((set, get) => ({
       }
 
       const currentMessages = get().messages;
-      set({ messages: [...currentMessages, newMessage] });
+      const sender =
+        get().allContacts.find((contact) => contact._id === newMessage.senderId) ||
+        get().chats.find((chat) => chat._id === newMessage.senderId);
+
+      set({
+        messages: [...currentMessages, newMessage],
+        chats: sender ? upsertChatPartner(get().chats, sender) : get().chats,
+      });
       get().markMessagesAsRead(selectedUser._id);
 
       if (isSoundEnabled) {
@@ -210,6 +289,36 @@ export const useChatStore = create((set, get) => ({
         messages: applyMessageStatusUpdate(get().messages, messageIds, deliveredAt, readAt),
       });
     });
+
+    socket.on("message-updated", (updatedMessage) => {
+      if (updatedMessage.senderId !== selectedUser._id) return;
+
+      set({
+        messages: replaceMessage(get().messages, updatedMessage),
+      });
+    });
+
+    socket.on("message-deleted", ({ messageId }) => {
+      set({
+        messages: get().messages.filter((message) => message._id !== messageId),
+      });
+      get().getMyChatPartners();
+    });
+
+    socket.on("conversation-deleted", ({ participantId, triggeredByOffline }) => {
+      const participant =
+        get().chats.find((chat) => chat._id === participantId) ||
+        get().allContacts.find((contact) => contact._id === participantId);
+
+      set({
+        chats: get().chats.filter((chat) => chat._id !== participantId),
+        messages: get().selectedUser?._id === participantId ? [] : get().messages,
+      });
+
+      if (triggeredByOffline && participant) {
+        toast(`${participant.fullName}'s chat disappeared after they went offline.`);
+      }
+    });
   },
 
   unsubscribeFromMessages: () => {
@@ -218,6 +327,9 @@ export const useChatStore = create((set, get) => ({
 
     socket.off("newMessage");
     socket.off("message-status-updated");
+    socket.off("message-updated");
+    socket.off("message-deleted");
+    socket.off("conversation-deleted");
   },
 
   subscribeToLocationRequests: () => {

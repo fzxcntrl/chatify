@@ -5,7 +5,16 @@ import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessageInput from "./MessageInput";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
-import { XIcon, DownloadIcon, CheckIcon, CheckCheckIcon } from "lucide-react";
+import {
+  XIcon,
+  DownloadIcon,
+  CheckIcon,
+  CheckCheckIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
+import ConfirmationModal from "./ConfirmationModal";
+import EditMessageModal from "./EditMessageModal";
 
 function ChatContainer() {
   const {
@@ -16,10 +25,17 @@ function ChatContainer() {
     markMessagesAsRead,
     subscribeToMessages,
     unsubscribeFromMessages,
+    updateMessage,
+    deleteMessage,
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [activeMessageActionId, setActiveMessageActionId] = useState(null);
+  const [messageBeingEdited, setMessageBeingEdited] = useState(null);
+  const [messageBeingDeleted, setMessageBeingDeleted] = useState(null);
+  const [isUpdatingMessage, setIsUpdatingMessage] = useState(false);
+  const [isDeletingMessage, setIsDeletingMessage] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,6 +80,10 @@ function ChatContainer() {
   };
 
   const renderMessageStatus = (message) => {
+    if (message.isOptimistic) {
+      return <span className="text-[10px]">Sending...</span>;
+    }
+
     if (message.readAt) {
       return <CheckCheckIcon className="w-3.5 h-3.5" style={{ color: "#38BDF8" }} />;
     }
@@ -96,6 +116,9 @@ function ChatContainer() {
           <div className="relative z-10 max-w-2xl mx-auto space-y-3">
             {messages.map((msg) => {
               const isSent = msg.senderId === authUser._id;
+              const canEdit = isSent && Boolean(msg.text) && !msg.isOptimistic;
+              const canDelete = isSent && !msg.isOptimistic;
+              const isActionPanelOpen = activeMessageActionId === msg._id;
 
               return (
                 <div
@@ -113,6 +136,11 @@ function ChatContainer() {
                       padding: '10px 14px',
                       boxShadow: 'var(--shadow-sm)',
                     }}
+                    onClick={() => {
+                      if (isSent && (canEdit || canDelete)) {
+                        setActiveMessageActionId((current) => (current === msg._id ? null : msg._id));
+                      }
+                    }}
                   >
                     {/* Image display */}
                     {msg.image && (
@@ -122,7 +150,10 @@ function ChatContainer() {
                           alt="Shared"
                           className="rounded-lg w-full max-h-52 object-cover cursor-pointer transition-transform hover:scale-[1.02]"
                           style={{ borderRadius: 'var(--radius-md)' }}
-                          onClick={() => setPreviewImage(msg.image)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setPreviewImage(msg.image);
+                          }}
                         />
                         <button
                           onClick={(e) => {
@@ -145,6 +176,7 @@ function ChatContainer() {
                       className="mt-1.5 flex items-center justify-end gap-1.5 text-[11px]"
                       style={{ opacity: isSent ? 0.7 : 0.5 }}
                     >
+                      {msg.editedAt && <span className="text-[10px]">edited</span>}
                       <span>
                         {new Date(msg.createdAt).toLocaleTimeString(undefined, {
                           hour: "2-digit",
@@ -153,6 +185,49 @@ function ChatContainer() {
                       </span>
                       {isSent && renderMessageStatus(msg)}
                     </div>
+
+                    {isActionPanelOpen && (canEdit || canDelete) && (
+                      <div
+                        className="mt-3 flex items-center justify-end gap-2 border-t pt-3"
+                        style={{ borderColor: "rgba(255,255,255,0.15)" }}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {canEdit && (
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: "rgba(255,255,255,0.16)",
+                              color: "inherit",
+                            }}
+                            onClick={() => {
+                              setActiveMessageActionId(null);
+                              setMessageBeingEdited(msg);
+                            }}
+                          >
+                            <PencilIcon className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: "rgba(220,38,38,0.15)",
+                              color: "#FCA5A5",
+                            }}
+                            onClick={() => {
+                              setActiveMessageActionId(null);
+                              setMessageBeingDeleted(msg);
+                            }}
+                          >
+                            <Trash2Icon className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -202,6 +277,48 @@ function ChatContainer() {
             onClick={(e) => e.stopPropagation()}
           />
         </div>
+      )}
+
+      {messageBeingEdited && (
+        <EditMessageModal
+          message={messageBeingEdited}
+          isSaving={isUpdatingMessage}
+          onClose={() => {
+            if (!isUpdatingMessage) {
+              setMessageBeingEdited(null);
+            }
+          }}
+          onSave={async (nextText) => {
+            setIsUpdatingMessage(true);
+            const didUpdate = await updateMessage(messageBeingEdited._id, nextText);
+            setIsUpdatingMessage(false);
+            if (didUpdate) {
+              setMessageBeingEdited(null);
+            }
+          }}
+        />
+      )}
+
+      {messageBeingDeleted && (
+        <ConfirmationModal
+          title="Delete This Message?"
+          description="This will permanently remove the selected message from the chat."
+          confirmLabel="Delete Message"
+          onClose={() => {
+            if (!isDeletingMessage) {
+              setMessageBeingDeleted(null);
+            }
+          }}
+          onConfirm={async () => {
+            setIsDeletingMessage(true);
+            const didDelete = await deleteMessage(messageBeingDeleted._id);
+            setIsDeletingMessage(false);
+            if (didDelete) {
+              setMessageBeingDeleted(null);
+            }
+          }}
+          isLoading={isDeletingMessage}
+        />
       )}
     </>
   );
