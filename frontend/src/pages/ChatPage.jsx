@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { useChatStore } from "../store/useChatStore";
 
 import ProfileHeader from "../components/ProfileHeader";
@@ -7,9 +8,11 @@ import ContactList from "../components/ContactList";
 import IncomingRequestsList from "../components/IncomingRequestsList";
 import ChatContainer from "../components/ChatContainer";
 import NoConversationPlaceholder from "../components/NoConversationPlaceholder";
-import MapTrackerModal from "../components/MapTrackerModal";
-import SettingsModal from "../components/SettingsModal";
-import EditProfileModal from "../components/EditProfileModal";
+import PageLoader from "../components/PageLoader";
+
+const MapTrackerModal = lazy(() => import("../components/MapTrackerModal"));
+const SettingsModal = lazy(() => import("../components/SettingsModal"));
+const EditProfileModal = lazy(() => import("../components/EditProfileModal"));
 
 function ChatPage() {
   const {
@@ -75,15 +78,21 @@ function ChatPage() {
 
       {/* Modals rendered at page level so they overlay everything properly */}
       {showSettingsModal && (
-        <SettingsModal onClose={() => setShowSettingsModal(false)} />
+        <Suspense fallback={<PageLoader />}>
+          <SettingsModal onClose={() => setShowSettingsModal(false)} />
+        </Suspense>
       )}
 
       {showEditProfileModal && (
-        <EditProfileModal onClose={() => setShowEditProfileModal(false)} />
+        <Suspense fallback={<PageLoader />}>
+          <EditProfileModal onClose={() => setShowEditProfileModal(false)} />
+        </Suspense>
       )}
 
       {showMapTracker && (
-        <MapTrackerModal onClose={() => setShowMapTracker(false)} />
+        <Suspense fallback={<PageLoader />}>
+          <MapTrackerModal onClose={() => setShowMapTracker(false)} />
+        </Suspense>
       )}
     </div>
   );

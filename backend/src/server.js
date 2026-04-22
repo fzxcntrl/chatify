@@ -13,7 +13,13 @@ import { app, server } from "./lib/socket.js";
 app.use(express.json({ limit: "25mb" }));
 app.use(
   cors({
-    origin: ENV.CLIENT_URL,
+    origin(origin, callback) {
+      if (!origin || ENV.ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );

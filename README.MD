@@ -1,168 +1,185 @@
 # Chatify
 
-Real-time messaging, beautifully simple. A full-stack chat application with custom authentication, live presence indicators, image sharing, and a warm, distinctive UI.
+Chatify is a full-stack real-time chat application built for smooth one-to-one communication. It combines authentication, messaging, contact management, media sharing, live presence, and location-sharing features in a responsive React interface backed by Express, MongoDB, and Socket.IO.
 
 ## Features
 
-- **Real-time messaging** — instant delivery via Socket.IO
-- **Custom JWT auth** — httpOnly cookies, no third-party auth dependency
-- **Online/offline presence** — live indicators across contacts and conversations
-- **Image sharing** — upload and send images inline via Cloudinary
-- **Profile photos** — upload and change your avatar anytime
-- **Notification sounds** — keystroke and message sounds with a toggle
-- **Welcome emails** — branded onboarding email sent via Resend (optional)
-- **Rate limiting & bot protection** — powered by Arcjet (optional)
-- **Optimistic messaging** — messages appear instantly before server confirmation
-- **Responsive design** — sidebar collapses on mobile with back navigation
-- **Keyboard shortcuts** — ESC to close a conversation
+- Real-time one-to-one messaging with Socket.IO
+- User signup, login, logout, and protected routes using JWT authentication
+- Friend discovery, friend requests, request acceptance, and contact removal
+- Online and offline presence indicators
+- Message delivery and read-status tracking
+- Edit message, delete message, and delete full conversation actions
+- Image sharing with Cloudinary uploads
+- Profile management with avatar, bio, theme, chat background, and marker customization
+- Live location request and sharing flow between users
+- Optional disappearing chats when a user goes offline
+- Optional welcome email support through Gmail SMTP
+- Arcjet-based protection middleware on API routes
+- Responsive frontend for desktop and mobile use
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| --- | --- |
 | Frontend | React 19, Vite, Tailwind CSS, Zustand |
 | Backend | Node.js, Express |
-| Database | MongoDB (Mongoose) |
-| Real-time | Socket.IO |
-| Auth | JWT (httpOnly cookies, bcrypt) |
-| File uploads | Cloudinary |
-| Email | Resend |
-| Security | Arcjet (rate limiting, bot detection, shield) |
+| Database | MongoDB with Mongoose |
+| Realtime | Socket.IO |
+| Authentication | JWT, bcryptjs, cookies, auth headers |
+| Media Storage | Cloudinary |
+| Email | Nodemailer with Gmail SMTP |
+| Security | Arcjet |
+
+## Documentation
+
+- [ER_Diagram.md](./ER_Diagram.md)
+
+## Project Structure
+
+```text
+chatify/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── emails/
+│   │   ├── lib/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   └── server.js
+│   ├── .env
+│   ├── .env.example
+│   └── package.json
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   ├── store/
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .env
+│   └── package.json
+├── .github/workflows/
+├── package.json
+├── README.MD
+└── ER_Diagram.md
+```
 
 ## Prerequisites
 
-- **Node.js** ≥ 20.0.0
-- **MongoDB** — local instance or [MongoDB Atlas](https://www.mongodb.com/atlas) (free tier works)
+- Node.js `>=20.0.0`
+- MongoDB local instance or MongoDB Atlas
+- Cloudinary account for media uploads
 
-## Getting Started
+## Environment Setup
 
-### 1. Clone & install
+### Backend
 
-```bash
-git clone <your-repo-url>
-cd chatify
-npm run build    # installs both backend + frontend deps, builds frontend
-```
-
-### 2. Configure environment
+Create the backend environment file:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Edit `backend/.env` and fill in the required values:
+Configure these values in `backend/.env`:
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `MONGO_URI` | ✅ | MongoDB connection string |
-| `JWT_SECRET` | ✅ | Random secret for signing tokens |
-| `CLOUDINARY_CLOUD_NAME` | ✅ | Cloudinary dashboard → cloud name |
-| `CLOUDINARY_API_KEY` | ✅ | Cloudinary dashboard → API key |
-| `CLOUDINARY_API_SECRET` | ✅ | Cloudinary dashboard → API secret |
-| `CLIENT_URL` | — | Frontend URL (default: `http://localhost:5173`) |
-| `PORT` | — | Backend port (default: `3000`) |
-| `NODE_ENV` | — | `development` or `production` |
-| `RESEND_API_KEY` | — | Optional — enables welcome emails |
-| `EMAIL_FROM` | — | Sender address for emails |
-| `EMAIL_FROM_NAME` | — | Sender display name (default: `Chatify`) |
-| `ARCJET_KEY` | — | Optional — enables rate limiting |
+| --- | --- | --- |
+| `PORT` | No | Backend port. Default: `3000` |
+| `NODE_ENV` | No | Environment name. Default: `development` |
+| `MONGO_URI` | Yes | MongoDB connection string |
+| `JWT_SECRET` | Yes | Secret used to sign authentication tokens |
+| `CLIENT_URL` | No | Allowed frontend origin or comma-separated origins |
+| `CLOUDINARY_URL` | Yes if not using keys | Full Cloudinary connection URL |
+| `CLOUDINARY_CLOUD_NAME` | Yes if not using `CLOUDINARY_URL` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Yes if not using `CLOUDINARY_URL` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Yes if not using `CLOUDINARY_URL` | Cloudinary API secret |
+| `GMAIL_USER` | No | Gmail address for optional welcome emails |
+| `GMAIL_APP_PASSWORD` | No | Gmail app password for Nodemailer |
+| `EMAIL_FROM_NAME` | No | Sender name for outgoing email |
+| `ARCJET_KEY` | No | Arcjet API key |
+| `ARCJET_ENV` | No | Arcjet environment. Default: `development` |
 
-**Generate a JWT secret:**
+Example `CLIENT_URL` values:
 
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```env
+CLIENT_URL=http://localhost:5173
 ```
 
-### 3. MongoDB setup
-
-**Local MongoDB:**
-```bash
-# macOS (Homebrew)
-brew services start mongodb-community
-# Use: MONGO_URI=mongodb://localhost:27017/chatify
+```env
+CLIENT_URL=http://localhost:5173,https://your-frontend.vercel.app
 ```
 
-**MongoDB Atlas (cloud):**
-1. Create a free cluster at [mongodb.com/atlas](https://www.mongodb.com/atlas)
-2. Add your IP to the whitelist (or use `0.0.0.0/0` for development)
-3. Create a database user
-4. Copy the connection string → set as `MONGO_URI`
+### Frontend
 
-### 4. Run locally
+The frontend can run without extra environment variables for local development. If you deploy the frontend separately, you can add `frontend/.env` values like:
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `VITE_APP_NAME` | No | App display name |
+| `VITE_API_URL` | No | Backend base URL used outside local development |
+
+## Installation
+
+Install dependencies from the project root:
 
 ```bash
-# Terminal 1 — Backend (port 3000)
+npm run build
+```
+
+This installs backend and frontend dependencies and also builds the frontend once.
+
+## Run Locally
+
+Start the backend:
+
+```bash
 npm run dev:backend
+```
 
-# Terminal 2 — Frontend (port 5173)
+Start the frontend in a second terminal:
+
+```bash
 npm run dev:frontend
 ```
 
-### 5. Production build & start
+Default local URLs:
 
-```bash
-npm run build   # installs deps + builds frontend
-npm start       # starts backend, serves frontend from dist/
-```
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
 
-The app will be available at `http://localhost:3000`.
+## Important API Areas
 
-## Project Structure
+- Auth: signup, login, logout, update profile, update password, delete account
+- Friends: search users, get suggestions, send request, accept request, decline request, remove contact
+- Messages: contacts, chats, send message, read receipts, update message, delete message, delete conversation
+- Health: `GET /api/health`
 
-```
-chatify/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/     # Route handlers
-│   │   ├── emails/          # Email templates & handlers
-│   │   ├── lib/             # DB, env, socket, cloudinary, utils
-│   │   ├── middleware/      # Auth, socket auth, rate limiting
-│   │   ├── models/          # Mongoose schemas (User, Message)
-│   │   ├── routes/          # Express route definitions
-│   │   └── server.js        # App entry point
-│   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── public/              # Static assets (favicon, sounds, avatar)
-│   ├── src/
-│   │   ├── components/      # UI components
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── lib/             # Axios instance
-│   │   ├── pages/           # Route pages
-│   │   ├── store/           # Zustand stores
-│   │   ├── App.jsx
-│   │   ├── index.css        # Design system tokens
-│   │   └── main.jsx
-│   └── package.json
-├── package.json              # Root scripts (build, start, dev)
-└── README.md
-```
+## Database Summary
 
-## Deployment
+The project uses three core collections:
 
-This project is ready for single-server deployment on platforms like [Render](https://render.com), [Railway](https://railway.app), or [Sevalla](https://sevalla.com):
+- `User`
+- `Message`
+- `FriendRequest`
 
-1. Set the **build command** to `npm run build`
-2. Set the **start command** to `npm start`
-3. Configure all required env vars in the platform's dashboard
-4. Set `NODE_ENV=production`
-5. Set `CLIENT_URL` to your deployed URL (or leave unset — production serves the frontend from the same origin)
+For the entity relationships and attribute overview, see [ER_Diagram.md](./ER_Diagram.md).
 
-The backend will serve the built frontend assets in production mode automatically.
+## Deployment Notes
 
-### Keep-alive health checks
+This repo is structured as separate frontend and backend applications.
 
-The API now exposes `GET /api/health` for uptime checks.
-
-If you use GitHub Actions, add a repository secret named `KEEP_ALIVE_URL` with your deployed health-check URL, for example:
-
-```bash
-https://your-backend.example.com/api/health
-```
-
-The bundled workflow at `.github/workflows/keep-alive.yml` pings that endpoint every 12 minutes so low-traffic deployments are less likely to idle.
+- The frontend can be deployed on platforms like Vercel.
+- The backend can be deployed on platforms like Render or Railway.
+- When deployed separately, set `VITE_API_URL` on the frontend and `CLIENT_URL` on the backend to the correct deployed origins.
+- The backend exposes `GET /api/health` for monitoring and keep-alive checks.
+- A workflow already exists at `.github/workflows/keep-alive.yml`.
 
 ## License
 
 ISC
-# chatify

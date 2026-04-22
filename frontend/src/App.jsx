@@ -1,24 +1,40 @@
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
-import ChatPage from "./pages/ChatPage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import BrowseUsersPage from "./pages/BrowseUsersPage";
 import { useAuthStore } from "./store/useAuthStore";
-import { useEffect } from "react";
-import { useChatStore } from "./store/useChatStore";
 import useUiSounds from "./hooks/useUiSounds";
 import PageLoader from "./components/PageLoader";
 import { Toaster } from "react-hot-toast";
 import { ParallaxStarsBackdrop } from "./components/ParallaxStarsBackground";
 
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage"));
+const BrowseUsersPage = lazy(() => import("./pages/BrowseUsersPage"));
+
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
-  const { isSoundEnabled } = useChatStore();
   const { playRandomTapSound } = useUiSounds();
+  const [isSoundEnabled, setIsSoundEnabled] = useState(
+    () => JSON.parse(localStorage.getItem("isSoundEnabled")) === true
+  );
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    const syncSoundPreference = () => {
+      setIsSoundEnabled(JSON.parse(localStorage.getItem("isSoundEnabled")) === true);
+    };
+
+    window.addEventListener("storage", syncSoundPreference);
+    window.addEventListener("chatify:sound-preference-changed", syncSoundPreference);
+
+    return () => {
+      window.removeEventListener("storage", syncSoundPreference);
+      window.removeEventListener("chatify:sound-preference-changed", syncSoundPreference);
+    };
+  }, []);
 
   if (isCheckingAuth) return <PageLoader />;
 
@@ -58,12 +74,14 @@ function App() {
       ) : null}
 
       <div className="relative z-20">
-        <Routes>
-          <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
-          <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
-          <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
-          <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
+            <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
+            <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
+            <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
+          </Routes>
+        </Suspense>
       </div>
 
       <div className="relative z-30">

@@ -1,5 +1,12 @@
 import "dotenv/config";
 
+const normalizeOrigin = (value) => value?.trim().replace(/\/+$/, "");
+const parseOrigins = (value) =>
+  (value || "")
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean);
+
 const REQUIRED_VARS = [
   "MONGO_URI",
   "JWT_SECRET",
@@ -30,7 +37,8 @@ export const ENV = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   NODE_ENV: process.env.NODE_ENV || "development",
-  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
+  CLIENT_URL: null,
+  ALLOWED_ORIGINS: [],
   GMAIL_USER: process.env.GMAIL_USER,
   GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || "Chatify",
@@ -41,3 +49,15 @@ export const ENV = {
   ARCJET_KEY: process.env.ARCJET_KEY,
   ARCJET_ENV: process.env.ARCJET_ENV || "development",
 };
+
+const configuredOrigins = parseOrigins(process.env.CLIENT_URL);
+const localDevOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+ENV.ALLOWED_ORIGINS = [
+  ...new Set([
+    ...(configuredOrigins.length ? configuredOrigins : localDevOrigins),
+    ...(ENV.NODE_ENV === "development" ? localDevOrigins : []),
+  ]),
+];
+
+ENV.CLIENT_URL = ENV.ALLOWED_ORIGINS[0] || "http://localhost:5173";

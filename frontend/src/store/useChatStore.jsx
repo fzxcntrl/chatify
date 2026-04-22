@@ -72,6 +72,7 @@ export const useChatStore = create((set, get) => ({
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);
+    window.dispatchEvent(new Event("chatify:sound-preference-changed"));
     set({ isSoundEnabled: !get().isSoundEnabled });
   },
 

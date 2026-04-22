@@ -8,6 +8,11 @@ const STAR_LAYERS = [
   { count: 280, size: 2, duration: 100, seed: 31, opacity: 0.7 },
   { count: 160, size: 3, duration: 150, seed: 53, opacity: 0.65 },
 ] as const;
+const MOBILE_STAR_LAYERS = [
+  { count: 220, size: 1, duration: 44, seed: 17, opacity: 0.72 },
+  { count: 110, size: 2, duration: 88, seed: 31, opacity: 0.64 },
+  { count: 56, size: 3, duration: 132, seed: 53, opacity: 0.58 },
+] as const;
 
 const PARALLAX_STARS_STYLES = `
   @keyframes parallax-stars-drift {
@@ -173,10 +178,13 @@ export const ParallaxStarsBackdrop = memo(function ParallaxStarsBackdrop({
   starRgb = "255, 255, 255",
 }: ParallaxStarsBackdropProps) {
   const clampedSpeed = Number.isFinite(speed) && speed > 0 ? speed : 1;
+  const prefersCompactBackdrop =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+  const starLayers = prefersCompactBackdrop ? MOBILE_STAR_LAYERS : STAR_LAYERS;
 
   const layerShadows = useMemo(
-    () => STAR_LAYERS.map((layer) => createStarShadowString(layer.count, layer.seed)),
-    []
+    () => starLayers.map((layer) => createStarShadowString(layer.count, layer.seed)),
+    [starLayers]
   );
 
   const rootStyle = {
@@ -195,7 +203,7 @@ export const ParallaxStarsBackdrop = memo(function ParallaxStarsBackdrop({
       <div className="parallax-stars-background__gradient absolute inset-0 z-0" />
 
       <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        {STAR_LAYERS.map((layer, index) => (
+        {starLayers.map((layer, index) => (
           <ParallaxStarsLayer
             key={`${layer.size}-${layer.duration}`}
             size={layer.size}

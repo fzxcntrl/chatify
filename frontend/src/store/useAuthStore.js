@@ -9,7 +9,6 @@ import {
   storeAuthToken,
 } from "../lib/axios";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client";
 export { LOCATION_MARKERS, DEFAULT_LOCATION_MARKER } from "../lib/locationMarkers";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : API_ORIGIN;
@@ -325,9 +324,13 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  connectSocket: () => {
+  connectSocket: async () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
+
+    const { io } = await import("socket.io-client");
+    const currentUser = get().authUser;
+    if (!currentUser || get().socket?.connected) return;
 
     const token = localStorage.getItem("chatify-auth-token");
     const socket = io(BASE_URL, {
