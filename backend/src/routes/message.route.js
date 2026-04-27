@@ -7,6 +7,7 @@ import {
   getMessagesByUserId,
   markMessagesAsRead,
   sendMessage,
+  toggleReaction,
   updateMessage,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
@@ -21,6 +22,7 @@ router.get("/chats", getChatPartners);
 router.delete("/conversation/:id", deleteConversation);
 router.get("/:id", getMessagesByUserId);
 router.patch("/:id", updateMessage);
+router.put("/:id/react", toggleReaction);
 router.delete("/:id", deleteMessage);
 router.post("/read/:id", markMessagesAsRead);
 router.post("/send/:id", sendMessage);

@@ -3,13 +3,17 @@ import useKeyboardSound from "../hooks/useKeyboardSound";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
 import { ImageIcon, SendIcon, XIcon } from "lucide-react";
+import EmojiPicker from "./EmojiPicker";
+import VoiceRecorder from "./VoiceRecorder";
 
 function MessageInput() {
   const { playRandomKeyStrokeSound } = useKeyboardSound();
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isRecordingMode, setIsRecordingMode] = useState(false);
 
   const fileInputRef = useRef(null);
+  const textInputRef = useRef(null);
 
   const { sendMessage, isSoundEnabled } = useChatStore();
 
@@ -41,6 +45,18 @@ function MessageInput() {
     }
   };
 
+  const handleSendVoiceNote = async ({ audio, audioDuration }) => {
+    setIsRecordingMode(false);
+    try {
+      const didSend = await sendMessage({ audio, audioDuration });
+      if (!didSend) {
+        toast.error("Failed to send voice note");
+      }
+    } catch {
+      toast.error("Failed to send voice note");
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -64,6 +80,13 @@ function MessageInput() {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const handleEmojiSelect = (emoji) => {
+    setText((prev) => prev + emoji);
+    textInputRef.current?.focus();
+  };
+
+  const hasContent = text.trim() || imagePreview;
 
   return (
     <div
@@ -101,68 +124,87 @@ function MessageInput() {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="max-w-2xl mx-auto flex items-center gap-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            isSoundEnabled && playRandomKeyStrokeSound();
-          }}
-          className="min-w-0 flex-1 rounded-full py-3 px-4 text-sm transition-all"
-          style={{
-            backgroundColor: 'var(--app-shell-input-bg)',
-            border: '1px solid var(--border)',
-            color: 'var(--text-primary)',
-            outline: 'none',
-          }}
-          onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-          onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-          placeholder="Type a message..."
-        />
+      {isRecordingMode ? (
+        <div className="max-w-2xl mx-auto">
+          <VoiceRecorder
+            onSend={handleSendVoiceNote}
+            disabled={false}
+          />
+        </div>
+      ) : (
+        <form onSubmit={handleSendMessage} className="max-w-2xl mx-auto flex items-center gap-2">
+          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
 
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
+          <input
+            ref={textInputRef}
+            type="text"
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              isSoundEnabled && playRandomKeyStrokeSound();
+            }}
+            className="min-w-0 flex-1 rounded-full py-3 px-4 text-sm transition-all"
+            style={{
+              backgroundColor: 'var(--app-shell-input-bg)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+            }}
+            onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+            placeholder="Type a message..."
+          />
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="rounded-full p-3 transition-colors flex-shrink-0"
-          style={{
-            backgroundColor: 'var(--app-shell-input-bg)',
-            color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
-            border: '1px solid var(--border)',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-focus)'}
-          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
-          title="Attach image"
-        >
-          <ImageIcon className="w-[18px] h-[18px]" />
-        </button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
 
-        <button
-          type="submit"
-          disabled={!text.trim() && !imagePreview}
-          className="rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
-          style={{
-            backgroundColor: 'var(--primary)',
-            color: 'var(--text-inverse)',
-          }}
-          onMouseEnter={(e) => {
-            if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--primary)';
-          }}
-        >
-          <SendIcon className="w-[18px] h-[18px]" />
-        </button>
-      </form>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-full p-3 transition-colors flex-shrink-0"
+            style={{
+              backgroundColor: 'var(--app-shell-input-bg)',
+              color: imagePreview ? 'var(--primary)' : 'var(--text-muted)',
+              border: '1px solid var(--border)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--border-focus)'}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+            title="Attach image"
+          >
+            <ImageIcon className="w-[18px] h-[18px]" />
+          </button>
+
+          {hasContent ? (
+            <button
+              type="submit"
+              disabled={!hasContent}
+              className="rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+              style={{
+                backgroundColor: 'var(--primary)',
+                color: 'var(--text-inverse)',
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--primary)';
+              }}
+            >
+              <SendIcon className="w-[18px] h-[18px]" />
+            </button>
+          ) : (
+            <VoiceRecorder
+              onSend={handleSendVoiceNote}
+              disabled={false}
+            />
+          )}
+        </form>
+      )}
     </div>
   );
 }

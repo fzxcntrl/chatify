@@ -14,12 +14,34 @@ const applyMessageStatusUpdate = (messages, messageIds, deliveredAt, readAt) =>
       : message
   );
 
+const getChatActivityTime = (chat) => {
+  const value = chat?.lastMessageAt || chat?.lastMessage?.createdAt || chat?.updatedAt;
+  return value ? new Date(value).getTime() : 0;
+};
+
+const sortChatsByActivity = (chats) =>
+  [...chats].sort((left, right) => getChatActivityTime(right) - getChatActivityTime(left));
+
+const getUnreadChatCount = (chats) =>
+  chats.reduce((total, chat) => total + (chat.unreadCount || 0), 0);
+
+const toMessagePreview = (message) => ({
+  _id: message._id,
+  senderId: message.senderId,
+  receiverId: message.receiverId,
+  text: message.text || "",
+  image: message.image || "",
+  audio: message.audio || "",
+  audioDuration: message.audioDuration || null,
+  createdAt: message.createdAt,
+});
+
 const upsertChatPartner = (chats, user) => {
   if (!user?._id) return chats;
 
   const existingIndex = chats.findIndex((chat) => chat._id === user._id);
   if (existingIndex === -1) {
-    return [user, ...chats];
+    return sortChatsByActivity([user, ...chats]);
   }
 
   const nextChats = [...chats];
@@ -27,11 +49,17 @@ const upsertChatPartner = (chats, user) => {
     ...nextChats[existingIndex],
     ...user,
   };
-  return nextChats;
+  return sortChatsByActivity(nextChats);
 };
 
 const replaceMessage = (messages, updatedMessage) =>
   messages.map((message) => (message._id === updatedMessage._id ? updatedMessage : message));
+
+const clearUnreadForUser = (chats, userId) =>
+  chats.map((chat) => (chat._id === userId ? { ...chat, unreadCount: 0 } : chat));
+
+const updateChatPreview = (chats, userId, updater) =>
+  chats.map((chat) => (chat._id === userId ? updater(chat) : chat));
 
 export const useChatStore = create((set, get) => ({
   allContacts: [],
@@ -80,7 +108,15 @@ export const useChatStore = create((set, get) => ({
     if (tab === "requests") set({ requestCount: 0 });
     set({ activeTab: tab });
   },
-  setSelectedUser: (selectedUser) => set({ selectedUser, showMapTracker: false }),
+  setSelectedUser: (selectedUser) => {
+    const nextChats = selectedUser ? clearUnreadForUser(get().chats, selectedUser._id) : get().chats;
+    set({
+      selectedUser,
+      showMapTracker: false,
+      chats: nextChats,
+      unreadChatCount: getUnreadChatCount(nextChats),
+    });
+  },
 
   getAllContacts: async () => {
     set({ isUsersLoading: true });
@@ -101,12 +137,16 @@ export const useChatStore = create((set, get) => ({
     set({ isUsersLoading: true });
     try {
       const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data });
+      const chats = sortChatsByActivity(res.data);
+      set({
+        chats,
+        unreadChatCount: getUnreadChatCount(chats),
+      });
     } catch (error) {
       if (!isUnauthorizedError(error)) {
         toast.error(error.response?.data?.message || "Connection failed");
       }
-      set({ chats: [] });
+      set({ chats: [], unreadChatCount: 0 });
     } finally {
       set({ isUsersLoading: false });
     }
@@ -146,6 +186,12 @@ export const useChatStore = create((set, get) => ({
   },
 
   markMessagesAsRead: async (userId) => {
+    const nextChats = clearUnreadForUser(get().chats, userId);
+    set({
+      chats: nextChats,
+      unreadChatCount: getUnreadChatCount(nextChats),
+    });
+
     try {
       const res = await axiosInstance.post(`/messages/read/${userId}`);
       const { messageIds = [], deliveredAt = null, readAt = null } = res.data;
@@ -173,17 +219,27 @@ export const useChatStore = create((set, get) => ({
       receiverId: selectedUser._id,
       text: messageData.text,
       image: messageData.image,
+      audio: messageData.audio,
+      audioDuration: messageData.audioDuration,
       createdAt: new Date().toISOString(),
       isOptimistic: true,
+      reactions: [],
     };
 
     set({ messages: [...messages, optimisticMessage] });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+      const nextChats = upsertChatPartner(get().chats, {
+        ...selectedUser,
+        lastMessage: toMessagePreview(res.data),
+        lastMessageAt: res.data.createdAt,
+        unreadCount: 0,
+      });
       set({
         messages: get().messages.map((message) => (message._id === tempId ? res.data : message)),
-        chats: upsertChatPartner(get().chats, selectedUser),
+        chats: nextChats,
+        unreadChatCount: getUnreadChatCount(nextChats),
       });
       return true;
     } catch (error) {
@@ -198,8 +254,20 @@ export const useChatStore = create((set, get) => ({
   updateMessage: async (messageId, text) => {
     try {
       const res = await axiosInstance.patch(`/messages/${messageId}`, { text: text.trim() });
+      const authUserId = useAuthStore.getState().authUser?._id;
+      const participantId = res.data.senderId === authUserId ? res.data.receiverId : res.data.senderId;
+      const nextChats = updateChatPreview(get().chats, participantId, (chat) =>
+        chat.lastMessage?._id === res.data._id
+          ? {
+              ...chat,
+              lastMessage: toMessagePreview(res.data),
+              lastMessageAt: res.data.createdAt,
+            }
+          : chat
+      );
       set({
         messages: replaceMessage(get().messages, res.data),
+        chats: nextChats,
       });
       toast.success("Message updated");
       return true;
@@ -231,13 +299,17 @@ export const useChatStore = create((set, get) => ({
   deleteConversation: async (user) => {
     try {
       await axiosInstance.delete(`/messages/conversation/${user._id}`);
+      const nextChats = get().chats.filter((chat) => chat._id !== user._id);
+      const isSelectedChat = get().selectedUser?._id === user._id;
 
       set({
-        chats: get().chats.filter((chat) => chat._id !== user._id),
-        messages: get().selectedUser?._id === user._id ? [] : get().messages,
+        chats: nextChats,
+        messages: isSelectedChat ? [] : get().messages,
+        selectedUser: isSelectedChat ? null : get().selectedUser,
+        unreadChatCount: getUnreadChatCount(nextChats),
       });
 
-      toast.success(`Deleted chat with ${user.fullName}`);
+      toast.success(`Removed ${user.fullName}'s chat from your profile`);
       return true;
     } catch (error) {
       if (!isUnauthorizedError(error)) {
@@ -247,38 +319,90 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  subscribeToMessages: () => {
-    const { selectedUser, isSoundEnabled } = get();
-    if (!selectedUser) return;
+  toggleReaction: async (messageId, emoji) => {
+    const authUserId = useAuthStore.getState().authUser?._id;
+    // Optimistic update
+    set({
+      messages: get().messages.map((msg) => {
+        if (msg._id !== messageId) return msg;
+        const reactions = [...(msg.reactions || [])];
+        const existingIdx = reactions.findIndex(
+          (r) => (r.userId?._id || r.userId)?.toString() === authUserId
+        );
+        if (existingIdx !== -1) {
+          if (reactions[existingIdx].emoji === emoji) {
+            reactions.splice(existingIdx, 1);
+          } else {
+            reactions[existingIdx] = { ...reactions[existingIdx], emoji };
+          }
+        } else {
+          reactions.push({ userId: authUserId, emoji });
+        }
+        return { ...msg, reactions };
+      }),
+    });
 
+    try {
+      await axiosInstance.put(`/messages/${messageId}/react`, { emoji });
+    } catch (error) {
+      if (!isUnauthorizedError(error)) {
+        toast.error("Failed to react");
+      }
+      // Revert — re-fetch messages
+      if (get().selectedUser?._id) {
+        get().getMessagesByUserId(get().selectedUser._id);
+      }
+    }
+  },
+
+  subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
+    socket.off("newMessage");
+    socket.off("message-status-updated");
+    socket.off("message-updated");
+    socket.off("message-deleted");
+    socket.off("conversation-deleted");
+    socket.off("reaction-updated");
+
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) {
-        // Message from someone else — count as unread
-        set({ unreadChatCount: get().unreadChatCount + 1 });
-        if (get().isSoundEnabled) {
-          const notificationSound = new Audio("/sounds/notification.mp3");
-          notificationSound.currentTime = 0;
-          notificationSound.play().catch(() => {});
-        }
-        return;
+      const authUserId = useAuthStore.getState().authUser?._id;
+      const selectedUserId = get().selectedUser?._id;
+      const participantId = newMessage.senderId === authUserId ? newMessage.receiverId : newMessage.senderId;
+      const isIncomingMessage = newMessage.receiverId === authUserId;
+      const isOpenConversation = participantId === selectedUserId;
+      const existingChat = get().chats.find((chat) => chat._id === participantId);
+      const knownUser =
+        get().allContacts.find((contact) => contact._id === participantId) ||
+        existingChat;
+
+      let nextChats = get().chats;
+
+      if (knownUser) {
+        nextChats = upsertChatPartner(get().chats, {
+          ...(existingChat || knownUser),
+          ...knownUser,
+          lastMessage: toMessagePreview(newMessage),
+          lastMessageAt: newMessage.createdAt,
+          unreadCount:
+            isIncomingMessage && !isOpenConversation ? (existingChat?.unreadCount || 0) + 1 : 0,
+        });
+      } else {
+        get().getMyChatPartners();
       }
 
-      const currentMessages = get().messages;
-      const sender =
-        get().allContacts.find((contact) => contact._id === newMessage.senderId) ||
-        get().chats.find((chat) => chat._id === newMessage.senderId);
-
       set({
-        messages: [...currentMessages, newMessage],
-        chats: sender ? upsertChatPartner(get().chats, sender) : get().chats,
+        messages: isOpenConversation ? [...get().messages, newMessage] : get().messages,
+        chats: nextChats,
+        unreadChatCount: getUnreadChatCount(nextChats),
       });
-      get().markMessagesAsRead(selectedUser._id);
 
-      if (isSoundEnabled) {
+      if (isOpenConversation && isIncomingMessage) {
+        get().markMessagesAsRead(participantId);
+      }
+
+      if (isIncomingMessage && get().isSoundEnabled) {
         const notificationSound = new Audio("/sounds/notification.mp3");
         notificationSound.currentTime = 0;
         notificationSound.play().catch(() => {});
@@ -292,10 +416,23 @@ export const useChatStore = create((set, get) => ({
     });
 
     socket.on("message-updated", (updatedMessage) => {
-      if (updatedMessage.senderId !== selectedUser._id) return;
+      const authUserId = useAuthStore.getState().authUser?._id;
+      const participantId =
+        updatedMessage.senderId === authUserId ? updatedMessage.receiverId : updatedMessage.senderId;
+      const isOpenConversation = participantId === get().selectedUser?._id;
+      const nextChats = updateChatPreview(get().chats, participantId, (chat) =>
+        chat.lastMessage?._id === updatedMessage._id
+          ? {
+              ...chat,
+              lastMessage: toMessagePreview(updatedMessage),
+              lastMessageAt: updatedMessage.createdAt,
+            }
+          : chat
+      );
 
       set({
-        messages: replaceMessage(get().messages, updatedMessage),
+        messages: isOpenConversation ? replaceMessage(get().messages, updatedMessage) : get().messages,
+        chats: nextChats,
       });
     });
 
@@ -310,15 +447,27 @@ export const useChatStore = create((set, get) => ({
       const participant =
         get().chats.find((chat) => chat._id === participantId) ||
         get().allContacts.find((contact) => contact._id === participantId);
+      const nextChats = get().chats.filter((chat) => chat._id !== participantId);
+      const isSelectedChat = get().selectedUser?._id === participantId;
 
       set({
-        chats: get().chats.filter((chat) => chat._id !== participantId),
-        messages: get().selectedUser?._id === participantId ? [] : get().messages,
+        chats: nextChats,
+        messages: isSelectedChat ? [] : get().messages,
+        selectedUser: isSelectedChat ? null : get().selectedUser,
+        unreadChatCount: getUnreadChatCount(nextChats),
       });
 
       if (triggeredByOffline && participant) {
         toast(`${participant.fullName}'s chat disappeared after they went offline.`);
       }
+    });
+
+    socket.on("reaction-updated", ({ messageId, reactions }) => {
+      set({
+        messages: get().messages.map((msg) =>
+          msg._id === messageId ? { ...msg, reactions } : msg
+        ),
+      });
     });
   },
 
@@ -331,6 +480,7 @@ export const useChatStore = create((set, get) => ({
     socket.off("message-updated");
     socket.off("message-deleted");
     socket.off("conversation-deleted");
+    socket.off("reaction-updated");
   },
 
   subscribeToLocationRequests: () => {

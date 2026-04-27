@@ -345,6 +345,7 @@ export const useAuthStore = create((set, get) => ({
     });
 
     import('./useChatStore').then((module) => {
+      module.useChatStore.getState().subscribeToMessages();
       module.useChatStore.getState().subscribeToLocationRequests();
       module.useChatStore.getState().subscribeToFriendRequests();
     });

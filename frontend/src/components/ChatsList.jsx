@@ -9,7 +9,7 @@ import ConfirmationModal from "./ConfirmationModal";
 function ChatsList() {
   const { getMyChatPartners, chats, isUsersLoading, setSelectedUser, selectedUser, deleteConversation } =
     useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, authUser } = useAuthStore();
   const [menuOpenFor, setMenuOpenFor] = useState(null);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [isDeletingChat, setIsDeletingChat] = useState(false);
@@ -17,6 +17,45 @@ function ChatsList() {
   useEffect(() => {
     getMyChatPartners();
   }, [getMyChatPartners]);
+
+  const formatPreviewText = (chat) => {
+    if (!chat.lastMessage) return "Start chatting";
+
+    const senderPrefix = chat.lastMessage.senderId === authUser?._id ? "You: " : "";
+
+    if (chat.lastMessage.audio && !chat.lastMessage.text) {
+      return `${senderPrefix}🎤 Voice note`;
+    }
+
+    if (chat.lastMessage.image && !chat.lastMessage.text) {
+      return `${senderPrefix}sent a photo`;
+    }
+
+    return `${senderPrefix}${chat.lastMessage.text || "New message"}`;
+  };
+
+  const formatChatTime = (value) => {
+    if (!value) return "";
+
+    const date = new Date(value);
+    const now = new Date();
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate();
+
+    if (isToday) {
+      return date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    return date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
   if (chats.length === 0) return <NoChatsFound />;
@@ -68,18 +107,46 @@ function ChatsList() {
               </div>
 
               <div className="flex-1 min-w-0">
-                <h4
-                  className="text-sm font-medium truncate"
-                  style={{ color: isSelected ? "var(--primary)" : "var(--text-primary)" }}
-                >
-                  {chat.fullName}
-                </h4>
-                <div className="flex items-center gap-1.5 mt-0.5 text-[11px] truncate">
-                  <span style={{ color: "var(--text-muted)" }}>@{chat.username}</span>
-                  <span style={{ color: "var(--border)" }}>•</span>
-                  <span style={{ color: isOnline ? "var(--online)" : "var(--text-muted)" }}>
-                    {isOnline ? "Online" : "Offline"}
+                <div className="flex items-start justify-between gap-2">
+                  <h4
+                    className="min-w-0 flex-1 truncate text-sm font-medium"
+                    style={{ color: isSelected ? "var(--primary)" : "var(--text-primary)" }}
+                  >
+                    {chat.fullName}
+                  </h4>
+                  <span
+                    className="flex-shrink-0 text-[10px] font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {formatChatTime(chat.lastMessageAt)}
                   </span>
+                </div>
+                <div className="mt-0.5 flex items-center gap-1.5 text-[11px]">
+                  <span
+                    className="min-w-0 flex-1 truncate"
+                    style={{ color: chat.unreadCount > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
+                  >
+                    {formatPreviewText(chat)}
+                  </span>
+                  {chat.unreadCount > 0 ? (
+                    <span
+                      className="flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold"
+                      style={{
+                        backgroundColor: "var(--danger)",
+                        color: "#FFFFFF",
+                        boxShadow: "0 2px 6px rgba(224, 95, 95, 0.4)",
+                      }}
+                    >
+                      {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+                    </span>
+                  ) : (
+                    <>
+                      <span style={{ color: "var(--border)" }}>•</span>
+                      <span style={{ color: isOnline ? "var(--online)" : "var(--text-muted)" }}>
+                        {isOnline ? "Online" : "Offline"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </button>
@@ -112,7 +179,7 @@ function ChatsList() {
                       }}
                     >
                       <Trash2Icon className="h-4 w-4" />
-                      Delete whole chat
+                      Remove from my profile
                     </button>
                   </div>
                 </>
@@ -124,9 +191,9 @@ function ChatsList() {
 
       {chatToDelete && (
         <ConfirmationModal
-          title="Delete This Chat?"
-          description={`This will permanently delete your full conversation with ${chatToDelete.fullName}.`}
-          confirmLabel="Delete Chat"
+          title="Remove This Chat?"
+          description={`This will remove the chat from your profile only. ${chatToDelete.fullName} will still keep their messages.`}
+          confirmLabel="Remove Chat"
           onClose={() => {
             if (!isDeletingChat) {
               setChatToDelete(null);

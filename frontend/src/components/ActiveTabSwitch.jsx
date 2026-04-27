@@ -26,11 +26,7 @@ function ActiveTabSwitch() {
         return (
           <button
             key={tab.id}
-            onClick={() => {
-              tab.action();
-              // Clear unread chat count when switching to chats
-              if (tab.id === "chats") useChatStore.setState({ unreadChatCount: 0 });
-            }}
+            onClick={tab.action}
             className="min-w-0 py-2 text-[11px] sm:text-xs font-medium transition-all relative"
             style={{
               borderRadius: 'var(--radius-sm)',

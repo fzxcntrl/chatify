@@ -22,11 +22,32 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    audio: {
+      type: String,
+      default: null,
+    },
+    audioDuration: {
+      type: Number,
+      default: null,
+    },
     fileType: {
       type: String,
-      enum: ["image", "pdf"],
+      enum: ["image", "pdf", "audio"],
       default: "image",
     },
+    reactions: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        emoji: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     deliveredAt: {
       type: Date,
       default: null,
@@ -39,6 +60,12 @@ const messageSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    hiddenFor: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );

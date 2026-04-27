@@ -804,3 +804,319 @@ a:focus-visible {
   background: rgba(224, 122, 95, 0.3);
   color: var(--text-primary);
 }
+
+/* ===== Emoji Picker Popover ===== */
+.emoji-picker-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+.emoji-picker-popover .EmojiPickerReact {
+  --epr-bg-color: rgba(18, 24, 37, 0.96) !important;
+  --epr-category-label-bg-color: rgba(18, 24, 37, 0.96) !important;
+  --epr-hover-bg-color: rgba(255, 255, 255, 0.08) !important;
+  --epr-focus-bg-color: rgba(255, 255, 255, 0.1) !important;
+  --epr-search-input-bg-color: rgba(255, 255, 255, 0.06) !important;
+  --epr-search-input-text-color: var(--text-primary) !important;
+  --epr-text-color: var(--text-primary) !important;
+  --epr-category-icon-active-color: var(--primary) !important;
+  --epr-highlight-color: var(--primary) !important;
+  --epr-search-border-color: var(--border) !important;
+  --epr-header-padding: 8px 10px !important;
+  border: none !important;
+  font-family: var(--font-sans) !important;
+}
+
+[data-theme="light"] .emoji-picker-popover .EmojiPickerReact {
+  --epr-bg-color: rgba(255, 255, 255, 0.98) !important;
+  --epr-category-label-bg-color: rgba(255, 255, 255, 0.98) !important;
+  --epr-hover-bg-color: rgba(0, 0, 0, 0.04) !important;
+  --epr-focus-bg-color: rgba(0, 0, 0, 0.06) !important;
+  --epr-search-input-bg-color: rgba(0, 0, 0, 0.04) !important;
+  --epr-search-input-text-color: var(--text-primary) !important;
+  --epr-text-color: var(--text-primary) !important;
+}
+
+@media (max-width: 480px) {
+  .emoji-picker-popover {
+    width: 280px;
+    left: -4px;
+  }
+}
+
+/* ===== Reaction Bar ===== */
+.reaction-bar {
+  position: relative;
+}
+
+.reaction-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(18, 24, 37, 0.92);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .reaction-bar-inner {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.reaction-bar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 150ms ease, background-color 150ms ease;
+  padding: 0;
+}
+
+.reaction-bar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.2);
+}
+
+[data-theme="light"] .reaction-bar-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.reaction-bar-btn--active {
+  background: rgba(224, 122, 95, 0.2);
+}
+
+.reaction-bar-btn--plus {
+  color: var(--text-muted);
+}
+
+.reaction-bar-btn--plus:hover {
+  color: var(--text-primary);
+}
+
+.reaction-bar-emoji {
+  font-size: 20px;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+.reaction-custom-picker {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+.reaction-custom-picker .EmojiPickerReact {
+  --epr-bg-color: rgba(18, 24, 37, 0.96) !important;
+  --epr-category-label-bg-color: rgba(18, 24, 37, 0.96) !important;
+  --epr-hover-bg-color: rgba(255, 255, 255, 0.08) !important;
+  --epr-focus-bg-color: rgba(255, 255, 255, 0.1) !important;
+  --epr-search-input-bg-color: rgba(255, 255, 255, 0.06) !important;
+  --epr-search-input-text-color: var(--text-primary) !important;
+  --epr-text-color: var(--text-primary) !important;
+  --epr-category-icon-active-color: var(--primary) !important;
+  --epr-highlight-color: var(--primary) !important;
+  --epr-search-border-color: var(--border) !important;
+  border: none !important;
+  font-family: var(--font-sans) !important;
+}
+
+[data-theme="light"] .reaction-custom-picker .EmojiPickerReact {
+  --epr-bg-color: rgba(255, 255, 255, 0.98) !important;
+  --epr-category-label-bg-color: rgba(255, 255, 255, 0.98) !important;
+  --epr-hover-bg-color: rgba(0, 0, 0, 0.04) !important;
+  --epr-focus-bg-color: rgba(0, 0, 0, 0.06) !important;
+  --epr-search-input-bg-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ===== Reaction Badges ===== */
+.reaction-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.reaction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px 2px 5px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  line-height: 1;
+}
+
+[data-theme="light"] .reaction-badge {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.reaction-badge:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="light"] .reaction-badge:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.reaction-badge--mine {
+  border-color: rgba(224, 122, 95, 0.4);
+  background: rgba(224, 122, 95, 0.12);
+}
+
+[data-theme="light"] .reaction-badge--mine {
+  border-color: rgba(224, 122, 95, 0.4);
+  background: rgba(224, 122, 95, 0.1);
+}
+
+.reaction-badge-emoji {
+  font-size: 14px;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+.reaction-badge-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ===== Message Bubble Hover for Reactions ===== */
+.message-bubble {
+  position: relative;
+  cursor: default;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ===== Voice Recorder ===== */
+@keyframes recorderPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes waveformBar {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.voice-recorder-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  flex-shrink: 0;
+  animation: recorderPulse 1.2s ease-in-out infinite;
+}
+
+.voice-recorder-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.voice-recorder-bar {
+  flex: 0 0 3px;
+  width: 3px;
+  min-height: 4px;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0.6;
+  animation: waveformBar 1s ease-in-out infinite;
+}
+
+.voice-recorder-active {
+  animation: fadeIn 200ms ease both;
+}
+
+/* ===== Audio Player ===== */
+.audio-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  padding: 4px 0;
+}
+
+.audio-player-play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+
+.audio-player-play-btn:hover {
+  transform: scale(1.06);
+  opacity: 0.9;
+}
+
+.audio-player-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.audio-player-waveform-track {
+  display: flex;
+  align-items: center;
+  gap: 1.5px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.audio-player-wave-bar {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 1px;
+  transition: background-color 80ms ease;
+}
+
+.audio-player-time {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  opacity: 0.7;
+}
+
