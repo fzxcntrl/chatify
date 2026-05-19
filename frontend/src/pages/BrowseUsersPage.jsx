@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFriendStore } from "../store/useFriendStore";
-import { SearchIcon, UserPlusIcon, ArrowLeftIcon, LoaderIcon, SparklesIcon, CheckIcon, XIcon } from "lucide-react";
-import { Link } from "react-router";
+import { SearchIcon, UserPlusIcon, LoaderIcon, SparklesIcon, CheckIcon, XIcon } from "lucide-react";
 import UserProfileModal from "../components/UserProfileModal";
 
 function BrowseUsersPage() {
@@ -129,79 +128,65 @@ function BrowseUsersPage() {
   );
 
   return (
-    <div className="min-h-screen min-h-dvh p-0 sm:p-4 flex justify-center">
-      <div
-        className="h-dvh min-h-dvh w-full max-w-4xl animate-fade-in sm:h-[calc(100dvh-2rem)] sm:min-h-0 sm:max-h-[860px]"
-      >
-        <div
-          className="mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none backdrop-blur-2xl sm:rounded-lg"
-          style={{
-            background: 'var(--app-shell-bg)',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow-lg)'
-          }}
-        >
-          {/* Header */}
-          <div className="p-4 sm:p-6 border-b border-[var(--border)] flex items-center gap-4">
-            <Link to="/" className="p-2 rounded-lg transition-colors hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]">
-              <ArrowLeftIcon className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="text-xl font-semibold font-heading" style={{ color: 'var(--text-primary)' }}>Browse</h1>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover people and send requests</p>
-            </div>
+    <div className="flex-1 flex flex-col h-full w-full overflow-hidden bg-transparent">
+      <div className="flex flex-col h-full w-full max-w-4xl mx-auto border-x border-[var(--border)] bg-[var(--app-shell-bg)]">
+        {/* Header */}
+        <div className="p-4 sm:p-6 border-b border-[var(--border)] flex items-center gap-4 shrink-0">
+          <div>
+            <h1 className="text-xl font-semibold font-heading" style={{ color: 'var(--text-primary)' }}>Browse</h1>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover people and send requests</p>
           </div>
+        </div>
 
-          {/* Search */}
-          <div className="p-4 pb-2 sm:p-6 sm:pb-2">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
-              <input
-                type="text"
-                placeholder="Search by username..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm transition-all"
-                style={{
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  outline: 'none',
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-              />
-            </div>
+        {/* Search */}
+        <div className="p-4 pb-2 sm:p-6 sm:pb-2 shrink-0">
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
+            <input
+              type="text"
+              placeholder="Search by username..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-lg text-sm transition-all"
+              style={{
+                backgroundColor: 'var(--bg-input)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--border-focus)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+            />
           </div>
+        </div>
 
-          {/* Section label */}
-          {!isSearchMode && !isLoading && displayUsers.length > 0 && (
-            <div className="px-4 pt-3 pb-1 flex items-center gap-2 sm:px-6">
-              <SparklesIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                Suggested for you
-              </span>
+        {/* Section label */}
+        {!isSearchMode && !isLoading && displayUsers.length > 0 && (
+          <div className="px-4 pt-3 pb-1 flex items-center gap-2 sm:px-6 shrink-0">
+            <SparklesIcon className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+              Suggested for you
+            </span>
+          </div>
+        )}
+
+        {/* Users list */}
+        <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-3 sm:p-6 sm:pt-2">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <LoaderIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
+            </div>
+          ) : displayUsers.length > 0 ? (
+            displayUsers.map(renderUserCard)
+          ) : isSearchMode ? (
+            <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
+              No users found matching &quot;{searchQuery}&quot;
+            </div>
+          ) : (
+            <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
+              No suggestions available right now.
             </div>
           )}
-
-          {/* Users list */}
-          <div className="flex-1 overflow-y-auto p-4 pt-2 space-y-3 sm:p-6 sm:pt-2">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-32">
-                <LoaderIcon className="w-8 h-8 animate-spin" style={{ color: 'var(--primary)' }} />
-              </div>
-            ) : displayUsers.length > 0 ? (
-              displayUsers.map(renderUserCard)
-            ) : isSearchMode ? (
-              <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
-                No users found matching &quot;{searchQuery}&quot;
-              </div>
-            ) : (
-              <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
-                No suggestions available right now.
-              </div>
-            )}
-          </div>
         </div>
       </div>
 

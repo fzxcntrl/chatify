@@ -45,7 +45,7 @@ function ContactList() {
             <button
               type="button"
               className="flex flex-1 items-center gap-3 min-w-0 text-left"
-              onClick={() => setSelectedUser(contact)}
+              onClick={() => isSelected ? setSelectedUser(null) : setSelectedUser(contact)}
             >
               <div className="relative flex-shrink-0">
                 <div

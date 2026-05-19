@@ -234,7 +234,7 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
   return (
     <section
       className={joinClassNames(
-        "relative isolate flex h-screen min-h-dvh w-full items-center justify-center overflow-hidden bg-[#090A0F] text-white",
+        "relative isolate flex min-h-dvh w-full flex-col overflow-x-hidden overflow-y-auto bg-[#090A0F] text-white py-12",
         className
       )}
     >
@@ -245,7 +245,7 @@ export const ParallaxStarsBackground = memo(function ParallaxStarsBackground({
         starRgb={starRgb}
       />
 
-      <div className="relative z-20 mx-auto flex w-full max-w-[960px] flex-col items-center gap-8 px-6 py-10 text-center sm:px-10 sm:py-12">
+      <div className="relative z-20 mx-auto my-auto flex w-full max-w-[960px] flex-col items-center gap-8 px-6 text-center sm:px-10">
         <div className="parallax-stars-background__hero w-full max-w-[960px]">
           <p
             className="mb-4 text-xs font-medium uppercase tracking-[0.38em] text-white/55"

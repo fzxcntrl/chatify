@@ -9,6 +9,8 @@ import {
   storeAuthToken,
 } from "../lib/axios";
 import toast from "react-hot-toast";
+import { auth, googleProvider } from "../lib/firebase";
+import { signInWithPopup } from "firebase/auth";
 export { LOCATION_MARKERS, DEFAULT_LOCATION_MARKER } from "../lib/locationMarkers";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : API_ORIGIN;
@@ -255,6 +257,35 @@ export const useAuthStore = create((set, get) => ({
       get().connectSocket();
     } catch (error) {
       toast.error(error.response?.data?.message || "Connection failed");
+    } finally {
+      set({ isLoggingIn: false });
+    }
+  },
+
+  googleAuth: async () => {
+    try {
+      set({ isLoggingIn: true });
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      const isDefaultAvatar = user.photoURL && user.photoURL.includes('default-user');
+      const profilePicToUse = isDefaultAvatar ? "" : (user.photoURL || "");
+
+      const res = await axiosInstance.post("/auth/google", {
+        email: user.email,
+        fullName: user.displayName || "Google User",
+        profilePic: profilePicToUse,
+      });
+
+      const { token, ...authUser } = res.data;
+      storeAuthToken(token);
+      set({ authUser });
+      applyTheme(authUser.theme, authUser.chatTheme);
+      toast.success("Successfully authenticated with Google");
+      get().connectSocket();
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Google authentication failed");
     } finally {
       set({ isLoggingIn: false });
     }

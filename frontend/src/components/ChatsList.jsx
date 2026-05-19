@@ -82,7 +82,7 @@ function ChatsList() {
           >
             <button
               className="min-w-0 flex flex-1 items-center gap-3 rounded-lg p-1 text-left"
-              onClick={() => setSelectedUser(chat)}
+              onClick={() => isSelected ? setSelectedUser(null) : setSelectedUser(chat)}
             >
               <div className="relative flex-shrink-0">
                 <div

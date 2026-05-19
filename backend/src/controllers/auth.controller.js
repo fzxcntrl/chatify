@@ -285,3 +285,60 @@ export const deleteAccount = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const googleAuth = async (req, res) => {
+  const { email, fullName, profilePic } = req.body;
+
+  try {
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      
+      const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_.]/g, '');
+      let username = baseUsername;
+      if (username.length < 3) username = username + "123";
+      
+      let userExists = await User.findOne({ username });
+      let counter = 1;
+      while (userExists) {
+        username = baseUsername + counter;
+        userExists = await User.findOne({ username });
+        counter++;
+      }
+
+      user = new User({
+        fullName,
+        email: email.toLowerCase(),
+        username,
+        password: hashedPassword,
+        profilePic: profilePic || "",
+      });
+
+      await user.save();
+      sendWelcomeEmail(user.email, user.fullName, ENV.CLIENT_URL)
+        .catch((err) => console.error("❌ Failed to send welcome email:", err.message || err));
+    }
+
+    const token = generateToken(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      email: user.email,
+      profilePic: user.profilePic,
+      bio: user.bio,
+      theme: user.theme,
+      chatTheme: user.chatTheme,
+      chatBg: user.chatBg,
+      locationMarker: user.locationMarker,
+      disappearingChatsEnabled: user.disappearingChatsEnabled,
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

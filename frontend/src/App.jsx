@@ -10,6 +10,8 @@ const ChatPage = lazy(() => import("./pages/ChatPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
 const BrowseUsersPage = lazy(() => import("./pages/BrowseUsersPage"));
+const AppLayout = lazy(() => import("./layout/AppLayout"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 
 function App() {
   const { checkAuth, isCheckingAuth, authUser } = useAuthStore();
@@ -73,11 +75,14 @@ function App() {
         </>
       ) : null}
 
-      <div className="relative z-20">
+      <div className="relative z-20 h-full w-full">
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
-            <Route path="/browse" element={authUser ? <BrowseUsersPage /> : <Navigate to={"/login"} />} />
+            <Route element={authUser ? <AppLayout /> : <Navigate to={"/login"} />}>
+              <Route path="/" element={<ChatPage />} />
+              <Route path="/browse" element={<BrowseUsersPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
             <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
             <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
           </Routes>

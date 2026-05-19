@@ -18,82 +18,36 @@ function ChatPage() {
   const {
     activeTab,
     selectedUser,
-    showMapTracker,
-    setShowMapTracker,
-    showSettingsModal,
-    setShowSettingsModal,
-    showEditProfileModal,
-    setShowEditProfileModal,
   } = useChatStore();
 
   return (
-    <div className="min-h-screen min-h-dvh flex items-stretch justify-center p-0 md:p-4">
+    <div className="flex h-full w-full overflow-hidden animate-fade-in bg-transparent">
+      {/* Left List Panel */}
       <div
-        className="app-shell relative flex h-dvh min-h-dvh w-full overflow-hidden rounded-none animate-fade-in md:h-[calc(100dvh-2rem)] md:min-h-0 md:max-h-[900px] md:max-w-[1180px] md:rounded-[28px]"
-        style={{
-          maxWidth: '1180px',
-        }}
+        className={`${
+          selectedUser ? 'hidden md:flex' : 'flex'
+        } relative z-10 w-full md:w-[360px] lg:w-[380px] flex-col flex-shrink-0 border-r border-[var(--border)] bg-[var(--app-shell-sidebar-bg)] backdrop-blur-xl`}
       >
-        <div
-          className="absolute inset-0 pointer-events-none opacity-80"
-          style={{
-            background: 'var(--app-shell-highlight)',
-          }}
-        />
-
-        <div
-          className={`${
-            selectedUser ? 'hidden md:flex' : 'flex'
-          } relative z-10 w-full md:w-[360px] lg:w-[380px] flex-col flex-shrink-0 border-b md:border-b-0 md:border-r`}
-          style={{
-            borderColor: 'var(--border)',
-            backgroundColor: 'var(--app-shell-sidebar-bg)',
-            backdropFilter: 'blur(18px)',
-            WebkitBackdropFilter: 'blur(18px)',
-          }}
-        >
-          <ProfileHeader />
+        <div className="p-4 border-b border-[var(--border)]">
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Messages</h2>
           <ActiveTabSwitch />
-
-          <div className="flex-1 overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 space-y-1 sm:px-4 md:pb-4">
-            {activeTab === "chats" && <ChatsList />}
-            {activeTab === "contacts" && <ContactList />}
-            {activeTab === "requests" && <IncomingRequestsList />}
-          </div>
         </div>
 
-        <div
-          className={`${
-            selectedUser ? 'flex' : 'hidden md:flex'
-          } relative z-10 flex-1 flex-col min-w-0`}
-          style={{
-            backgroundColor: 'var(--app-shell-panel-bg)',
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
-          }}
-        >
-          {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+        <div className="flex-1 overflow-y-auto px-2 pb-4 pt-2 space-y-1">
+          {activeTab === "chats" && <ChatsList />}
+          {activeTab === "contacts" && <ContactList />}
+          {activeTab === "requests" && <IncomingRequestsList />}
         </div>
       </div>
 
-      {/* Modals rendered at page level so they overlay everything properly */}
-      {showSettingsModal && (
-        <Suspense fallback={<PageLoader />}>
-          <SettingsModal onClose={() => setShowSettingsModal(false)} />
-        </Suspense>
-      )}
-
-      {showEditProfileModal && (
-        <Suspense fallback={<PageLoader />}>
-          <EditProfileModal onClose={() => setShowEditProfileModal(false)} />
-        </Suspense>
-      )}
-
-      {showMapTracker && (
-        <Suspense fallback={<PageLoader />}>
-          <MapTrackerModal onClose={() => setShowMapTracker(false)} />
-        </Suspense>
-      )}
+      {/* Right Chat Panel */}
+      <div
+        className={`${
+          selectedUser ? 'flex' : 'hidden md:flex'
+        } relative z-10 flex-1 flex-col min-w-0 bg-[var(--app-shell-panel-bg)] backdrop-blur-xl`}
+      >
+        {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+      </div>
     </div>
   );
 }

@@ -7,13 +7,17 @@ export const getSuggestions = async (req, res) => {
   try {
     const currentUser = await User.findById(req.user._id);
 
-    const suggestions = await User.aggregate([
-      {
-        $match: {
-          _id: { $ne: currentUser._id, $nin: currentUser.friends },
-        },
-      },
-      { $sample: { size: 15 } },
+    let matchQuery = {
+      _id: { $ne: currentUser._id, $nin: currentUser.friends },
+    };
+
+    if (currentUser.friends && currentUser.friends.length > 0) {
+      matchQuery.friends = { $in: currentUser.friends };
+    }
+
+    let suggestions = await User.aggregate([
+      { $match: matchQuery },
+      { $sample: { size: 8 } },
       {
         $project: {
           username: 1,
@@ -23,6 +27,27 @@ export const getSuggestions = async (req, res) => {
         },
       },
     ]);
+
+    if (suggestions.length < 8) {
+      const existingIds = suggestions.map((s) => s._id);
+      const randomSuggestions = await User.aggregate([
+        {
+          $match: {
+            _id: { $ne: currentUser._id, $nin: [...currentUser.friends, ...existingIds] },
+          },
+        },
+        { $sample: { size: 8 - suggestions.length } },
+        {
+          $project: {
+            username: 1,
+            fullName: 1,
+            profilePic: 1,
+            bio: 1,
+          },
+        },
+      ]);
+      suggestions = [...suggestions, ...randomSuggestions];
+    }
 
 
     const suggestionsWithStatus = await Promise.all(
@@ -60,8 +85,12 @@ export const searchUsers = async (req, res) => {
     const currentUser = await User.findById(req.user._id);
 
 
+    const regexQuery = new RegExp(query, "i");
     const users = await User.find({
-      username: { $regex: new RegExp(query, "i") },
+      $or: [
+        { username: { $regex: regexQuery } },
+        { fullName: { $regex: regexQuery } }
+      ],
       _id: { $ne: req.user._id, $nin: currentUser.friends },
     }).select("username fullName profilePic bio");
 
