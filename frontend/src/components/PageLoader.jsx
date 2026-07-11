@@ -22,7 +22,7 @@ function PageLoader() {
           </svg>
         </div>
       </div>
-      <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Loading your workspace…</p>
+      <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Loading your chats…</p>
     </div>
   );
 }
